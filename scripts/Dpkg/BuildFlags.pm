@@ -24,6 +24,8 @@ use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::BuildEnv;
 use Dpkg::BuildOptions;
+use Dpkg::BuildProfiles qw(get_build_profiles);
+use Dpkg::Control::Info;
 use Dpkg::ErrorHandling;
 use Dpkg::Vendor qw(run_vendor_hook);
 
@@ -166,6 +168,40 @@ sub load_environment_config {
     }
 }
 
+=item $bf->load_eosapp_config()
+
+Update flags for eos-app build profiles.
+
+=cut
+
+sub load_eosapp_config {
+    my ($self) = @_;
+    my @build_profiles = get_build_profiles();
+
+    if ("eos-app" ~~ @build_profiles) {
+        my $control = Dpkg::Control::Info->new();
+        my $mainpackage = $control->get_pkg_by_idx(1);
+        my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
+        my $app_prefix = "/endless/" . $app_id;
+
+        # Header search path
+        my $includepath = $app_prefix . '/include';
+        $self->append('CPPFLAGS', '-I' . $includepath, 'eos-app');
+        $self->append('CFLAGS', '-I' . $includepath, 'eos-app');
+        $self->append('CXXFLAGS', '-I' . $includepath, 'eos-app');
+
+        # Library search and run path
+        my $libpath = $app_prefix . '/lib';
+        if ($ENV{DEB_HOST_MULTIARCH}) {
+            my $archlibpath = $libpath . '/' . $ENV{DEB_HOST_MULTIARCH};
+            $self->append('LDFLAGS', '-L' . $archlibpath, 'eos-app');
+            $self->append('LDFLAGS', '-Wl,-rpath,' . $archlibpath, 'eos-app');
+        }
+        $self->append('LDFLAGS', '-L' . $libpath, 'eos-app');
+        $self->append('LDFLAGS', '-Wl,-rpath,' . $libpath, 'eos-app');
+    }
+}
+
 =item $bf->load_maintainer_config()
 
 Update flags based on maintainer directives stored in the environment. See
@@ -199,8 +235,9 @@ sub load_maintainer_config {
 =item $bf->load_config()
 
 Call successively load_system_config(), load_user_config(),
-load_environment_config() and load_maintainer_config() to update the
-default build flags defined by the vendor.
+load_environment_config(), load_eosapp_config and
+load_maintainer_config() to update the default build flags defined by
+the vendor.
 
 =cut
 
@@ -209,6 +246,7 @@ sub load_config {
     $self->load_system_config();
     $self->load_user_config();
     $self->load_environment_config();
+    $self->load_eosapp_config();
     $self->load_maintainer_config();
 }
 

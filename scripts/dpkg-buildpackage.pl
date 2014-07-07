@@ -32,11 +32,12 @@ use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::BuildOptions;
-use Dpkg::BuildProfiles qw(set_build_profiles);
+use Dpkg::BuildProfiles qw(set_build_profiles get_build_profiles);
 use Dpkg::Compression;
 use Dpkg::Checksums;
 use Dpkg::Version;
 use Dpkg::Control;
+use Dpkg::Control::Info;
 use Dpkg::Changelog::Parse;
 use Dpkg::Path qw(find_command);
 use Dpkg::IPC;
@@ -420,6 +421,28 @@ if (not $signcommand) {
 
 if ($signsource && build_binaryonly) {
     $signsource = 0;
+}
+
+# Add to default search paths for eos-app profiles
+@build_profiles = get_build_profiles();
+if ("eos-app" ~~ @build_profiles) {
+    my $control = Dpkg::Control::Info->new();
+    my $mainpackage = $control->get_pkg_by_idx(1);
+    my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
+    my $app_prefix = "/endless/" . $app_id;
+
+    # PATH
+    $ENV{PATH} = $app_prefix . "/bin:" . $ENV{PATH};
+
+    # PKG_CONFIG_PATH
+    my $app_pc_path = $app_prefix . "/lib/$ENV{DEB_HOST_MULTIARCH}/pkgconfig:" .
+                      $app_prefix . "/lib/pkgconfig:" .
+                      $app_prefix . "/share/pkgconfig";
+    if ($ENV{PKG_CONFIG_PATH}) {
+        $ENV{PKG_CONFIG_PATH} = $app_pc_path . ":" . $ENV{PKG_CONFIG_PATH};
+    } else {
+        $ENV{PKG_CONFIG_PATH} = $app_pc_path;
+    }
 }
 
 #

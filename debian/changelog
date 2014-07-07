@@ -1,3 +1,16 @@
+dpkg (1.17.9endless1) eos; urgency=low
+
+  * scripts/dpkg-buildpackage.pl:
+    - Prepend app prefix to PATH and PKG_CONFIG_PATH for eos-app build
+      profiles.
+  * scripts/Dpkg/BuildFlags.pm:
+    - Append header search path to CPPFLAGS/CFLAGS/CXXFLAGS for eos-app
+      build profiles.
+    - Append library search and run path to LDFLAGS for eos-app build
+      profiles.
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Mon, 07 Jul 2014 13:25:04 -0700
+
 dpkg (1.17.9) unstable; urgency=high
 
   [ Guillem Jover ]
