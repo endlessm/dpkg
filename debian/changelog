@@ -1,3 +1,10 @@
+dpkg (1.17.9endless2) eos; urgency=low
+
+  * scripts/dpkg-buildpackage.pl:
+    - Prepend app python site directories to PYTHONPATH for eos-app.
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Wed, 09 Jul 2014 15:14:06 -0700
+
 dpkg (1.17.9endless1) eos; urgency=low
 
   * scripts/dpkg-buildpackage.pl:

@@ -443,6 +443,17 @@ if ("eos-app" ~~ @build_profiles) {
     } else {
         $ENV{PKG_CONFIG_PATH} = $app_pc_path;
     }
+
+    # PYTHONPATH - Look for both python2 and python3 dist- and site-packages.
+    my @pydirs = glob "${app_prefix}/lib/python*/{dist,site}-packages";
+    for my $dir (@pydirs) {
+        next if not -d $dir;
+        if ($ENV{PYTHONPATH}) {
+            $ENV{PYTHONPATH} = $dir . ':' . $ENV{PYTHONPATH};
+        } else {
+            $ENV{PYTHONPATH} = $dir;
+        }
+    }
 }
 
 #
