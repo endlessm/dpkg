@@ -1,3 +1,10 @@
+dpkg (1.17.9endless3) eos; urgency=low
+
+  * scripts/dpkg-buildpackage.pl:
+    - Set DEB_PREFIX in the environment to be usable in rules.
+
+ -- Dan Nicholson <nicholson@endlessm.com>  Thu, 10 Jul 2014 15:20:31 -0700
+
 dpkg (1.17.9endless2) eos; urgency=low
 
   * scripts/dpkg-buildpackage.pl:

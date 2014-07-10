@@ -423,21 +423,26 @@ if ($signsource && build_binaryonly) {
     $signsource = 0;
 }
 
-# Add to default search paths for eos-app profiles
+# Determine prefix for the environment
+my $prefix = '/usr';
 @build_profiles = get_build_profiles();
 if ("eos-app" ~~ @build_profiles) {
     my $control = Dpkg::Control::Info->new();
     my $mainpackage = $control->get_pkg_by_idx(1);
     my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
-    my $app_prefix = "/endless/" . $app_id;
+    $prefix = "/endless/" . $app_id;
+}
+$ENV{DEB_PREFIX} = $prefix;
 
+# Add to default search paths for eos-app profiles
+if ("eos-app" ~~ @build_profiles) {
     # PATH
-    $ENV{PATH} = $app_prefix . "/bin:" . $ENV{PATH};
+    $ENV{PATH} = $prefix . "/bin:" . $ENV{PATH};
 
     # PKG_CONFIG_PATH
-    my $app_pc_path = $app_prefix . "/lib/$ENV{DEB_HOST_MULTIARCH}/pkgconfig:" .
-                      $app_prefix . "/lib/pkgconfig:" .
-                      $app_prefix . "/share/pkgconfig";
+    my $app_pc_path = $prefix . "/lib/$ENV{DEB_HOST_MULTIARCH}/pkgconfig:" .
+                      $prefix . "/lib/pkgconfig:" .
+                      $prefix . "/share/pkgconfig";
     if ($ENV{PKG_CONFIG_PATH}) {
         $ENV{PKG_CONFIG_PATH} = $app_pc_path . ":" . $ENV{PKG_CONFIG_PATH};
     } else {
@@ -445,7 +450,7 @@ if ("eos-app" ~~ @build_profiles) {
     }
 
     # PYTHONPATH - Look for both python2 and python3 dist- and site-packages.
-    my @pydirs = glob "${app_prefix}/lib/python*/{dist,site}-packages";
+    my @pydirs = glob "${prefix}/lib/python*/{dist,site}-packages";
     for my $dir (@pydirs) {
         next if not -d $dir;
         if ($ENV{PYTHONPATH}) {
