@@ -28,6 +28,7 @@ EXTRA_DIST = \
 	.mailmap \
 	ChangeLog.old \
 	README.l10n \
+	autogen.sh \
 	get-version \
 	run-script \
 	doc/README.api \
