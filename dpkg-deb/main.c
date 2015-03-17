@@ -3,7 +3,7 @@
  * main.c - main program
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2006-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ usage(const struct cmdinfo *cip, const char *value)
 "  -X|--vextract <deb> <directory>  Extract & list files.\n"
 "  -R|--raw-extract <deb> <directory>\n"
 "                                   Extract control info and files.\n"
+"  --ctrl-tarfile <deb>             Output control tarfile.\n"
 "  --fsys-tarfile <deb>             Output filesystem tarfile.\n"
 "\n"));
 
@@ -183,7 +184,7 @@ set_deb_new(const struct cmdinfo *cip, const char *value)
 
 struct compress_params compress_params = {
   .type = DPKG_DEB_DEFAULT_COMPRESSOR,
-  .strategy = compressor_strategy_none,
+  .strategy = COMPRESSOR_STRATEGY_NONE,
   .level = -1,
 };
 
@@ -194,7 +195,7 @@ set_compress_level(const struct cmdinfo *cip, const char *value)
 
   level = dpkg_options_parse_arg_int(cip, value);
   if (level < 0 || level > 9)
-    badusage(_("invalid compression level for -%c: %ld'"), cip->oshort, level);
+    badusage(_("invalid compression level for -%c: %ld"), cip->oshort, level);
 
   compress_params.level = level;
 }
@@ -203,7 +204,7 @@ static void
 set_compress_strategy(const struct cmdinfo *cip, const char *value)
 {
   compress_params.strategy = compressor_get_strategy(value);
-  if (compress_params.strategy == compressor_strategy_unknown)
+  if (compress_params.strategy == COMPRESSOR_STRATEGY_UNKNOWN)
     ohshit(_("unknown compression strategy '%s'!"), value);
 }
 
@@ -211,11 +212,11 @@ static void
 set_compress_type(const struct cmdinfo *cip, const char *value)
 {
   compress_params.type = compressor_find_by_name(value);
-  if (compress_params.type == compressor_type_unknown)
+  if (compress_params.type == COMPRESSOR_TYPE_UNKNOWN)
     ohshit(_("unknown compression type `%s'!"), value);
-  if (compress_params.type == compressor_type_lzma)
+  if (compress_params.type == COMPRESSOR_TYPE_LZMA)
     warning(_("deprecated compression type '%s'; use xz instead"), value);
-  if (compress_params.type == compressor_type_bzip2)
+  if (compress_params.type == COMPRESSOR_TYPE_BZIP2)
     warning(_("deprecated compression type '%s'; use xz or gzip instead"), value);
 }
 
@@ -228,6 +229,7 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION("extract",       'x', 0, do_extract),
   ACTION("vextract",      'X', 0, do_vextract),
   ACTION("raw-extract",   'R', 0, do_raw_extract),
+  ACTION("ctrl-tarfile",  0,   0, do_ctrltarfile),
   ACTION("fsys-tarfile",  0,   0, do_fsystarfile),
   ACTION("show",          'W', 0, do_showinfo),
 
@@ -261,9 +263,9 @@ int main(int argc, const char *const *argv) {
     badusage(_("invalid compressor parameters: %s"), err.str);
 
   if (opt_uniform_compression &&
-      (compress_params.type != compressor_type_none &&
-       compress_params.type != compressor_type_gzip &&
-       compress_params.type != compressor_type_xz))
+      (compress_params.type != COMPRESSOR_TYPE_NONE &&
+       compress_params.type != COMPRESSOR_TYPE_GZIP &&
+       compress_params.type != COMPRESSOR_TYPE_XZ))
     badusage(_("unsupported compression type '%s' with uniform compression"),
              compressor_get_name(compress_params.type));
 

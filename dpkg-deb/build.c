@@ -4,7 +4,7 @@
  *
  * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
  * Copyright © 2000,2001 Wichert Akkerman <wakkerma@debian.org>
- * Copyright © 2007-2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,8 +121,6 @@ file_info_get(const char *root, int fd)
       break;
 
     varbuf_trunc(&fn, fn.used + 1);
-    if (fn.used >= MAXFILENAME)
-      ohshit(_("file name '%.50s...' is too long"), fn.buf + root_len);
   }
 
   fi = file_info_new(fn.buf + root_len);
@@ -207,7 +205,7 @@ file_treewalk_feed(const char *dir, int fd_out)
   }
 
   close(pipefd[0]);
-  subproc_wait_check(pid, "find", 0);
+  subproc_reap(pid, "find", 0);
 
   for (fi = symlist; fi; fi = fi->next)
     if (fd_write(fd_out, fi->fn, strlen(fi->fn) + 1) < 0)
@@ -332,36 +330,6 @@ check_conffiles(const char *dir)
   fclose(cf);
 }
 
-static const char *arbitrary_fields[] = {
-  "Built-For-Profiles",
-  "Built-Using",
-  "Package-Type",
-  "Subarchitecture",
-  "Kernel-Version",
-  "Installer-Menu-Item",
-  "Homepage",
-  "Tag",
-  NULL
-};
-
-static const char private_prefix[] = "Private-";
-
-static bool
-known_arbitrary_field(const struct arbitraryfield *field)
-{
-  const char **known;
-
-  /* Always accept fields starting with a private field prefix. */
-  if (strncasecmp(field->name, private_prefix, strlen(private_prefix)) == 0)
-    return true;
-
-  for (known = arbitrary_fields; *known; known++)
-    if (strcasecmp(field->name, *known) == 0)
-      return true;
-
-  return false;
-}
-
 /**
  * Perform some sanity checks on the to-be-built package.
  *
@@ -371,7 +339,6 @@ static struct pkginfo *
 check_new_pkg(const char *dir)
 {
   struct pkginfo *pkg;
-  struct arbitraryfield *field;
   char *controlfile;
   int warns;
 
@@ -382,16 +349,9 @@ check_new_pkg(const char *dir)
   if (strspn(pkg->set->name, "abcdefghijklmnopqrstuvwxyz0123456789+-.") !=
       strlen(pkg->set->name))
     ohshit(_("package name has characters that aren't lowercase alphanums or `-+.'"));
-  if (pkg->priority == pri_other)
+  if (pkg->priority == PKG_PRIO_OTHER)
     warning(_("'%s' contains user-defined Priority value '%s'"),
             controlfile, pkg->otherpriority);
-  for (field = pkg->available.arbs; field; field = field->next) {
-    if (known_arbitrary_field(field))
-      continue;
-
-    warning(_("'%s' contains user-defined field '%s'"), controlfile,
-            field->name);
-  }
 
   free(controlfile);
 
@@ -419,7 +379,7 @@ pkg_get_pathname(const char *dir, struct pkginfo *pkg)
   const char *versionstring, *arch_sep;
 
   versionstring = versiondescribe(&pkg->available.version, vdew_never);
-  arch_sep = pkg->available.arch->type == arch_none ? "" : "_";
+  arch_sep = pkg->available.arch->type == DPKG_ARCH_NONE ? "" : "_";
   m_asprintf(&path, "%s/%s_%s%s%s%s", dir, pkg->set->name, versionstring,
              arch_sep, pkg->available.arch->name, DEBEXT);
 
@@ -521,8 +481,8 @@ do_build(const char *const *argv)
   if (opt_uniform_compression) {
     control_compress_params = compress_params;
   } else {
-    control_compress_params.type = compressor_type_gzip;
-    control_compress_params.strategy = compressor_strategy_none;
+    control_compress_params.type = COMPRESSOR_TYPE_GZIP;
+    control_compress_params.strategy = COMPRESSOR_STRATEGY_NONE;
     control_compress_params.level = -1;
   }
 
@@ -532,8 +492,8 @@ do_build(const char *const *argv)
     exit(0);
   }
   close(p1[0]);
-  subproc_wait_check(c2, "gzip -9c", 0);
-  subproc_wait_check(c1, "tar -cf", 0);
+  subproc_reap(c2, "gzip -9c", 0);
+  subproc_reap(c1, "tar -cf", 0);
 
   if (lseek(gzfd, 0, SEEK_SET))
     ohshite(_("failed to rewind temporary file (%s)"), _("control member"));
@@ -620,8 +580,8 @@ do_build(const char *const *argv)
 
   /* All done, clean up wait for tar and gzip to finish their job. */
   close(p1[1]);
-  subproc_wait_check(c2, _("<compress> from tar -cf"), 0);
-  subproc_wait_check(c1, "tar -cf", 0);
+  subproc_reap(c2, _("<compress> from tar -cf"), 0);
+  subproc_reap(c1, "tar -cf", 0);
   /* Okay, we have data.tar as well now, add it to the ar wrapper. */
   if (deb_format.major == 2) {
     char datamember[16 + 1];

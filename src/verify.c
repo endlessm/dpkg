@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * verify.c - verify package integrity
  *
- * Copyright © 2012 Guillem Jover <guillem@debian.org>
+ * Copyright © 2012-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@
 #include <dpkg/i18n.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
-#include <dpkg/pkg-spec.h>
 #include <dpkg/options.h>
 
 #include "filesdb.h"
@@ -82,15 +81,15 @@ verify_output_rpm(struct filenamenode *namenode, struct verify_checks *checks)
 
 static verify_output_func *verify_output = verify_output_rpm;
 
-int
+bool
 verify_set_output(const char *name)
 {
 	if (strcmp(name, "rpm") == 0)
 		verify_output = verify_output_rpm;
 	else
-		return 1;
+		return false;
 
-	return 0;
+	return true;
 }
 
 static void
@@ -150,14 +149,8 @@ verify(const char *const *argv)
 		const char *thisarg;
 
 		while ((thisarg = *argv++)) {
-			struct dpkg_error err;
-
-			pkg = pkg_spec_parse_pkg(thisarg, &err);
-			if (pkg == NULL)
-				badusage(_("--%s needs a valid package name but '%.250s' is not: %s"),
-				         cipaction->olong, thisarg, err.str);
-
-			if (pkg->status == stat_notinstalled) {
+			pkg = dpkg_options_parse_pkgname(cipaction, thisarg);
+			if (pkg->status == PKG_STAT_NOTINSTALLED) {
 				notice(_("package '%s' is not installed"),
 				       pkg_name(pkg, pnaw_nonambig));
 				rc = 1;

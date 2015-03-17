@@ -43,7 +43,7 @@ This module provides an object that can generate and manipulate
 various file checksums as well as some methods to query information
 about supported checksums.
 
-=head1 EXPORTED FUNCTIONS
+=head1 FUNCTIONS
 
 =over 4
 
@@ -164,7 +164,7 @@ sub add_from_file {
     my $key = exists $opts{key} ? $opts{key} : $file;
     my @alg;
     if (exists $opts{checksums}) {
-	push @alg, map { lc($_) } @{$opts{checksums}};
+	push @alg, map { lc } @{$opts{checksums}};
     } else {
 	push @alg, checksums_get_list();
     }
@@ -255,7 +255,7 @@ is false.
 
 sub add_from_control {
     my ($self, $control, %opts) = @_;
-    $opts{use_files_for_md5} = 0 unless exists $opts{use_files_for_md5};
+    $opts{use_files_for_md5} //= 0;
     foreach my $alg (checksums_get_list()) {
 	my $key = "Checksums-$alg";
 	$key = 'Files' if ($opts{use_files_for_md5} and $alg eq 'md5');
@@ -364,7 +364,7 @@ $control object.
 
 sub export_to_control {
     my ($self, $control, %opts) = @_;
-    $opts{use_files_for_md5} = 0 unless exists $opts{use_files_for_md5};
+    $opts{use_files_for_md5} //= 0;
     foreach my $alg (checksums_get_list()) {
 	my $key = "Checksums-$alg";
 	$key = 'Files' if ($opts{use_files_for_md5} and $alg eq 'md5');
@@ -382,6 +382,10 @@ New argument: Accept an options argument in $ck->export_to_string().
 
 New option: Accept new option 'update' in $ck->add_from_file() and
 $ck->add_from_control().
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =head1 AUTHOR
 

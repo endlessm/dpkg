@@ -138,7 +138,7 @@ use Dpkg::ErrorHandling;
 
 sub new {
     my $this = shift;
-    my $file = shift || '';
+    my $file = shift // '';
     my $class = ref($this) || $this;
     my $self = {};
     bless $self, $class;
@@ -191,7 +191,7 @@ sub parse_objdump_output {
     my ($self, $fh) = @_;
 
     my $section = 'none';
-    while (defined($_ = <$fh>)) {
+    while (<$fh>) {
 	chomp;
 	next if /^\s*$/;
 
@@ -237,10 +237,12 @@ sub parse_objdump_output {
                 # RUNPATH takes precedence over RPATH but is
                 # considered after LD_LIBRARY_PATH while RPATH
                 # is considered before (if RUNPATH is not set).
-                $self->{RPATH} = [ split (/:/, $1) ];
+                my $runpath = $1;
+                $self->{RPATH} = [ split /:/, $runpath ];
 	    } elsif (/^\s*RPATH\s+(\S+)/) {
+                my $rpath = $1;
                 unless (scalar(@{$self->{RPATH}})) {
-                    $self->{RPATH} = [ split (/:/, $1) ];
+                    $self->{RPATH} = [ split /:/, $rpath ];
                 }
 	    }
 	} elsif ($section eq 'none') {

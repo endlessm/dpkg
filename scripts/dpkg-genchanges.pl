@@ -31,7 +31,8 @@ use Dpkg::Util qw(:list);
 use Dpkg::File;
 use Dpkg::Checksums;
 use Dpkg::ErrorHandling;
-use Dpkg::BuildProfiles qw(get_build_profiles);
+use Dpkg::BuildProfiles qw(get_build_profiles parse_build_profiles
+                           evaluate_restriction_formula);
 use Dpkg::Arch qw(get_host_arch debarch_eq debarch_is);
 use Dpkg::Compression;
 use Dpkg::Control::Info;
@@ -53,6 +54,7 @@ my $uploadfilesdir = '..';
 my $sourcestyle = 'i';
 my $quiet = 0;
 my $host_arch = get_host_arch();
+my @profiles = get_build_profiles();
 my $changes_format = '1.8';
 
 my %p2f;           # - package to file map, has entries for "packagename"
@@ -69,7 +71,6 @@ my %remove;        # - fields to remove
 my %override;
 my %archadded;
 my @archvalues;
-my $dsc;
 my $changesdescription;
 my $forcemaint;
 my $forcechangedby;
@@ -77,17 +78,18 @@ my $since;
 
 my $substvars_loaded = 0;
 my $substvars = Dpkg::Substvars->new();
-$substvars->set('Format', $changes_format);
+$substvars->set_as_auto('Format', $changes_format);
 
 use constant BUILD_SOURCE     => 1;
 use constant BUILD_ARCH_DEP   => 2;
 use constant BUILD_ARCH_INDEP => 4;
 use constant BUILD_BINARY     => BUILD_ARCH_DEP | BUILD_ARCH_INDEP;
+use constant BUILD_SOURCE_DEP => BUILD_SOURCE | BUILD_ARCH_DEP;
+use constant BUILD_SOURCE_INDEP => BUILD_SOURCE | BUILD_ARCH_INDEP;
 use constant BUILD_ALL        => BUILD_BINARY | BUILD_SOURCE;
 my $include = BUILD_ALL;
 
-sub is_sourceonly() { return $include == BUILD_SOURCE; }
-sub is_binaryonly() { return !($include & BUILD_SOURCE); }
+sub build_is_default() { return ($include & BUILD_ALL) == BUILD_ALL; }
 sub build_opt {
     if ($include == BUILD_BINARY) {
        return '-b';
@@ -97,9 +99,22 @@ sub build_opt {
         return '-A';
     } elsif ($include == BUILD_SOURCE) {
         return '-S';
+    } elsif ($include == BUILD_SOURCE_DEP) {
+        return '-G';
+    } elsif ($include == BUILD_SOURCE_INDEP) {
+        return '-g';
     } else {
         croak "build_opt called with include=$include";
     }
+}
+
+sub set_build_type
+{
+    my ($build_type, $build_option) = @_;
+
+    usageerr(_g('cannot combine %s and %s'), build_opt(), $build_option)
+        if not build_is_default and $include != $build_type;
+    $include = $build_type;
 }
 
 sub version {
@@ -116,10 +131,12 @@ sub usage {
 'Usage: %s [<option>...]')
     . "\n\n" . _g(
 "Options:
-  -b                       binary-only build - no source files.
-  -B                       arch-specific - no source or arch-indep files.
-  -A                       only arch-indep - no source or arch-specific files.
-  -S                       source-only upload.
+  -g                       source and arch-indep build.
+  -G                       source and arch-specific build.
+  -b                       binary-only, no source files.
+  -B                       binary-only, only arch-specific files.
+  -A                       binary-only, only arch-indep files.
+  -S                       source-only, no binary files.
   -c<control-file>         get control info from this file.
   -l<changelog-file>       get per-version info from this file.
   -f<files-list-file>      get .deb files list from this file.
@@ -128,8 +145,8 @@ sub usage {
   -m<maintainer>           override control's maintainer value.
   -e<maintainer>           override changelog's maintainer value.
   -u<upload-files-dir>     directory with files (default is '..').
-  -si (default)            src includes orig if new upstream.
-  -sa                      source includes orig src.
+  -si (default)            source includes orig, if new upstream.
+  -sa                      source includes orig, always.
   -sd                      source is diff and .dsc only.
   -q                       quiet - no informational messages on stderr.
   -F<changelog-format>     force changelog format.
@@ -146,23 +163,17 @@ sub usage {
 while (@ARGV) {
     $_=shift(@ARGV);
     if (m/^-b$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if is_sourceonly;
-	$include = BUILD_BINARY;
+	set_build_type(BUILD_BINARY, $_);
     } elsif (m/^-B$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if is_sourceonly;
-	$include = BUILD_ARCH_DEP;
-	printf { *STDERR } _g('%s: arch-specific upload - not including arch-independent packages') . "\n", $Dpkg::PROGNAME;
+	set_build_type(BUILD_ARCH_DEP, $_);
     } elsif (m/^-A$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if is_sourceonly;
-	$include = BUILD_ARCH_INDEP;
-	printf { *STDERR } _g('%s: arch-indep upload - not including arch-specific packages') . "\n", $Dpkg::PROGNAME;
+	set_build_type(BUILD_ARCH_INDEP, $_);
     } elsif (m/^-S$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if is_binaryonly;
-	$include = BUILD_SOURCE;
+	set_build_type(BUILD_SOURCE, $_);
+    } elsif (m/^-G$/) {
+	set_build_type(BUILD_SOURCE_DEP, $_);
+    } elsif (m/^-g$/) {
+	set_build_type(BUILD_SOURCE_INDEP, $_);
     } elsif (m/^-s([iad])$/) {
         $sourcestyle= $1;
     } elsif (m/^-q$/) {
@@ -194,7 +205,7 @@ while (@ARGV) {
         $remove{$1} = 1;
     } elsif (m/^-V(\w[-:0-9A-Za-z]*)[=:](.*)$/s) {
 	$substvars->set($1, $2);
-    } elsif (m/^-(\?|-help)$/) {
+    } elsif (m/^-(?:\?|-help)$/) {
 	usage();
 	exit(0);
     } elsif (m/^--version$/) {
@@ -237,9 +248,82 @@ if (defined($prev_changelog) and
         unless $changelog->{'Version'} =~ /~(?:bpo|vola)/;
 }
 
-my $dist = Dpkg::Dist::Files->new();
+# Scan control info of source package
+my $src_fields = $control->get_source();
+foreach (keys %{$src_fields}) {
+    my $v = $src_fields->{$_};
+    if (m/^Source$/) {
+        set_source_package($v);
+    } elsif (m/^Section$|^Priority$/i) {
+        $sourcedefault{$_} = $v;
+    } else {
+        field_transfer_single($src_fields, $fields);
+    }
+}
 
-if (not is_sourceonly) {
+my $dist = Dpkg::Dist::Files->new();
+my $origsrcmsg;
+
+if ($include & BUILD_SOURCE) {
+    my $sec = $sourcedefault{'Section'} // '-';
+    my $pri = $sourcedefault{'Priority'} // '-';
+    warning(_g('missing Section for source files')) if $sec eq '-';
+    warning(_g('missing Priority for source files')) if $pri eq '-';
+
+    my $spackage = get_source_package();
+    (my $sversion = $substvars->get('source:Version')) =~ s/^\d+://;
+
+    my $dsc = "${spackage}_${sversion}.dsc";
+    my $dsc_pathname = "$uploadfilesdir/$dsc";
+    my $dsc_fields = Dpkg::Control->new(type => CTRL_PKG_SRC);
+    $dsc_fields->load($dsc_pathname) or error(_g('%s is empty', $dsc_pathname));
+    $checksums->add_from_file($dsc_pathname, key => $dsc);
+    $checksums->add_from_control($dsc_fields, use_files_for_md5 => 1);
+
+    # Compare upstream version to previous upstream version to decide if
+    # the .orig tarballs must be included
+    my $include_tarball;
+    if (defined($prev_changelog)) {
+        my $cur = Dpkg::Version->new($changelog->{'Version'});
+        my $prev = Dpkg::Version->new($prev_changelog->{'Version'});
+        $include_tarball = ($cur->version() ne $prev->version()) ? 1 : 0;
+    } else {
+        # No previous entry means first upload, tarball required
+        $include_tarball = 1;
+    }
+
+    my $ext = compression_get_file_extension_regex();
+    if ((($sourcestyle =~ m/i/ && !$include_tarball) ||
+         $sourcestyle =~ m/d/) &&
+        any { m/\.(?:debian\.tar|diff)\.$ext$/ } $checksums->get_files())
+    {
+        $origsrcmsg = _g('not including original source code in upload');
+        foreach my $f (grep { m/\.orig(-.+)?\.tar\.$ext$/ } $checksums->get_files()) {
+            $checksums->remove_file($f);
+        }
+    } else {
+        if ($sourcestyle =~ m/d/ &&
+            none { m/\.(?:debian\.tar|diff)\.$ext$/ } $checksums->get_files()) {
+            warning(_g('ignoring -sd option for native Debian package'));
+        }
+        $origsrcmsg = _g('including full source code in upload');
+    }
+
+    # Only add attributes for files being distributed.
+    for my $f ($checksums->get_files()) {
+        $dist->add_file($f, $sec, $pri);
+    }
+} elsif ($include == BUILD_ARCH_DEP) {
+    $origsrcmsg = _g('binary-only arch-specific upload ' .
+                     '(source code and arch-indep packages not included)');
+} elsif ($include == BUILD_ARCH_INDEP) {
+    $origsrcmsg = _g('binary-only arch-indep upload ' .
+                     '(source code and arch-specific packages not included)');
+} else {
+    $origsrcmsg = _g('binary-only upload (no source code included)');
+}
+
+if ($include & BUILD_BINARY) {
     my $dist_count = 0;
 
     $dist_count = $dist->load($fileslistfile) if -e $fileslistfile;
@@ -249,7 +333,7 @@ if (not is_sourceonly) {
 
     foreach my $file ($dist->get_files()) {
         if (defined $file->{package} && $file->{package_type} =~ m/^u?deb$/) {
-            $p2f{$file->{package}} ||= [];
+            $p2f{$file->{package}} //= [];
             push @{$p2f{$file->{package}}}, $file->{filename};
         }
 
@@ -260,23 +344,11 @@ if (not is_sourceonly) {
     }
 }
 
-# Scan control info of source package
-my $src_fields = $control->get_source();
-foreach (keys %{$src_fields}) {
-    my $v = $src_fields->{$_};
-    if (m/^Source$/) {
-	set_source_package($v);
-    } elsif (m/^Section$|^Priority$/i) {
-	$sourcedefault{$_} = $v;
-    } else {
-        field_transfer_single($src_fields, $fields);
-    }
-}
-
 # Scan control info of all binary packages
 foreach my $pkg ($control->get_packages()) {
     my $p = $pkg->{'Package'};
-    my $a = $pkg->{'Architecture'} || '';
+    my $a = $pkg->{'Architecture'} // '';
+    my $bp = $pkg->{'Build-Profiles'};
     my $d = $pkg->{'Description'} || 'no description available';
     $d = $1 if $d =~ /^(.*)\n/;
     my $pkg_type = $pkg->{'Package-Type'} ||
@@ -290,11 +362,17 @@ foreach my $pkg ($control->get_packages()) {
     $desc .= ' (udeb)' if $pkg_type eq 'udeb';
     push @descriptions, $desc;
 
+    my @restrictions;
+    @restrictions = parse_build_profiles($bp) if defined $bp;
+
     if (not defined($p2f{$p})) {
 	# No files for this package... warn if it's unexpected
-	if ((debarch_eq('all', $a) and ($include & BUILD_ARCH_INDEP)) ||
+	if (((debarch_eq('all', $a) and ($include & BUILD_ARCH_INDEP)) ||
 	    ((any { debarch_is($host_arch, $_) } split /\s+/, $a)
-		  and ($include & BUILD_ARCH_DEP))) {
+		  and ($include & BUILD_ARCH_DEP))) and
+	    (@restrictions == 0 or
+	     evaluate_restriction_formula(\@restrictions, \@profiles)))
+	{
 	    warning(_g('package %s in control file but not in files list'),
 		    $p);
 	}
@@ -356,10 +434,8 @@ for my $p (keys %p2f) {
     foreach my $f (@f) {
 	my $file = $dist->get_file($f);
 
-	my $sec = $f2seccf{$f};
-	$sec ||= $sourcedefault{'Section'};
-	if (!defined($sec)) {
-	    $sec = '-';
+	my $sec = $f2seccf{$f} || $sourcedefault{'Section'} // '-';
+	if ($sec eq '-') {
 	    warning(_g("missing Section for binary package %s; using '-'"), $p);
 	}
 	if ($sec ne $file->{section}) {
@@ -367,10 +443,8 @@ for my $p (keys %p2f) {
 	             'files list'), $p, $sec, $file->{section});
 	}
 
-	my $pri = $f2pricf{$f};
-	$pri ||= $sourcedefault{'Priority'};
-	if (!defined($pri)) {
-	    $pri = '-';
+	my $pri = $f2pricf{$f} || $sourcedefault{'Priority'} // '-';
+	if ($pri eq '-') {
 	    warning(_g("missing Priority for binary package %s; using '-'"), $p);
 	}
 	if ($pri ne $file->{priority}) {
@@ -378,66 +452,6 @@ for my $p (keys %p2f) {
 	             'files list'), $p, $pri, $file->{priority});
 	}
     }
-}
-
-my $origsrcmsg;
-
-if (!is_binaryonly) {
-    my $sec = $sourcedefault{'Section'};
-    if (!defined($sec)) {
-	$sec = '-';
-	warning(_g('missing Section for source files'));
-    }
-    my $pri = $sourcedefault{'Priority'};
-    if (!defined($pri)) {
-	$pri = '-';
-	warning(_g('missing Priority for source files'));
-    }
-
-    my $spackage = get_source_package();
-    (my $sversion = $substvars->get('source:Version')) =~ s/^\d+://;
-    $dsc= "$uploadfilesdir/${spackage}_${sversion}.dsc";
-
-    my $dsc_fields = Dpkg::Control->new(type => CTRL_PKG_SRC);
-    $dsc_fields->load($dsc) or error(_g('%s is empty', $dsc));
-    $checksums->add_from_file($dsc, key => "$spackage\_$sversion.dsc");
-    $checksums->add_from_control($dsc_fields, use_files_for_md5 => 1);
-
-    # Compare upstream version to previous upstream version to decide if
-    # the .orig tarballs must be included
-    my $include_tarball;
-    if (defined($prev_changelog)) {
-	my $cur = Dpkg::Version->new($changelog->{'Version'});
-	my $prev = Dpkg::Version->new($prev_changelog->{'Version'});
-	$include_tarball = ($cur->version() ne $prev->version()) ? 1 : 0;
-    } else {
-	# No previous entry means first upload, tarball required
-	$include_tarball = 1;
-    }
-
-    my $ext = compression_get_file_extension_regex();
-    if ((($sourcestyle =~ m/i/ && !$include_tarball) ||
-	 $sourcestyle =~ m/d/) &&
-	any { m/\.(debian\.tar|diff)\.$ext$/ } $checksums->get_files())
-    {
-	$origsrcmsg= _g('not including original source code in upload');
-	foreach my $f (grep { m/\.orig(-.+)?\.tar\.$ext$/ } $checksums->get_files()) {
-	    $checksums->remove_file($f);
-	}
-    } else {
-	if ($sourcestyle =~ m/d/ &&
-	    none { m/\.(debian\.tar|diff)\.$ext$/ } $checksums->get_files()) {
-	    warning(_g('ignoring -sd option for native Debian package'));
-	}
-        $origsrcmsg= _g('including full source code in upload');
-    }
-
-    # Only add attributes for files being distributed.
-    for my $f ($checksums->get_files()) {
-        $dist->add_file($f, $sec, $pri);
-    }
-} else {
-    $origsrcmsg= _g('binary-only upload - not including any source code');
 }
 
 print { *STDERR } "$Dpkg::PROGNAME: $origsrcmsg\n"
@@ -457,10 +471,12 @@ if (length($fields->{'Binary'}) > 980) {
     $fields->{'Binary'} =~ s/(.{0,980}) /$1\n/g;
 }
 
-unshift @archvalues, 'source' unless is_binaryonly;
+unshift @archvalues, 'source' if $include & BUILD_SOURCE;
 @archvalues = ('all') if $include == BUILD_ARCH_INDEP;
 @archvalues = grep { !debarch_eq('all', $_) } @archvalues
     unless $include & BUILD_ARCH_INDEP;
+@archvalues = grep { !debarch_eq($host_arch, $_) } @archvalues
+    unless $include & BUILD_ARCH_DEP;
 $fields->{'Architecture'} = join ' ', @archvalues;
 
 $fields->{'Built-For-Profiles'} = join ' ', get_build_profiles();
@@ -475,11 +491,10 @@ for my $file ($dist->get_files()) {
     if (defined $file->{package}) {
         my $arch_all = debarch_eq('all', $p2arch{$file->{package}});
 
-        next if ($include == BUILD_ARCH_DEP and $arch_all);
-        next if ($include == BUILD_ARCH_INDEP and not $arch_all);
+        next if (not ($include & BUILD_ARCH_INDEP) and $arch_all);
+        next if (not ($include & BUILD_ARCH_DEP) and not $arch_all);
     }
-    my $uf = "$uploadfilesdir/$f";
-    $checksums->add_from_file($uf, key => $f);
+    $checksums->add_from_file("$uploadfilesdir/$f", key => $f);
     $fields->{'Files'} .= "\n" . $checksums->get_checksum($f, 'md5') .
 			  ' ' . $checksums->get_size($f) .
 			  " $file->{section} $file->{priority} $f";

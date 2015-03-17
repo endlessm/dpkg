@@ -4,7 +4,7 @@
 #
 # Copyright © 1996 Ian Jackson
 # Copyright © 2000 Wichert Akkerman
-# Copyright © 2006-2010,2012-2013 Guillem Jover <guillem@debian.org>
+# Copyright © 2006-2010,2012-2014 Guillem Jover <guillem@debian.org>
 # Copyright © 2007 Frank Lichtenheld
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,9 @@ use warnings;
 
 use Carp;
 use Cwd;
+use File::Temp qw(tempdir);
 use File::Basename;
+use File::Copy;
 use POSIX qw(:sys_wait_h);
 
 use Dpkg ();
@@ -59,8 +61,10 @@ sub usage {
     . "\n\n" . _g(
 'Options:
   -F (default)   normal full build (binaries and sources).
-  -b             binary-only, do not build source.
-  -B             binary-only, no arch-indep files.
+  -g             source and arch-indep build.
+  -G             source and arch-specific build.
+  -b             binary-only, no source files.
+  -B             binary-only, only arch-specific files.
   -A             binary-only, only arch-indep files.
   -S             source-only, no binary files.
   -nc            do not clean source tree (implies -b).
@@ -97,13 +101,15 @@ sub usage {
       --version  show the version.')
     . "\n\n" . _g(
 'Options passed to dpkg-architecture:
-  -a<arch>       Debian architecture we build for.
-  -t<system>     set GNU system type.')
+  -a, --host-arch <arch>    set the host Debian architecture.
+  -t, --host-type <type>    set the host GNU system type.
+      --target-arch <arch>  set the target Debian architecture.
+      --target-type <type>  set the target GNU system type.')
     . "\n\n" . _g(
 'Options passed to dpkg-genchanges:
-  -si (default)  source includes orig if new upstream.
-  -sa            uploaded source always includes orig.
-  -sd            uploaded source is diff and .dsc only.
+  -si (default)  source includes orig, if new upstream.
+  -sa            source includes orig, always.
+  -sd            source is diff and .dsc only.
   -v<version>    changes since version <version>.
   -m<maint>      maintainer for package is <maint>.
   -e<maint>      maintainer for release is <maint>.
@@ -131,7 +137,6 @@ my $noclean;
 my $cleansource;
 my $parallel;
 my $checkbuilddep = 1;
-my @checkbuilddep_opts;
 my @source_opts;
 my $check_command = $ENV{DEB_CHECK_COMMAND};
 my @check_opts;
@@ -143,8 +148,10 @@ my $signsource = 1;
 my $signchanges = 1;
 my $buildtarget = 'build';
 my $binarytarget = 'binary';
-my $targetarch = '';
-my $targetgnusystem = '';
+my $host_arch = '';
+my $host_type = '';
+my $target_arch = '';
+my $target_type = '';
 my @build_profiles = ();
 my $call_target = '';
 my $call_target_as_root = 0;
@@ -164,10 +171,12 @@ use constant BUILD_SOURCE     => 2;
 use constant BUILD_ARCH_DEP   => 4;
 use constant BUILD_ARCH_INDEP => 8;
 use constant BUILD_BINARY     => BUILD_ARCH_DEP | BUILD_ARCH_INDEP;
+use constant BUILD_SOURCE_DEP => BUILD_SOURCE | BUILD_ARCH_DEP;
+use constant BUILD_SOURCE_INDEP => BUILD_SOURCE | BUILD_ARCH_INDEP;
 use constant BUILD_ALL        => BUILD_BINARY | BUILD_SOURCE;
 my $include = BUILD_ALL | BUILD_DEFAULT;
 
-sub build_normal() { return ($include & BUILD_ALL) == BUILD_ALL; }
+sub build_is_default() { return $include & BUILD_DEFAULT; }
 sub build_sourceonly() { return $include == BUILD_SOURCE; }
 sub build_binaryonly() { return !($include & BUILD_SOURCE); }
 sub build_binaryindep() { return ($include == BUILD_ARCH_INDEP); }
@@ -180,21 +189,36 @@ sub build_opt {
         return '-A';
     } elsif ($include == BUILD_SOURCE) {
         return '-S';
+    } elsif ($include == BUILD_SOURCE_DEP) {
+        return '-G';
+    } elsif ($include == BUILD_SOURCE_INDEP) {
+        return '-g';
     } else {
         croak "build_opt called with include=$include";
     }
+}
+
+sub set_build_type
+{
+    my ($build_type, $build_option) = @_;
+
+    usageerr(_g('cannot combine %s and %s'), build_opt(), $build_option)
+        if not build_is_default and $include != $build_type;
+    $include = $build_type;
 }
 
 my $build_opts = Dpkg::BuildOptions->new();
 
 if ($build_opts->has('nocheck')) {
     $check_command = undef;
+} elsif (not find_command($check_command)) {
+    $check_command = undef;
 }
 
 while (@ARGV) {
     $_ = shift @ARGV;
 
-    if (/^(--help|-\?)$/) {
+    if (/^(?:--help|-\?)$/) {
 	usage;
 	exit 0;
     } elsif (/^--version$/) {
@@ -208,10 +232,11 @@ while (@ARGV) {
 	push @source_opts, $1;
     } elsif (/^--changes-option=(.*)$/) {
 	push @changes_opts, $1;
-    } elsif (/^-j(\d*)$/) {
+    } elsif (/^-j(\d*|auto)$/) {
 	$parallel = $1 || '';
     } elsif (/^-r(.*)$/) {
-	@rootcommand = split /\s+/, $1;
+	my $arg = $1;
+	@rootcommand = split /\s+/, $arg;
     } elsif (/^--check-command=(.*)$/) {
 	$check_command = $1;
     } elsif (/^--check-option=(.*)$/) {
@@ -240,61 +265,59 @@ while (@ARGV) {
 	$signchanges = 0;
     } elsif (/^-ap$/) {
 	$signpause = 1;
-    } elsif (/^-a(.*)$/) {
-	$targetarch = $1;
+    } elsif (/^-a$/ or /^--host-arch$/) {
+	$host_arch = shift;
+    } elsif (/^-a(.*)$/ or /^--host-arch=(.*)$/) {
+	$host_arch = $1;
     } elsif (/^-P(.*)$/) {
-	@build_profiles = split /,/, $1;
+	my $arg = $1;
+	@build_profiles = split /,/, $arg;
     } elsif (/^-s[iad]$/) {
 	push @changes_opts, $_;
     } elsif (/^-(?:s[insAkurKUR]|[zZ].*|i.*|I.*)$/) {
 	push @source_opts, $_; # passed to dpkg-source
     } elsif (/^-tc$/) {
 	$cleansource = 1;
-    } elsif (/^-t(.*)$/) {
-	$targetgnusystem = $1; # Order DOES matter!
-    } elsif (/^(--target|-T)$/) {
+    } elsif (/^-t$/ or /^--host-type$/) {
+	$host_type = shift; # Order DOES matter!
+    } elsif (/^-t(.*)$/ or /^--host-type=(.*)$/) {
+	$host_type = $1; # Order DOES matter!
+    } elsif (/^--target-arch$/) {
+	$target_arch = shift;
+    } elsif (/^--target-arch=(.*)$/) {
+	$target_arch = $1;
+    } elsif (/^--target-type$/) {
+	$target_type = shift;
+    } elsif (/^--target-type=(.*)$/) {
+	$target_type = $1;
+    } elsif (/^(?:--target|-T)$/) {
         $call_target = shift @ARGV;
-    } elsif (/^(--target=|-T)(.+)$/) {
-        $call_target = $2;
+    } elsif (/^(?:--target=|-T)(.+)$/) {
+        $call_target = $1;
     } elsif (/^--as-root$/) {
         $call_target_as_root = 1;
     } elsif (/^-nc$/) {
 	$noclean = 1;
     } elsif (/^-b$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if build_sourceonly;
-	$include = BUILD_BINARY;
+	set_build_type(BUILD_BINARY, $_);
 	push @changes_opts, '-b';
-	@checkbuilddep_opts = ();
-	$buildtarget = 'build';
-	$binarytarget = 'binary';
     } elsif (/^-B$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if build_sourceonly;
-	$include = BUILD_ARCH_DEP;
+	set_build_type(BUILD_ARCH_DEP, $_);
 	push @changes_opts, '-B';
-	@checkbuilddep_opts = qw(-B);
-	$buildtarget = 'build-arch';
-	$binarytarget = 'binary-arch';
     } elsif (/^-A$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if build_sourceonly;
-	$include = BUILD_ARCH_INDEP;
+	set_build_type(BUILD_ARCH_INDEP, $_);
 	push @changes_opts, '-A';
-	@checkbuilddep_opts = qw(-A);
-	$buildtarget = 'build-indep';
-	$binarytarget = 'binary-indep';
     } elsif (/^-S$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if build_binaryonly;
-	$include = BUILD_SOURCE;
+	set_build_type(BUILD_SOURCE, $_);
 	push @changes_opts, '-S';
-	@checkbuilddep_opts = qw(-A -B);
+    } elsif (/^-G$/) {
+	set_build_type(BUILD_SOURCE_DEP, $_);
+	push @changes_opts, '-G';
+    } elsif (/^-g$/) {
+	set_build_type(BUILD_SOURCE_INDEP, $_);
+	push @changes_opts, '-g';
     } elsif (/^-F$/) {
-	usageerr(_g('cannot combine %s and %s'), build_opt(), $_)
-	    if not build_normal;
-	$include = BUILD_ALL;
-	@checkbuilddep_opts = ();
+	set_build_type(BUILD_ALL, $_);
     } elsif (/^-v(.*)$/) {
 	$since = $1;
     } elsif (/^-m(.*)$/) {
@@ -307,15 +330,27 @@ while (@ARGV) {
 	# Deprecated option
 	warning(_g('-E and -W are deprecated, they are without effect'));
     } elsif (/^-R(.*)$/) {
-	@debian_rules = split /\s+/, $1;
+	my $arg = $1;
+	@debian_rules = split /\s+/, $arg;
     } else {
 	usageerr(_g('unknown option or argument %s'), $_);
     }
 }
 
+if (($include & BUILD_BINARY) == BUILD_BINARY) {
+    $buildtarget = 'build';
+    $binarytarget = 'binary';
+} elsif ($include & BUILD_ARCH_DEP) {
+    $buildtarget = 'build-arch';
+    $binarytarget = 'binary-arch';
+} elsif ($include & BUILD_ARCH_INDEP) {
+    $buildtarget = 'build-indep';
+    $binarytarget = 'binary-indep';
+}
+
 if ($noclean) {
     # -nc without -b/-B/-A/-S/-F implies -b
-    $include = BUILD_BINARY if ($include & BUILD_DEFAULT);
+    $include = BUILD_BINARY if build_is_default;
 }
 
 if ($< == 0) {
@@ -352,8 +387,15 @@ if ($signcommand) {
 }
 
 if (defined $parallel) {
+    if ($parallel eq 'auto') {
+        # Most Unices.
+        $parallel = qx(getconf _NPROCESSORS_ONLN 2>/dev/null);
+        # Fallback for at least Irix.
+        $parallel = qx(getconf _NPROC_ONLN 2>/dev/null) if $?;
+        chomp $parallel;
+    }
     $parallel = $build_opts->get('parallel') if $build_opts->has('parallel');
-    $ENV{MAKEFLAGS} ||= '';
+    $ENV{MAKEFLAGS} //= '';
     $ENV{MAKEFLAGS} .= " -j$parallel";
     $build_opts->set('parallel', $parallel);
     $build_opts->export();
@@ -386,9 +428,16 @@ if ($changedby) {
     $maintainer = mustsetvar($changelog->{maintainer}, _g('source changed by'));
 }
 
-open my $arch_env, '-|', 'dpkg-architecture', "-a$targetarch",
-    "-t$targetgnusystem", '-f' or subprocerr('dpkg-architecture');
-while ($_ = <$arch_env>) {
+
+my @arch_opts;
+push @arch_opts, ('--host-arch', $host_arch) if $host_arch;
+push @arch_opts, ('--host-type', $host_type) if $host_type;
+push @arch_opts, ('--target-arch', $target_arch) if $target_arch;
+push @arch_opts, ('--target-type', $target_type) if $target_type;
+
+open my $arch_env, '-|', 'dpkg-architecture', '-f', @arch_opts
+    or subprocerr('dpkg-architecture');
+while (<$arch_env>) {
     chomp;
     my ($key, $value) = split /=/, $_, 2;
     $ENV{$key} = $value;
@@ -479,6 +528,10 @@ unless ($call_target) {
 }
 
 if ($checkbuilddep) {
+    my @checkbuilddep_opts;
+
+    push @checkbuilddep_opts, '-A' if ($include & BUILD_ARCH_DEP) == 0;
+    push @checkbuilddep_opts, '-B' if ($include & BUILD_ARCH_INDEP) == 0;
     push @checkbuilddep_opts, "--admindir=$admindir" if $admindir;
 
     system('dpkg-checkbuilddeps', @checkbuilddep_opts);
@@ -656,29 +709,45 @@ sub run_hook {
         'u' => $uversion,
     );
 
-    $cmd =~ s/\%(.)/exists $hook_vars{$1} ? $hook_vars{$1} :
-        (warning(_g('unknown %% substitution in hook: %%%s'), $1), "\%$1")/eg;
+    my $subst_hook_var = sub {
+        my ($var) = @_;
+
+        if (exists $hook_vars{$var}) {
+            return $hook_vars{$var};
+        } else {
+            warning(_g('unknown %% substitution in hook: %%%s'), $var);
+            return "\%$var";
+        }
+    };
+
+    $cmd =~ s/\%(.)/&$subst_hook_var($1)/eg;
 
     withecho($cmd);
 }
 
 sub signfile {
     my ($file) = @_;
-    print { *STDERR } " signfile $file\n";
-    my $qfile = quotemeta($file);
 
-    system("(cat ../$qfile ; echo '') | " .
-           "$signcommand --utf8-strings --local-user " .
-           quotemeta($signkey || $maintainer) .
-           " --clearsign --armor --textmode  > ../$qfile.asc");
+    print { *STDERR } " signfile $file\n";
+
+    my $signdir = tempdir('dpkg-sign.XXXXXXXX', CLEANUP => 1);
+    my $signfile = "$signdir/$file";
+
+    # Make sure the file to sign ends with a newline.
+    copy("../$file", $signfile);
+    open my $signfh, '>>', $signfile or syserr(_g('cannot open %s'), $signfile);
+    print { $signfh } "\n";
+    close $signfh or syserr(_g('cannot close %s'), $signfile);
+
+    system($signcommand, '--utf8-strings', '--textmode', '--armor',
+           '--local-user', $signkey || $maintainer, '--clearsign',
+           '--output', "$signfile.asc", $signfile);
     my $status = $?;
-    unless ($status) {
-	system('mv', '--', "../$file.asc", "../$file")
+    if ($status == 0) {
+	system('mv', '--', "$signfile.asc", "../$file")
 	    and subprocerr('mv');
-    } else {
-	system('rm', '-f', "../$file.asc")
-	    and subprocerr('rm -f');
     }
+
     print "\n";
     return $status
 }

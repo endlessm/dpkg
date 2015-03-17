@@ -10,13 +10,13 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
 LDADD = \
-	../lib/dpkg/libdpkg.a \
-	../lib/compat/libcompat.a \
+	../lib/dpkg/libdpkg.la \
 	$(LIBINTL)
 
 
 EXTRA_DIST = \
-	$(test_cases)
+	$(test_scripts) \
+	$(nil)
 
 bin_PROGRAMS = \
 	dpkg \
@@ -90,7 +90,7 @@ install-data-local:
 
 test_tmpdir = t.tmp
 
-test_cases = \
+test_scripts = \
 	t/dpkg_divert.t
 
 include $(top_srcdir)/check.am

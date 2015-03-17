@@ -88,8 +88,7 @@ sub symbol_is_blacklisted {
 }
 
 sub new {
-    my $this = shift;
-    my %opts=@_;
+    my ($this, %opts) = @_;
     my $class = ref($this) || $this;
     my $self = \%opts;
     bless $self, $class;
@@ -177,9 +176,7 @@ sub add_symbol {
 
     if ($symbol->is_pattern()) {
 	if (my $alias_type = $symbol->get_alias_type()) {
-	    unless (exists $object->{patterns}{aliases}{$alias_type}) {
-		$object->{patterns}{aliases}{$alias_type} = {};
-	    }
+	    $object->{patterns}{aliases}{$alias_type} //= {};
 	    # Alias hash for matching.
 	    my $aliases = $object->{patterns}{aliases}{$alias_type};
 	    $aliases->{$symbol->get_symbolname()} = $symbol;
@@ -218,8 +215,8 @@ sub parse {
         $$obj_ref = undef;
     }
 
-    while (defined($_ = <$fh>)) {
-	chomp($_);
+    while (<$fh>) {
+	chomp;
 
 	if (/^(?:\s+|#(?:DEPRECATED|MISSING): ([^#]+)#\s*)(.*)/) {
 	    if (not defined ($$obj_ref)) {
@@ -282,9 +279,9 @@ sub merge_object_from_symfile {
 
 sub output {
     my ($self, $fh, %opts) = @_;
-    $opts{template_mode} = 0 unless exists $opts{template_mode};
-    $opts{with_deprecated} = 1 unless exists $opts{with_deprecated};
-    $opts{with_pattern_matches} = 0 unless exists $opts{with_pattern_matches};
+    $opts{template_mode} //= 0;
+    $opts{with_deprecated} //= 1;
+    $opts{with_pattern_matches} //= 0;
     my $res = '';
     foreach my $soname (sort $self->get_sonames()) {
 	my @deps = $self->get_dependencies($soname);

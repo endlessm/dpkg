@@ -46,7 +46,7 @@ vendors who are providing Debian packages. Currently those files look like
 this:
 
   Vendor: Debian
-  Vendor-URL: http://www.debian.org/
+  Vendor-URL: https://www.debian.org/
   Bugs: debbugs://bugs.debian.org
 
 If the vendor derives from another vendor, the file should document
@@ -187,6 +187,10 @@ sub run_vendor_hook {
 =head2 Version 1.01
 
 New function: get_vendor_dir().
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =cut
 

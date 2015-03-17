@@ -83,7 +83,7 @@ my $regex = join '|', map { $_->{file_ext} } values %$COMP;
 our $compression_re_file_ext = qr/(?:$regex)/;
 ## use critic
 
-=head1 EXPORTED FUNCTIONS
+=head1 FUNCTIONS
 
 =over 4
 
@@ -106,7 +106,9 @@ known and supported.
 =cut
 
 sub compression_is_supported {
-    return exists $COMP->{$_[0]};
+    my $comp = shift;
+
+    return exists $COMP->{$comp};
 }
 
 =item compression_get_property($comp, $property)
@@ -234,6 +236,10 @@ and $compression_re_file_ext
 =head2 Version 1.01
 
 Default compression level is not global any more, it is per compressor type.
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =head1 AUTHOR
 

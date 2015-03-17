@@ -73,7 +73,7 @@ are:
 
 =item allow_pgp
 
-Configures the parser to accept PGP signatures around the control
+Configures the parser to accept OpenPGP signatures around the control
 information. Value can be 0 (default) or 1.
 
 =item allow_duplicate
@@ -197,21 +197,22 @@ sub parse {
 
     while (<$fh>) {
 	s/\s*\n$//;
-	next if (m/^$/ and $paraborder);
+	next if length == 0 and $paraborder;
 	next if (m/^#/);
 	$paraborder = 0;
 	if (m/^(\S+?)\s*:\s*(.*)$/) {
 	    $parabody = 1;
-	    if ($1 =~ m/^-/) {
+	    my ($name, $value) = ($1, $2);
+	    if ($name =~ m/^-/) {
 		$self->parse_error($desc, _g('field cannot start with a hyphen'));
 	    }
-	    if (exists $self->{$1}) {
+	    if (exists $self->{$name}) {
 		unless ($$self->{allow_duplicate}) {
-		    $self->parse_error($desc, _g('duplicate field %s found'), $1);
+		    $self->parse_error($desc, _g('duplicate field %s found'), $name);
 		}
 	    }
-	    $self->{$1} = $2;
-	    $cf = $1;
+	    $self->{$name} = $value;
+	    $cf = $name;
 	} elsif (m/^\s(\s*\S.*)$/) {
 	    my $line = $1;
 	    unless (defined($cf)) {
@@ -224,33 +225,33 @@ sub parse {
 	} elsif (m/^-----BEGIN PGP SIGNED MESSAGE-----$/) {
 	    $expect_pgp_sig = 1;
 	    if ($$self->{allow_pgp} and not $parabody) {
-		# Skip PGP headers
+		# Skip OpenPGP headers
 		while (<$fh>) {
 		    last if m/^\s*$/;
 		}
 	    } else {
-		$self->parse_error($desc, _g('PGP signature not allowed here'));
+		$self->parse_error($desc, _g('OpenPGP signature not allowed here'));
 	    }
-	} elsif (m/^$/ || ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE-----$/)) {
+	} elsif (length == 0 || ($expect_pgp_sig && m/^-----BEGIN PGP SIGNATURE-----$/)) {
 	    if ($expect_pgp_sig) {
 		# Skip empty lines
-		$_ = <$fh> while defined($_) && $_ =~ /^\s*$/;
-		unless (length $_) {
-		    $self->parse_error($desc, _g('expected PGP signature, ' .
+		$_ = <$fh> while defined && m/^\s*$/;
+		unless (length) {
+		    $self->parse_error($desc, _g('expected OpenPGP signature, ' .
 		                                 'found EOF after blank line'));
 		}
 		s/\s*\n$//;
 		unless (m/^-----BEGIN PGP SIGNATURE-----$/) {
-		    $self->parse_error($desc, _g('expected PGP signature, ' .
+		    $self->parse_error($desc, _g('expected OpenPGP signature, ' .
 		                                 "found something else \`%s'"), $_);
                 }
-		# Skip PGP signature
+		# Skip OpenPGP signature
 		while (<$fh>) {
 		    s/\s*\n$//;
 		    last if m/^-----END PGP SIGNATURE-----$/;
 		}
-		unless (defined($_)) {
-		    $self->parse_error($desc, _g('unfinished PGP signature'));
+		unless (defined) {
+		    $self->parse_error($desc, _g('unfinished OpenPGP signature'));
                 }
 		# This does not mean the signature is correct, that needs to
 		# be verified by gnupg.
@@ -264,7 +265,7 @@ sub parse {
     }
 
     if ($expect_pgp_sig and not $$self->{is_pgp_signed}) {
-	$self->parse_error($desc, _g('unfinished PGP signature'));
+	$self->parse_error($desc, _g('unfinished OpenPGP signature'));
     }
 
     return defined($cf);
@@ -348,22 +349,25 @@ sub output {
             # Skip whitespace-only fields
             next if $$self->{drop_empty} and $value !~ m/\S/;
 	    # Escape data to follow control file syntax
-	    my @lines = split(/\n/, $value);
-	    $value = (scalar @lines) ? shift @lines : '';
+	    my ($first_line, @lines) = split /\n/, $value;
+
+	    my $kv = "$key:";
+	    $kv .= ' ' . $first_line if length $first_line;
+	    $kv .= "\n";
 	    foreach (@lines) {
 		s/\s+$//;
-		if (/^$/ or /^\.+$/) {
-		    $value .= "\n .$_";
+		if (length == 0 or /^\.+$/) {
+		    $kv .= " .$_\n";
 		} else {
-		    $value .= "\n $_";
+		    $kv .= " $_\n";
 		}
 	    }
 	    # Print it out
             if ($fh) {
-	        print { $fh } "$key: $value\n"
+	        print { $fh } $kv
 	            or syserr(_g('write error on control data'));
             }
-	    $str .= "$key: $value\n" if defined wantarray;
+	    $str .= $kv if defined wantarray;
 	}
     }
     return $str;
@@ -393,7 +397,7 @@ sub apply_substvars {
 
     # Add substvars to refer to other fields
     foreach my $f (keys %$self) {
-        $substvars->set_as_used("F:$f", $self->{$f});
+        $substvars->set_as_auto("F:$f", $self->{$f});
     }
 
     foreach my $f (keys %$self) {
@@ -496,7 +500,7 @@ sub DELETE {
     $key = lc($key);
     if (exists $self->[0]->{$key}) {
 	delete $self->[0]->{$key};
-	@$in_order = grep { lc($_) ne $key } @$in_order;
+	@{$in_order} = grep { lc ne $key } @{$in_order};
 	return 1;
     } else {
 	return 0;
@@ -506,8 +510,8 @@ sub DELETE {
 sub FIRSTKEY {
     my $self = shift;
     my $parent = $self->[1];
-    foreach (@{$parent->{in_order}}) {
-	return $_ if exists $self->[0]->{lc($_)};
+    foreach my $key (@{$parent->{in_order}}) {
+	return $key if exists $self->[0]->{lc $key};
     }
 }
 
@@ -515,11 +519,11 @@ sub NEXTKEY {
     my ($self, $last) = @_;
     my $parent = $self->[1];
     my $found = 0;
-    foreach (@{$parent->{in_order}}) {
+    foreach my $key (@{$parent->{in_order}}) {
 	if ($found) {
-	    return $_ if exists $self->[0]->{lc($_)};
+	    return $key if exists $self->[0]->{lc $key};
 	} else {
-	    $found = 1 if $_ eq $last;
+	    $found = 1 if $key eq $last;
 	}
     }
     return;
@@ -533,7 +537,11 @@ sub NEXTKEY {
 
 =head2 Version 1.01
 
-New method: parse_error().
+New method: $c->parse_error().
+
+=head2 Version 1.00
+
+Mark the module as public.
 
 =head1 AUTHOR
 

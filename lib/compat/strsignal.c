@@ -24,9 +24,11 @@
 #include <stdio.h>
 #include <gettext.h>
 
+#include "compat.h"
+
 #define _(str) gettext(str)
 
-#ifndef HAVE_DECL_SYS_SIGLIST
+#if !HAVE_DECL_SYS_SIGLIST
 const char *const sys_siglist[] = {
 	NULL,		/* 0 */
 	"SIGHUP",	/* 1 */

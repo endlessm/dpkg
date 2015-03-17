@@ -33,6 +33,7 @@ action_func do_field;
 action_func do_extract;
 action_func do_vextract;
 action_func do_raw_extract;
+action_func do_ctrltarfile;
 action_func do_fsystarfile;
 
 extern int opt_verbose;
@@ -73,9 +74,6 @@ extern struct compress_params compress_params;
 #define DEBMAGIC		"debian-binary"
 #define ADMINMEMBER		"control.tar"
 #define DATAMEMBER		"data.tar"
-
-#define MAXFILENAME 2048
-#define MAXFIELDNAME 200
 
 #ifdef PATH_MAX
 # define INTERPRETER_MAX PATH_MAX

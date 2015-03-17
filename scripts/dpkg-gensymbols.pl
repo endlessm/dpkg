@@ -93,8 +93,8 @@ sub usage {
 my @files;
 while (@ARGV) {
     $_ = shift(@ARGV);
-    if (m/^-p/) {
-	$oppackage = $';
+    if (m/^-p/p) {
+	$oppackage = ${^POSTMATCH};
 	my $err = pkg_name_is_illegal($oppackage);
 	error(_g("illegal package name '%s': %s"), $oppackage, $err) if $err;
     } elsif (m/^-c(\d)?$/) {
@@ -130,7 +130,7 @@ while (@ARGV) {
 	$verbose_output = 1;
     } elsif (m/^-a(.+)$/) {
 	$host_arch = $1;
-    } elsif (m/^-(\?|-help)$/) {
+    } elsif (m/^-(?:\?|-help)$/) {
 	usage();
 	exit(0);
     } elsif (m/^--version$/) {
@@ -195,7 +195,7 @@ if (not scalar @files) {
 	opendir(my $libdir_dh, "$libdir")
 	    or syserr(_g("can't read directory %s: %s"), $libdir, $!);
 	push @files, grep {
-	    /(\.so\.|\.so$)/ && -f $_ &&
+	    /(\.so\.|\.so$)/ && -f &&
 	    Dpkg::Shlibs::Objdump::is_elf($_);
 	} map { "$libdir/$_" } readdir($libdir_dh);
 	closedir $libdir_dh;

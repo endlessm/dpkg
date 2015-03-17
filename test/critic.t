@@ -41,6 +41,7 @@ my @policies = qw(
     BuiltinFunctions::ProhibitStringySplit
     BuiltinFunctions::ProhibitUniversalCan
     BuiltinFunctions::ProhibitUniversalIsa
+    BuiltinFunctions::ProhibitUselessTopic
     BuiltinFunctions::ProhibitVoidGrep
     BuiltinFunctions::ProhibitVoidMap
     BuiltinFunctions::RequireBlockGrep
@@ -56,6 +57,7 @@ my @policies = qw(
     CodeLayout::RequireConsistentNewlines
     ControlStructures::ProhibitCStyleForLoops
     ControlStructures::ProhibitLabelsWithSpecialBlockNames
+    ControlStructures::ProhibitMutatingListFunctions
     ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions
     ControlStructures::ProhibitUntilBlocks
     Documentation::RequirePackageMatchesPodName
@@ -79,7 +81,10 @@ my @policies = qw(
     Modules::RequireFilenameMatchesPackage
     NamingConventions::Capitalization
     Objects::ProhibitIndirectSyntax
+    RegularExpressions::ProhibitSingleCharAlternation
+    RegularExpressions::ProhibitUnusedCapture
     RegularExpressions::ProhibitUnusualDelimiters
+    RegularExpressions::ProhibitUselessTopic
     RegularExpressions::RequireBracesForMultiline
     Subroutines::ProhibitExplicitReturnUndef
     Subroutines::ProhibitNestedSubs
@@ -88,6 +93,7 @@ my @policies = qw(
     Subroutines::ProtectPrivateSubs
     TestingAndDebugging::ProhibitNoStrict
     TestingAndDebugging::ProhibitNoWarnings
+    TestingAndDebugging::RequireTestLabels
     TestingAndDebugging::RequireUseStrict
     TestingAndDebugging::RequireUseWarnings
     ValuesAndExpressions::ProhibitCommaSeparatedStatements
@@ -106,6 +112,7 @@ my @policies = qw(
     Variables::ProhibitAugmentedAssignmentInDeclaration
     Variables::ProhibitConditionalDeclarations
     Variables::ProhibitLocalVars
+    Variables::ProhibitMatchVars
     Variables::ProhibitPackageVars
     Variables::ProhibitPerl4PackageNames
     Variables::ProhibitUnusedVariables

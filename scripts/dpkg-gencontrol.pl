@@ -97,40 +97,40 @@ sub usage {
 
 while (@ARGV) {
     $_=shift(@ARGV);
-    if (m/^-p/) {
-        $oppackage = $';
+    if (m/^-p/p) {
+        $oppackage = ${^POSTMATCH};
         my $err = pkg_name_is_illegal($oppackage);
         error(_g("illegal package name '%s': %s"), $oppackage, $err) if $err;
-    } elsif (m/^-c/) {
-        $controlfile= $';
-    } elsif (m/^-l/) {
-        $changelogfile= $';
-    } elsif (m/^-P/) {
-        $packagebuilddir= $';
-    } elsif (m/^-f/) {
-        $fileslistfile= $';
+    } elsif (m/^-c/p) {
+        $controlfile = ${^POSTMATCH};
+    } elsif (m/^-l/p) {
+        $changelogfile = ${^POSTMATCH};
+    } elsif (m/^-P/p) {
+        $packagebuilddir = ${^POSTMATCH};
+    } elsif (m/^-f/p) {
+        $fileslistfile = ${^POSTMATCH};
     } elsif (m/^-v(.+)$/) {
         $forceversion= $1;
     } elsif (m/^-O$/) {
         $stdout= 1;
     } elsif (m/^-O(.+)$/) {
         $outputfile = $1;
-    } elsif (m/^-i[sp][sp]?$/) {
-	# ignored for backwards compatibility
+    } elsif (m/^-i([sp][sp]?)$/) {
+        warning(_g('-i%s is deprecated; it is without effect'), $1);
     } elsif (m/^-F([0-9a-z]+)$/) {
         $changelogformat=$1;
-    } elsif (m/^-D([^\=:]+)[=:]/) {
-        $override{$1}= $';
+    } elsif (m/^-D([^\=:]+)[=:]/p) {
+        $override{$1} = ${^POSTMATCH};
     } elsif (m/^-U([^\=:]+)$/) {
         $remove{$1}= 1;
-    } elsif (m/^-V(\w[-:0-9A-Za-z]*)[=:]/) {
-        $substvars->set_as_used($1, $');
+    } elsif (m/^-V(\w[-:0-9A-Za-z]*)[=:]/p) {
+        $substvars->set_as_used($1, ${^POSTMATCH});
     } elsif (m/^-T(.*)$/) {
 	$substvars->load($1) if -e $1;
 	$substvars_loaded = 1;
-    } elsif (m/^-n/) {
-        $forcefilename= $';
-    } elsif (m/^-(\?|-help)$/) {
+    } elsif (m/^-n/p) {
+        $forcefilename = ${^POSTMATCH};
+    } elsif (m/^-(?:\?|-help)$/) {
         usage();
         exit(0);
     } elsif (m/^--version$/) {
@@ -353,11 +353,11 @@ if (!defined($substvars->get('Installed-Size'))) {
     if ($duo !~ m/^(\d+)\s+\.$/) {
         error(_g("du gave unexpected output \`%s'"), $duo);
     }
-    $substvars->set_as_used('Installed-Size', $1);
+    $substvars->set_as_auto('Installed-Size', $1);
 }
 if (defined($substvars->get('Extra-Size'))) {
     my $size = $substvars->get('Extra-Size') + $substvars->get('Installed-Size');
-    $substvars->set_as_used('Installed-Size', $size);
+    $substvars->set_as_auto('Installed-Size', $size);
 }
 if (defined($substvars->get('Installed-Size'))) {
     $fields->{'Installed-Size'} = $substvars->get('Installed-Size');
