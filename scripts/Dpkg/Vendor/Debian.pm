@@ -182,7 +182,7 @@ sub _add_hardening_flags {
     my %use_feature = (
 	pie => 0,
 	stackprotector => 1,
-	stackprotectorstrong => 0,
+	stackprotectorstrong => 1,
 	fortify => 1,
 	format => 1,
 	relro => 1,
