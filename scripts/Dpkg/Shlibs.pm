@@ -128,16 +128,6 @@ sub find_library {
     my @rpath = @{$rpath};
     foreach my $dir (@rpath, @librarypaths) {
 	my $checkdir = "$root$dir";
-	# If the directory checked is a symlink, check if it doesn't
-	# resolve to another public directory (which is then the canonical
-	# directory to use instead of this one). Typical example
-	# is /usr/lib64 -> /usr/lib on amd64.
-	if (-l $checkdir) {
-	    my $newdir = resolve_symlink($checkdir);
-	    if (any { "$root$_" eq "$newdir" } (@rpath, @librarypaths)) {
-		$checkdir = $newdir;
-	    }
-	}
 	if (-e "$checkdir/$lib") {
 	    my $libformat = Dpkg::Shlibs::Objdump::get_format("$checkdir/$lib");
 	    if ($format eq $libformat) {
