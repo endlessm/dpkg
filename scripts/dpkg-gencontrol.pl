@@ -39,6 +39,7 @@ use Dpkg::Substvars;
 use Dpkg::Vars;
 use Dpkg::Changelog::Parse;
 use Dpkg::Dist::Files;
+use Dpkg::Vendor qw(run_vendor_hook);
 
 textdomain('dpkg-dev');
 
@@ -362,6 +363,9 @@ if (defined($substvars->get('Extra-Size'))) {
 if (defined($substvars->get('Installed-Size'))) {
     $fields->{'Installed-Size'} = $substvars->get('Installed-Size');
 }
+
+# Let the vendor update the control fields
+run_vendor_hook('update-binary-control-fields', $fields, $packagebuilddir);
 
 for my $f (keys %override) {
     $fields->{$f} = $override{$f};
