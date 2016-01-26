@@ -475,7 +475,7 @@ if ($signsource && build_binaryonly) {
 # Determine prefix for the environment
 my $prefix = '/usr';
 @build_profiles = get_build_profiles();
-if ("eos-app" ~~ @build_profiles) {
+if (grep {/^eos-app$/} @build_profiles) {
     my $control = Dpkg::Control::Info->new();
     my $mainpackage = $control->get_pkg_by_idx(1);
     my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
@@ -484,7 +484,7 @@ if ("eos-app" ~~ @build_profiles) {
 $ENV{DEB_PREFIX} = $prefix;
 
 # Add to default search paths for eos-app profiles
-if ("eos-app" ~~ @build_profiles) {
+if (grep {/^eos-app$/} @build_profiles) {
     # PATH
     $ENV{PATH} = $prefix . "/bin:" . $ENV{PATH};
 

@@ -178,7 +178,7 @@ sub load_eosapp_config {
     my ($self) = @_;
     my @build_profiles = get_build_profiles();
 
-    if ("eos-app" ~~ @build_profiles) {
+    if (grep {/^eos-app$/} @build_profiles) {
         my $control = Dpkg::Control::Info->new();
         my $mainpackage = $control->get_pkg_by_idx(1);
         my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
