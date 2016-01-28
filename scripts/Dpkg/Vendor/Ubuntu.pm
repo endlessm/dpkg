@@ -149,13 +149,21 @@ sub run_hook {
 	}
 
 	# Set flags for non-/usr prefix
-	if (grep {/^eos-app$/} get_build_profiles()) {
-	    # Endless bundles have per-app /endless/$app prefix
-	    require Dpkg::Control::Info;
-	    my $control = Dpkg::Control::Info->new();
-	    my $mainpackage = $control->get_pkg_by_idx(1);
-	    my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
-	    my $prefix = "/endless/$app_id";
+	my @build_profiles = get_build_profiles();
+	if (grep {/^(xdg-app|eos-app)$/} @build_profiles) {
+	    my $prefix;
+
+	    if (grep {/^xdg-app$/} @build_profiles) {
+		# Xdg-App always uses /app prefix
+		$prefix = '/app';
+	    } elsif (grep {/^eos-app$/} @build_profiles) {
+		# Endless bundles have per-app /endless/$app prefix
+                require Dpkg::Control::Info;
+		my $control = Dpkg::Control::Info->new();
+		my $mainpackage = $control->get_pkg_by_idx(1);
+		my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
+		$prefix = "/endless/$app_id";
+	    }
 
 	    # Header search path
 	    my $includepath = "$prefix/include";
