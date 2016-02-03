@@ -30,6 +30,7 @@ use Dpkg::Path qw(find_command);
 use Dpkg::Control::Types;
 use Dpkg::BuildOptions;
 use Dpkg::Arch qw(debarch_eq get_host_arch);
+use Dpkg::BuildProfiles qw(get_build_profiles);
 
 use parent qw(Dpkg::Vendor::Debian);
 
@@ -48,6 +49,7 @@ to check that Maintainers have been modified if necessary.
 
 sub run_hook {
     my ($self, $hook, @params) = @_;
+    my @build_profiles = get_build_profiles();
 
     if ($hook eq 'before-source-build') {
         my $src = shift @params;
@@ -80,6 +82,7 @@ sub run_hook {
         push @field_ops,
             [ 'register', 'Launchpad-Bugs-Fixed',
               CTRL_FILE_CHANGES | CTRL_CHANGELOG  ],
+            [ 'register', 'Xdg-App', CTRL_PKG_DEB ],
             [ 'insert_after', CTRL_FILE_CHANGES, 'Closes', 'Launchpad-Bugs-Fixed' ],
             [ 'insert_after', CTRL_CHANGELOG, 'Closes', 'Launchpad-Bugs-Fixed' ];
         return @field_ops;
@@ -145,6 +148,90 @@ sub run_hook {
 		info(_g('overriding %s in environment: %s'), $flag, $hardening);
 	    }
 	    $flags->set($flag, $hardening, 'env');
+	}
+
+	# Set flags for non-/usr prefix
+	if (grep {/^(xdg-app|eos-app)$/} @build_profiles) {
+	    my $prefix;
+
+	    if (grep {/^xdg-app$/} @build_profiles) {
+		# Xdg-App always uses /app prefix
+		$prefix = '/app';
+	    } elsif (grep {/^eos-app$/} @build_profiles) {
+		# Endless bundles have per-app /endless/$app prefix
+                require Dpkg::Control::Info;
+		my $control = Dpkg::Control::Info->new();
+		my $mainpackage = $control->get_pkg_by_idx(1);
+		my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
+		$prefix = "/endless/$app_id";
+	    }
+
+	    # Header search path
+	    my $includepath = "$prefix/include";
+	    $flags->append('CPPFLAGS', "-I$includepath");
+	    $flags->append('CFLAGS', "-I$includepath");
+	    $flags->append('CXXFLAGS', "-I$includepath");
+
+	    # Library search and run path
+	    my $libpath = "$prefix/lib";
+	    if ($ENV{DEB_HOST_MULTIARCH}) {
+		my $archlibpath = "$libpath/" . $ENV{DEB_HOST_MULTIARCH};
+		$flags->append('LDFLAGS', "-L$archlibpath");
+		$flags->append('LDFLAGS', "-Wl,-rpath,$archlibpath");
+	    }
+	    $flags->append('LDFLAGS', "-L$libpath");
+	    $flags->append('LDFLAGS', "-Wl,-rpath,$libpath");
+	}
+
+    } elsif ($hook eq 'update-binary-control-fields') {
+	my ($fields, $builddir) = @params;
+
+	# Only updating fields for xdg-app builds
+	if (not grep {/^xdg-app$/} @build_profiles) {
+	    return;
+	}
+
+	my @appdata = glob "$builddir/app/share/appdata/*.xml";
+	my $numapps = scalar(@appdata);
+	if ($numapps == 0) {
+	    # Not an app, nothing to do
+	    return;
+	} elsif ($numapps > 1) {
+	    warning(_g('more than 1 appdata file found in %s, skipping ' .
+		       'Xdg-App field', "$builddir/app/share/appdata"));
+	    return;
+	}
+
+	# Get the app id from the appdata. Can't have a hard dependency
+	# on libxml-libxml-perl since it's a binary module and that
+	# would make perl ABI upgrades impossible.
+	require XML::LibXML;
+
+	my $parser = XML::LibXML->new();
+	my $xml = $parser->parse_file($appdata[0]);
+	my $root = $xml->documentElement();
+
+	# Apps are either <component type="desktop"> or <application>.
+	# In both cases, the app ID is in the <id> child node with
+	# .desktop in the name.
+	if ($root->nodeName eq 'component') {
+	    my $type = $root->getAttribute('type');
+	    if (!defined $type || $type ne 'desktop') {
+		return;
+	    }
+	} elsif ($root->nodeName ne 'application') {
+	    return;
+	}
+
+	my $appid = $root->findvalue('id');
+	if ($appid) {
+	    # Strip the desktop suffix
+	    $appid =~ s/\.desktop$//;
+	    info(_g('setting Xdg-App control field to %s'), $appid);
+	    $fields->{'Xdg-App'} = $appid;
+	} else {
+	    warning(_g('desktop appdata file %s has no <id> node',
+		       $appdata[0]));
 	}
 
     } else {
