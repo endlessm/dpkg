@@ -104,13 +104,6 @@ The hook is called in Dpkg::BuildFlags to allow the vendor to override
 the default values set for the various build flags. $flags is a
 Dpkg::BuildFlags object.
 
-=item update-binary-control-fields ($fields, $builddir)
-
-This hook is called by dpkg-gencontrol after the Dpkg::Control fields
-have been filled in and prior to processing the command line overrides.
-$fields is is a Dpkg::Control object of type CTRL_PKG_DEB and $builddir
-is the package build directory.
-
 =back
 
 =cut
@@ -130,8 +123,6 @@ sub run_hook {
 	my ($textref, $ch_info) = @params;
     } elsif ($hook eq 'update-buildflags') {
 	my $flags = shift @params;
-    } elsif ($hook eq 'update-binary-control-fields') {
-        my ($fields, $builddir) = @params;
     }
 
     # Default return value for unknown/unimplemented hooks
