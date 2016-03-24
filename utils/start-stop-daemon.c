@@ -67,11 +67,13 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #include <sys/ioctl.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
+#include <time.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <ctype.h>
@@ -136,8 +138,6 @@
 #define PROCESS_NAME_SIZE MAXCOMLEN
 #endif
 
-#define MIN_POLL_INTERVAL 20000 /* µs */
-
 #if defined(SYS_ioprio_set) && defined(linux)
 #define HAVE_IOPRIO_SET
 #endif
@@ -166,6 +166,16 @@ enum action_code {
 	ACTION_STOP,
 	ACTION_STATUS,
 };
+
+/* Time conversion constants. */
+enum {
+	NANOSEC_IN_SEC      = 1000000000L,
+	NANOSEC_IN_MILLISEC = 1000000L,
+	NANOSEC_IN_MICROSEC = 1000L,
+};
+
+/* The minimum polling interval, 20ms. */
+static const long MIN_POLL_INTERVAL = 20 * NANOSEC_IN_MILLISEC;
 
 static enum action_code action;
 static bool testmode = false;
@@ -287,30 +297,58 @@ xmalloc(int size)
 }
 
 static char *
-xstrdup(const char *str)
+xstrndup(const char *str, size_t n)
 {
 	char *new_str;
 
-	new_str = strdup(str);
+	new_str = strndup(str, n);
 	if (new_str)
 		return new_str;
-	fatal("strdup(%s) failed", str);
+	fatal("strndup(%s, %zu) failed", str, n);
 }
 
 static void
-xgettimeofday(struct timeval *tv)
+timespec_gettime(struct timespec *ts)
 {
-	if (gettimeofday(tv, NULL) != 0)
+#if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0 && \
+    defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK > 0
+	if (clock_gettime(CLOCK_MONOTONIC, ts) < 0)
+		fatal("clock_gettime failed");
+#else
+	struct timeval tv;
+
+	if (gettimeofday(&tv, NULL) != 0)
 		fatal("gettimeofday failed");
+
+	ts->tv_sec = tv.tv_sec;
+	ts->tv_nsec = tv.tv_usec * NANOSEC_IN_MICROSEC;
+#endif
+}
+
+#define timespec_cmp(a, b, OP) \
+	(((a)->tv_sec == (b)->tv_sec) ? \
+	 ((a)->tv_nsec OP (b)->tv_nsec) : \
+	 ((a)->tv_sec OP (b)->tv_sec))
+
+static void
+timespec_sub(struct timespec *a, struct timespec *b, struct timespec *res)
+{
+	res->tv_sec = a->tv_sec - b->tv_sec;
+	res->tv_nsec = a->tv_nsec - b->tv_nsec;
+	if (res->tv_nsec < 0) {
+		res->tv_sec--;
+		res->tv_nsec += NANOSEC_IN_SEC;
+	}
 }
 
 static void
-tmul(struct timeval *a, int b)
+timespec_mul(struct timespec *a, int b)
 {
+	long nsec = a->tv_nsec * b;
+
 	a->tv_sec *= b;
-	a->tv_usec *= b;
-	a->tv_sec = a->tv_sec + a->tv_usec / 1000000;
-	a->tv_usec %= 1000000;
+	a->tv_sec += nsec / NANOSEC_IN_SEC;
+	a->tv_nsec = nsec % NANOSEC_IN_SEC;
 }
 
 static char *
@@ -695,14 +733,15 @@ validate_proc_schedule(void)
 static void
 parse_proc_schedule(const char *string)
 {
-	char *policy_str, *prio_str;
+	char *policy_str;
+	size_t policy_len;
 	int prio = 0;
 
-	policy_str = xstrdup(string);
-	policy_str = strtok(policy_str, ":");
-	prio_str = strtok(NULL, ":");
+	policy_len = strcspn(string, ":");
+	policy_str = xstrndup(string, policy_len);
 
-	if (prio_str && parse_unsigned(prio_str, 10, &prio) != 0)
+	if (string[policy_len] == ':' &&
+	    parse_unsigned(string + policy_len + 1, 10, &prio) != 0)
 		fatal("invalid process scheduler priority");
 
 	proc_sched = xmalloc(sizeof(*proc_sched));
@@ -726,14 +765,15 @@ parse_proc_schedule(const char *string)
 static void
 parse_io_schedule(const char *string)
 {
-	char *class_str, *prio_str;
+	char *class_str;
+	size_t class_len;
 	int prio = 4;
 
-	class_str = xstrdup(string);
-	class_str = strtok(class_str, ":");
-	prio_str = strtok(NULL, ":");
+	class_len = strcspn(string, ":");
+	class_str = xstrndup(string, class_len);
 
-	if (prio_str && parse_unsigned(prio_str, 10, &prio) != 0)
+	if (string[class_len] == ':' &&
+	    parse_unsigned(string + class_len + 1, 10, &prio) != 0)
 		fatal("invalid IO scheduler priority");
 
 	io_sched = xmalloc(sizeof(*io_sched));
@@ -932,6 +972,7 @@ parse_options(int argc, char * const *argv)
 	const char *schedule_str = NULL;
 	const char *proc_schedule_str = NULL;
 	const char *io_schedule_str = NULL;
+	size_t changeuser_len;
 	int c;
 
 	for (;;) {
@@ -995,9 +1036,13 @@ parse_options(int argc, char * const *argv)
 		case 'c':  /* --chuid <username>|<uid> */
 			/* We copy the string just in case we need the
 			 * argument later. */
-			changeuser = xstrdup(optarg);
-			changeuser = strtok(changeuser, ":");
-			changegroup = strtok(NULL, ":");
+			changeuser_len = strcspn(optarg, ":");
+			changeuser = xstrndup(optarg, changeuser_len);
+			if (optarg[changeuser_len] == ':') {
+				if (optarg[changeuser_len + 1] == '\0')
+					fatal("missing group name");
+				changegroup = optarg + changeuser_len + 1;
+			}
 			break;
 		case 'g':  /* --group <group>|<gid> */
 			changegroup = optarg;
@@ -1374,11 +1419,12 @@ pid_is_exec(pid_t pid, const struct stat *esb)
 	char buf[_POSIX2_LINE_MAX];
 	char **pid_argv_p;
 	char *start_argv_0_p, *end_argv_0_p;
+	bool res = false;
 
 	kd = ssd_kvm_open();
 	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		return false;
+		goto cleanup;
 
 	pid_argv_p = kvm_getargv(kd, kp, argv_len);
 	if (pid_argv_p == NULL)
@@ -1403,9 +1449,14 @@ pid_is_exec(pid_t pid, const struct stat *esb)
 	}
 
 	if (stat(start_argv_0_p, &sb) != 0)
-		return false;
+		goto cleanup;
 
-	return (sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino);
+	res = (sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino);
+
+cleanup:
+	kvm_close(kd);
+
+	return res;
 }
 #endif
 
@@ -1460,11 +1511,12 @@ pid_is_child(pid_t pid, pid_t ppid)
 	kvm_t *kd;
 	struct kinfo_proc *kp;
 	pid_t proc_ppid;
+	bool res = false;
 
 	kd = ssd_kvm_open();
 	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		return false;
+		goto cleanup;
 
 #if defined(OSFreeBSD)
 	proc_ppid = kp->ki_ppid;
@@ -1476,7 +1528,12 @@ pid_is_child(pid_t pid, pid_t ppid)
 	proc_ppid = kp->kp_proc.p_ppid;
 #endif
 
-	return proc_ppid == ppid;
+	res = (proc_ppid == ppid);
+
+cleanup:
+	kvm_close(kd);
+
+	return res;
 }
 #endif
 
@@ -1518,11 +1575,12 @@ pid_is_user(pid_t pid, uid_t uid)
 	kvm_t *kd;
 	uid_t proc_uid;
 	struct kinfo_proc *kp;
+	bool res = false;
 
 	kd = ssd_kvm_open();
 	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		return false;
+		goto cleanup;
 
 #if defined(OSFreeBSD)
 	proc_uid = kp->ki_ruid;
@@ -1535,10 +1593,15 @@ pid_is_user(pid_t pid, uid_t uid)
 		kvm_read(kd, (u_long)&(kp->kp_proc.p_cred->p_ruid),
 		         &proc_uid, sizeof(uid_t));
 	else
-		return false;
+		goto cleanup;
 #endif
 
-	return (proc_uid == (uid_t)uid);
+	res = (proc_uid == (uid_t)uid);
+
+cleanup:
+	kvm_close(kd);
+
+	return res;
 }
 #endif
 
@@ -1602,11 +1665,12 @@ pid_is_cmd(pid_t pid, const char *name)
 	kvm_t *kd;
 	struct kinfo_proc *kp;
 	char *process_name;
+	bool res = false;
 
 	kd = ssd_kvm_open();
 	kp = ssd_kvm_get_procs(kd, KERN_PROC_PID, pid, NULL);
 	if (kp == NULL)
-		return false;
+		goto cleanup;
 
 #if defined(OSFreeBSD)
 	process_name = kp->ki_comm;
@@ -1618,7 +1682,12 @@ pid_is_cmd(pid_t pid, const char *name)
 	process_name = kp->kp_proc.p_comm;
 #endif
 
-	return (strcmp(name, process_name) == 0);
+	res = (strcmp(name, process_name) == 0);
+
+cleanup:
+	kvm_close(kd);
+
+	return res;
 }
 #endif
 
@@ -2003,44 +2072,44 @@ set_what_stop(const char *str)
 static bool
 do_stop_timeout(int timeout, int *n_killed, int *n_notkilled)
 {
-	struct timeval stopat, before, after, interval, maxinterval;
+	struct timespec stopat, before, after, interval, maxinterval;
 	int rc, ratio;
 
-	xgettimeofday(&stopat);
+	timespec_gettime(&stopat);
 	stopat.tv_sec += timeout;
 	ratio = 1;
 	for (;;) {
-		xgettimeofday(&before);
-		if (timercmp(&before, &stopat, >))
+		timespec_gettime(&before);
+		if (timespec_cmp(&before, &stopat, >))
 			return false;
 
 		do_stop(0, n_killed, n_notkilled);
 		if (!*n_killed)
 			return true;
 
-		xgettimeofday(&after);
+		timespec_gettime(&after);
 
-		if (!timercmp(&after, &stopat, <))
+		if (!timespec_cmp(&after, &stopat, <))
 			return false;
 
 		if (ratio < 10)
 			ratio++;
 
-		timersub(&stopat, &after, &maxinterval);
-		timersub(&after, &before, &interval);
-		tmul(&interval, ratio);
+		timespec_sub(&stopat, &after, &maxinterval);
+		timespec_sub(&after, &before, &interval);
+		timespec_mul(&interval, ratio);
 
-		if (interval.tv_sec < 0 || interval.tv_usec < 0)
-			interval.tv_sec = interval.tv_usec = 0;
+		if (interval.tv_sec < 0 || interval.tv_nsec < 0)
+			interval.tv_sec = interval.tv_nsec = 0;
 
-		if (timercmp(&interval, &maxinterval, >))
+		if (timespec_cmp(&interval, &maxinterval, >))
 			interval = maxinterval;
 
 		if (interval.tv_sec == 0 &&
-		    interval.tv_usec <= MIN_POLL_INTERVAL)
-			interval.tv_usec = MIN_POLL_INTERVAL;
+		    interval.tv_nsec <= MIN_POLL_INTERVAL)
+			interval.tv_nsec = MIN_POLL_INTERVAL;
 
-		rc = select(0, NULL, NULL, NULL, &interval);
+		rc = pselect(0, NULL, NULL, NULL, &interval, NULL);
 		if (rc < 0 && errno != EINTR)
 			fatal("select() failed for pause");
 	}

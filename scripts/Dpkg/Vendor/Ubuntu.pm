@@ -1,4 +1,4 @@
-# Copyright © 2008 Ian Jackson <ian@davenant.greenend.org.uk>
+# Copyright © 2008 Ian Jackson <ijackson@chiark.greenend.org.uk>
 # Copyright © 2008 Canonical, Ltd.
 #   written by Colin Watson <cjwatson@ubuntu.com>
 # Copyright © 2008 James Westby <jw+debian@jameswestby.net>
@@ -60,13 +60,13 @@ sub run_hook {
            $fields->{'Version'} =~ /ubuntu/) {
            if ($fields->{'Maintainer'} !~ /ubuntu/i) {
                if (length $ENV{DEBEMAIL} and $ENV{DEBEMAIL} =~ /\@ubuntu\.com/) {
-                   error(_g('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
+                   error(g_('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
                } else {
-                   warning(_g('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
+                   warning(g_('Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address'));
                }
            }
            unless ($fields->{'Original-Maintainer'}) {
-               warning(_g('Version number suggests Ubuntu changes, but there is no XSBC-Original-Maintainer field'));
+               warning(g_('Version number suggests Ubuntu changes, but there is no XSBC-Original-Maintainer field'));
            }
         }
 
@@ -124,7 +124,7 @@ sub run_hook {
 	    my $flag = 'DEB_BUILD_HARDENING';
 	    if ($hardening ne '0') {
 		if (!find_command('hardened-cc')) {
-		    syserr(_g("'hardening' flag found but 'hardening-wrapper' not installed"));
+		    syserr(g_("'hardening' flag found but 'hardening-wrapper' not installed"));
 		}
 		if ($hardening ne '1') {
 		    my @options = split(/,\s*/, $hardening);
@@ -143,7 +143,7 @@ sub run_hook {
 		}
 	    }
 	    if (defined $ENV{$flag}) {
-		info(_g('overriding %s in environment: %s'), $flag, $hardening);
+		info(g_('overriding %s in environment: %s'), $flag, $hardening);
 	    }
 	    $flags->set($flag, $hardening, 'env');
 	}
@@ -201,7 +201,7 @@ numbers in an array reference.
 =cut
 
 sub find_launchpad_closes {
-    my ($changes) = @_;
+    my $changes = shift;
     my %closes;
 
     while ($changes &&

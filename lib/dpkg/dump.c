@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * dump.c - code to write in-core database to a file
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman
  * Copyright © 2006,2008-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
@@ -32,7 +32,6 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -469,7 +468,7 @@ writerecord(FILE *file, const char *filename,
     varbuf_add_pkgbin_name(&pkgname, pkg, pkgbin, pnaw_nonambig);
 
     errno = errno_saved;
-    ohshite(_("failed to write details of `%.50s' to `%.250s'"),
+    ohshite(_("failed to write details of '%.50s' to '%.250s'"),
             pkgname.buf, filename);
   }
 

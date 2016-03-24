@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * parsedump.h - declarations for in-core database reading/writing
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2001 Wichert Akkerman
  * Copyright © 2008-2011 Guillem Jover <guillem@debian.org>
  *
@@ -56,7 +56,7 @@ struct parsedb_state {
 	int lno;
 };
 
-#define parse_EOF(ps)		((ps)->dataptr >= (ps)->endptr)
+#define parse_at_eof(ps)	((ps)->dataptr >= (ps)->endptr)
 #define parse_getc(ps)		*(ps)->dataptr++
 #define parse_ungetc(c, ps)	(ps)->dataptr--
 

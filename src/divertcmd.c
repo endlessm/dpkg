@@ -67,7 +67,7 @@ static void
 printversion(const struct cmdinfo *cip, const char *value)
 {
 	printf(_("Debian %s version %s.\n"), dpkg_get_progname(),
-	       DPKG_VERSION_ARCH);
+	       PACKAGE_RELEASE);
 
 	printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
@@ -159,13 +159,13 @@ check_writable_dir(struct file *f)
 	char *tmpname;
 	int tmpfd;
 
-	m_asprintf(&tmpname, "%s%s", f->name, ".dpkg-divert.tmp");
+	tmpname = str_fmt("%s%s", f->name, ".dpkg-divert.tmp");
 
 	tmpfd = creat(tmpname, 0600);
 	if (tmpfd < 0)
 		ohshite(_("error checking '%s'"), f->name);
 	close(tmpfd);
-	unlink(tmpname);
+	(void)unlink(tmpname);
 
 	free(tmpname);
 }
@@ -198,8 +198,8 @@ check_rename(struct file *src, struct file *dst)
 	    dst->stat_state == FILE_STAT_VALID &&
 	    !(src->stat.st_dev == dst->stat.st_dev &&
 	      src->stat.st_ino == dst->stat.st_ino))
-		ohshit(_("rename involves overwriting `%s' with\n"
-		         "  different file `%s', not allowed"),
+		ohshit(_("rename involves overwriting '%s' with\n"
+		         "  different file '%s', not allowed"),
 		        dst->name, src->name);
 
 	return true;
@@ -216,7 +216,7 @@ file_copy(const char *src, const char *dst)
 	if (srcfd < 0)
 		ohshite(_("unable to open file '%s'"), src);
 
-	m_asprintf(&tmp, "%s%s", dst, ".dpkg-divert.tmp");
+	tmp = str_fmt("%s%s", dst, ".dpkg-divert.tmp");
 	dstfd = creat(tmp, 0600);
 	if (dstfd < 0)
 		ohshite(_("unable to create file '%s'"), tmp);
@@ -438,12 +438,8 @@ diversion_add(const char *const *argv)
 	fnn_from = findnamenode(filename, 0);
 
 	/* Handle divertto. */
-	if (opt_divertto == NULL) {
-		char *str;
-
-		m_asprintf(&str, "%s.distrib", filename);
-		opt_divertto = str;
-	}
+	if (opt_divertto == NULL)
+		opt_divertto = str_fmt("%s.distrib", filename);
 
 	if (strcmp(filename, opt_divertto) == 0)
 		badusage(_("cannot divert file '%s' to itself"), filename);
@@ -468,10 +464,10 @@ diversion_add(const char *const *argv)
 			if (opt_verbose > 0)
 				printf(_("Leaving '%s'\n"),
 				       diversion_describe(fnn_from->divert));
-			exit(0);
+			return 0;
 		}
 
-		ohshit(_("`%s' clashes with `%s'"),
+		ohshit(_("'%s' clashes with '%s'"),
 		       diversion_current(filename),
 		       fnn_from->divert ?
 		       diversion_describe(fnn_from->divert) :
@@ -581,15 +577,15 @@ diversion_remove(const char *const *argv)
 	if (opt_divertto != NULL &&
 	    strcmp(opt_divertto, contest->useinstead->name) != 0)
 		ohshit(_("mismatch on divert-to\n"
-		         "  when removing `%s'\n"
-		         "  found `%s'"),
+		         "  when removing '%s'\n"
+		         "  found '%s'"),
 		       diversion_current(filename),
 		       diversion_describe(contest));
 
 	if (!opt_pkgname_match_any && pkgset != contest->pkgset)
 		ohshit(_("mismatch on package\n"
-		         "  when removing `%s'\n"
-		         "  found `%s'"),
+		         "  when removing '%s'\n"
+		         "  found '%s'"),
 		       diversion_current(filename),
 		       diversion_describe(contest));
 
@@ -599,7 +595,7 @@ diversion_remove(const char *const *argv)
 		if (opt_verbose > 0)
 			printf(_("Ignoring request to remove shared diversion '%s'.\n"),
 			       diversion_describe(contest));
-		exit(0);
+		return 0;
 	}
 
 	if (opt_verbose > 0)

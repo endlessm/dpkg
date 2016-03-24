@@ -2,7 +2,7 @@
  * dpkg-trigger - trigger management utility
  *
  * Copyright © 2007 Canonical Ltd.
- * Written by Ian Jackson <ian@davenant.greenend.org.uk>
+ * Written by Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@ static void DPKG_ATTR_NORET
 printversion(const struct cmdinfo *ci, const char *value)
 {
 	printf(_("Debian %s package trigger utility version %s.\n"),
-	       dpkg_get_progname(), DPKG_VERSION_ARCH);
+	       dpkg_get_progname(), PACKAGE_RELEASE);
 
 	printf(_(
 "This is free software; see the GNU General Public License version 2 or\n"
@@ -120,8 +120,8 @@ parse_awaiter_package(void)
 		pkgname = getenv("DPKG_MAINTSCRIPT_PACKAGE");
 		archname = getenv("DPKG_MAINTSCRIPT_ARCH");
 		if (pkgname == NULL || archname == NULL)
-			ohshit(_("must be called from a maintainer script"
-			         " (or with a --by-package option)"));
+			badusage(_("must be called from a maintainer script"
+			           " (or with a --by-package option)"));
 
 		pkg = pkg_spec_find_pkg(pkgname, archname, &err);
 	} else if (strcmp(bypackage, "-") == 0) {
@@ -168,7 +168,7 @@ static const struct trigdefmeths tdm_add = {
 	.trig_end = tdm_add_trig_end,
 };
 
-static void DPKG_ATTR_NORET
+static int
 do_check(void)
 {
 	enum trigdef_update_status uf;
@@ -177,13 +177,13 @@ do_check(void)
 	switch (uf) {
 	case TDUS_ERROR_NO_DIR:
 		notice(_("triggers data directory not yet created"));
-		exit(1);
+		return 1;
 	case TDUS_ERROR_NO_DEFERRED:
 		notice(_("trigger records not yet in existence"));
-		exit(1);
+		return 1;
 	case TDUS_OK:
 	case TDUS_ERROR_EMPTY_DEFERRED:
-		exit(0);
+		return 0;
 	default:
 		internerr("unknown trigdef_update_start return value '%d'", uf);
 	}
@@ -218,7 +218,7 @@ main(int argc, const char *const *argv)
 		if (*argv)
 			badusage(_("--%s takes no arguments"),
 			         "check-supported");
-		do_check();
+		return do_check();
 	}
 
 	if (!*argv || argv[1])
@@ -226,13 +226,13 @@ main(int argc, const char *const *argv)
 
 	badname = parse_awaiter_package();
 	if (badname)
-		ohshit(_("illegal awaited package name '%.250s': %.250s"),
-		       bypackage, badname);
+		badusage(_("illegal awaited package name '%.250s': %.250s"),
+		         bypackage, badname);
 
 	activate = argv[0];
 	badname = trig_name_is_illegal(activate);
 	if (badname)
-		badusage(_("invalid trigger name `%.250s': %.250s"),
+		badusage(_("invalid trigger name '%.250s': %.250s"),
 		         activate, badname);
 
 	trigdef_set_methods(&tdm_add);

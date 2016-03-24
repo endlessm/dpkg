@@ -2,7 +2,7 @@
  * libdpkg - Debian packaging suite library routines
  * ehandle.c - error handling
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #include <config.h>
 #include <compat.h>
 
-#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
