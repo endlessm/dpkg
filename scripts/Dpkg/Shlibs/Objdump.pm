@@ -17,14 +17,15 @@ package Dpkg::Shlibs::Objdump;
 
 use strict;
 use warnings;
+use feature qw(state);
+
+our $VERSION = '0.01';
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Path qw(find_command);
 use Dpkg::Arch qw(debarch_to_gnutriplet get_build_arch get_host_arch);
 use Dpkg::IPC;
-
-our $VERSION = '0.01';
 
 # Decide which objdump to call
 our $OBJDUMP = 'objdump';
@@ -82,47 +83,45 @@ sub has_object {
     return exists $self->{objects}{$objid};
 }
 
-{
-    my %format; # Cache of result
-    sub get_format {
-	my ($file, $objdump) = @_;
+sub get_format {
+    my ($file, $objdump) = @_;
+    state %format;
 
-	$objdump //= $OBJDUMP;
+    $objdump //= $OBJDUMP;
 
-	if (exists $format{$file}) {
-	    return $format{$file};
-	} else {
-	    my ($output, %opts, $pid, $res);
-	    local $_;
+    if (exists $format{$file}) {
+        return $format{$file};
+    } else {
+        my ($output, %opts, $pid, $res);
+        local $_;
 
-	    if ($objdump ne 'objdump') {
-		$opts{error_to_file} = '/dev/null';
-	    }
-	    $pid = spawn(exec => [ $objdump, '-a', '--', $file ],
-			 env => { LC_ALL => 'C' },
-			 to_pipe => \$output, %opts);
-	    while (<$output>) {
-		chomp;
-		if (/^\s*\S+:\s*file\s+format\s+(\S+)\s*$/) {
-		    $format{$file} = $1;
-		    $res = $format{$file};
-		    last;
-		}
-	    }
-	    close($output);
-	    wait_child($pid, nocheck => 1);
-	    if ($?) {
-		subprocerr('objdump') if $objdump eq 'objdump';
-		$res = get_format($file, 'objdump');
-	    }
-	    return $res;
-	}
+        if ($objdump ne 'objdump') {
+            $opts{error_to_file} = '/dev/null';
+        }
+        $pid = spawn(exec => [ $objdump, '-a', '--', $file ],
+                     env => { LC_ALL => 'C' },
+                     to_pipe => \$output, %opts);
+        while (<$output>) {
+            chomp;
+            if (/^\s*\S+:\s*file\s+format\s+(\S+)\s*$/) {
+                $format{$file} = $1;
+                $res = $format{$file};
+                last;
+            }
+        }
+        close($output);
+        wait_child($pid, nocheck => 1);
+        if ($?) {
+            subprocerr('objdump') if $objdump eq 'objdump';
+            $res = get_format($file, 'objdump');
+        }
+        return $res;
     }
 }
 
 sub is_elf {
-    my ($file) = @_;
-    open(my $file_fh, '<', $file) or syserr(_g('cannot read %s'), $file);
+    my $file = shift;
+    open(my $file_fh, '<', $file) or syserr(g_('cannot read %s'), $file);
     my ($header, $result) = ('', 0);
     if (read($file_fh, $header, 4) == 4) {
 	$result = 1 if ($header =~ /^\177ELF$/);
@@ -132,6 +131,9 @@ sub is_elf {
 }
 
 package Dpkg::Shlibs::Objdump::Object;
+
+use strict;
+use warnings;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
@@ -152,7 +154,7 @@ sub new {
 }
 
 sub reset {
-    my ($self) = @_;
+    my $self = shift;
 
     $self->{file} = '';
     $self->{id} = '';
@@ -181,7 +183,7 @@ sub analyze {
 
     local $ENV{LC_ALL} = 'C';
     open(my $objdump, '-|', $OBJDUMP, '-w', '-f', '-p', '-T', '-R', $file)
-        or syserr(_g('cannot fork for %s'), $OBJDUMP);
+        or syserr(g_('cannot fork for %s'), $OBJDUMP);
     my $ret = $self->parse_objdump_output($objdump);
     close($objdump);
     return $ret;
@@ -192,8 +194,8 @@ sub parse_objdump_output {
 
     my $section = 'none';
     while (<$fh>) {
-	chomp;
-	next if /^\s*$/;
+	s/\s*$//;
+	next if length == 0;
 
 	if (/^DYNAMIC SYMBOL TABLE:/) {
 	    $section = 'dynsym';
@@ -219,10 +221,10 @@ sub parse_objdump_output {
 	if ($section eq 'dynsym') {
 	    $self->parse_dynamic_symbol($_);
 	} elsif ($section eq 'dynreloc') {
-	    if (/^\S+\s+(\S+)\s+(\S+)\s*$/) {
+	    if (/^\S+\s+(\S+)\s+(.+)$/) {
 		$self->{dynrelocs}{$2} = $1;
 	    } else {
-		warning(_g("couldn't parse dynamic relocation record: %s"), $_);
+		warning(g_("couldn't parse dynamic relocation record: %s"), $_);
 	    }
 	} elsif ($section eq 'dyninfo') {
 	    if (/^\s*NEEDED\s+(\S+)/) {
@@ -246,9 +248,9 @@ sub parse_objdump_output {
                 }
 	    }
 	} elsif ($section eq 'none') {
-	    if (/^\s*.+:\s*file\s+format\s+(\S+)\s*$/) {
+	    if (/^\s*.+:\s*file\s+format\s+(\S+)$/) {
 		$self->{format} = $1;
-	    } elsif (/^architecture:\s*\S+,\s*flags\s*\S+:\s*$/) {
+	    } elsif (/^architecture:\s*\S+,\s*flags\s*\S+:$/) {
 		# Parse 2 lines of "-f"
 		# architecture: i386, flags 0x00000112:
 		# EXEC_P, HAS_SYMS, D_PAGED
@@ -294,10 +296,21 @@ sub parse_objdump_output {
 # (GLIBC_2.2) is the same but the symbol is hidden, a newer version of the
 # symbol exist
 
+my $vis_re = qr/(\.protected|\.hidden|\.internal|0x\S+)/;
+my $dynsym_re = qr<
+    ^
+    [0-9a-f]+                   # Symbol size
+    \ (.{7})                    # Flags
+    \s+(\S+)                    # Section name
+    \s+[0-9a-f]+                # Alignment
+    (?:\s+(\S+))?               # Version string
+    (?:\s+$vis_re)?             # Visibility
+    \s+(.+)                     # Symbol name
+>x;
+
 sub parse_dynamic_symbol {
     my ($self, $line) = @_;
-    my $vis_re = '(\.protected|\.hidden|\.internal|0x\S+)';
-    if ($line =~ /^[0-9a-f]+ (.{7})\s+(\S+)\s+[0-9a-f]+(?:\s+(\S+))?(?:\s+$vis_re)?\s+(\S+)/) {
+    if ($line =~ $dynsym_re) {
 
 	my ($flags, $sect, $ver, $vis, $name) = ($1, $2, $3, $4, $5);
 
@@ -341,12 +354,12 @@ sub parse_dynamic_symbol {
 	# Ignore some s390-specific output like
 	# REG_G6           g     R *UND*      0000000000000000              #scratch
     } else {
-	warning(_g("couldn't parse dynamic symbol definition: %s"), $line);
+	warning(g_("couldn't parse dynamic symbol definition: %s"), $line);
     }
 }
 
 sub apply_relocations {
-    my ($self) = @_;
+    my $self = shift;
     foreach my $sym (values %{$self->{dynsyms}}) {
 	# We want to mark as undefined symbols those which are currently
 	# defined but that depend on a copy relocation
@@ -388,13 +401,13 @@ sub get_symbol {
 }
 
 sub get_exported_dynamic_symbols {
-    my ($self) = @_;
+    my $self = shift;
     return grep { $_->{defined} && $_->{dynamic} && !$_->{local} }
 	    values %{$self->{dynsyms}};
 }
 
 sub get_undefined_dynamic_symbols {
-    my ($self) = @_;
+    my $self = shift;
     return grep { (!$_->{defined}) && $_->{dynamic} }
 	    values %{$self->{dynsyms}};
 }

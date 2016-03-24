@@ -2,7 +2,7 @@
  * dselect - Debian package maintenance user interface
  * pkgtop.cc - handles (re)draw of package list windows colheads, list, thisstate
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
 #include <compat.h>
 
 #include <assert.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 
 #include <dpkg/i18n.h>
+#include <dpkg/c-ctype.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 
@@ -190,7 +190,7 @@ void packagelist::redraw1itemsel(int index, int selected) {
         for (i = col_priority.width, p = pkg->otherpriority;
              i > 0 && *p;
              i--, p++)
-          waddch(listpad, tolower(*p));
+          waddch(listpad, c_tolower(*p));
         while (i-- > 0) waddch(listpad,' ');
       } else {
         wprintw(listpad, "%-*.*s", col_priority.width, col_priority.width,

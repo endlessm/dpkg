@@ -44,7 +44,7 @@ extended period. If you run an important distribution that makes use
 of vendor hooks, you'd better submit them for integration so that
 we avoid breaking your code.
 
-=head1 FUNCTIONS
+=head1 METHODS
 
 =over 4
 
@@ -56,7 +56,7 @@ if they don't need any specific initialization at object creation time.
 =cut
 
 sub new {
-    my ($this) = @_;
+    my $this = shift;
     my $class = ref($this) || $this;
     my $self = {};
     bless $self, $class;
@@ -81,6 +81,18 @@ The hook is called when dpkg-source is checking a signature on a source
 package. It takes no parameters, but returns a (possibly empty) list of
 vendor-specific keyrings.
 
+=item builtin-build-depends ()
+
+The hook is called when dpkg-checkbuilddeps is initializing the source
+package build dependencies (since dpkg 1.18.2). It takes no parameters,
+but returns a (possibly empty) list of vendor-specific Build-Depends.
+
+=item builtin-build-conflicts ()
+
+The hook is called when dpkg-checkbuilddeps is initializing the source
+package build conflicts (since dpkg 1.18.2). It takes no parameters,
+but returns a (possibly empty) list of vendor-specific Build-Conflicts.
+
 =item register-custom-fields ()
 
 The hook is called in Dpkg::Control::Fields to register custom fields.
@@ -104,13 +116,6 @@ The hook is called in Dpkg::BuildFlags to allow the vendor to override
 the default values set for the various build flags. $flags is a
 Dpkg::BuildFlags object.
 
-=item update-binary-control-fields ($fields, $builddir)
-
-This hook is called by dpkg-gencontrol after the Dpkg::Control fields
-have been filled in and prior to processing the command line overrides.
-$fields is is a Dpkg::Control object of type CTRL_PKG_DEB and $builddir
-is the package build directory.
-
 =back
 
 =cut
@@ -124,14 +129,16 @@ sub run_hook {
         return ();
     } elsif ($hook eq 'register-custom-fields') {
         return ();
+    } elsif ($hook eq 'builtin-build-depends') {
+        return ();
+    } elsif ($hook eq 'builtin-build-conflicts') {
+        return ();
     } elsif ($hook eq 'post-process-changelog-entry') {
         my $fields = shift @params;
     } elsif ($hook eq 'extend-patch-header') {
 	my ($textref, $ch_info) = @params;
     } elsif ($hook eq 'update-buildflags') {
 	my $flags = shift @params;
-    } elsif ($hook eq 'update-binary-control-fields') {
-        my ($fields, $builddir) = @params;
     }
 
     # Default return value for unknown/unimplemented hooks

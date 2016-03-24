@@ -16,7 +16,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
+
 use IO::String;
 
 BEGIN {
@@ -28,7 +29,7 @@ my $srcdir = $ENV{srcdir} || '.';
 my $datadir = $srcdir . '/t/Dpkg_Control';
 
 sub parse_dsc {
-    my ($path) = @_;
+    my $path = shift;
 
     my $dsc = Dpkg::Control->new(type => CTRL_PKG_SRC);
     eval {
@@ -52,6 +53,7 @@ Long-Field: line1
  line 2 line 2 line 2
  .
    line 3 line 3 line 3
+ .
  ..
  line 4
 Empty-Field:
@@ -82,6 +84,7 @@ is($src->{'long-field'},
 line 2 line 2 line 2
 
   line 3 line 3 line 3
+
 .
 line 4', 'Get multi-line field');
 is($src->{'Empty-field'}, '', 'Get empty field');
@@ -119,6 +122,9 @@ is($dsc, undef, 'Signed .dsc w/ bogus OpenPGP armor trailer');
 
 $dsc = parse_dsc("$datadir/bogus-armor-inline.dsc");
 is($dsc, undef, 'Signed .dsc w/ bogus OpenPGP inline armor');
+
+$dsc = parse_dsc("$datadir/bogus-armor-formfeed.dsc");
+is($dsc, undef, 'Signed .dsc w/ bogus OpenPGP armor line');
 
 $dsc = parse_dsc("$datadir/bogus-armor-double.dsc");
 ok(defined $dsc, 'Signed .dsc w/ two OpenPGP armor signatures');

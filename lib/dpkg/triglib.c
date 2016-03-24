@@ -3,8 +3,8 @@
  * triglib.c - trigger handling
  *
  * Copyright © 2007 Canonical Ltd
- * Written by Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2008-2014 Guillem Jover <guillem@debian.org>
+ * Written by Ian Jackson <ijackson@chiark.greenend.org.uk>
+ * Copyright © 2008-2015 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include <dpkg/i18n.h>
+#include <dpkg/c-ctype.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg.h>
@@ -48,11 +49,7 @@ static char *triggersdir, *triggersfilefile;
 static char *
 trig_get_filename(const char *dir, const char *filename)
 {
-	char *path;
-
-	m_asprintf(&path, "%s/%s", dir, filename);
-
-	return path;
+	return str_fmt("%s/%s", dir, filename);
 }
 
 static struct trig_hooks trigh;
@@ -163,7 +160,7 @@ static const struct trigkindinfo tki_explicit, tki_file, tki_unknown;
 static const struct trigkindinfo *dtki;
 
 /* As passed into activate_start. */
-static const char *trig_activating_name;
+static char *trig_activating_name;
 
 static const struct trigkindinfo *
 trig_classify_byname(const char *name)
@@ -190,16 +187,16 @@ invalid:
 
 /*
  * Calling sequence is:
- *  trig_activate_start(triggername)
- *  dtki->activate_awaiter(awaiting_package) } zero or more times
- *  dtki->activate_awaiter(0)                }  in any order
- *  dtki->activate_done(0)
+ *  trig_activate_start(triggername);
+ *  dtki->activate_awaiter(awaiting_package); } zero or more times
+ *  dtki->activate_awaiter(NULL);             }  in any order
+ *  dtki->activate_done();
  */
 static void
 trig_activate_start(const char *name)
 {
 	dtki = trig_classify_byname(name);
-	trig_activating_name = name;
+	trig_activating_name = nfstrsave(name);
 	dtki->activate_start();
 }
 
@@ -225,8 +222,8 @@ trk_unknown_interest_change(const char *trig, struct pkginfo *pkg,
                             struct pkgbin *pkgbin, int signum,
                             enum trig_options opts)
 {
-	ohshit(_("invalid or unknown syntax in trigger name `%.250s'"
-	         " (in trigger interests for package `%.250s')"),
+	ohshit(_("invalid or unknown syntax in trigger name '%.250s'"
+	         " (in trigger interests for package '%.250s')"),
 	       trig, pkgbin_name(pkg, pkgbin, pnaw_nonambig));
 }
 
@@ -266,7 +263,7 @@ trk_explicit_start(const char *trig)
 	trk_explicit_f = fopen(trk_explicit_fn.buf, "r");
 	if (!trk_explicit_f) {
 		if (errno != ENOENT)
-			ohshite(_("failed to open trigger interest list file `%.250s'"),
+			ohshite(_("failed to open trigger interest list file '%.250s'"),
 			        trk_explicit_fn.buf);
 	}
 }
@@ -281,7 +278,7 @@ static void
 trk_explicit_activate_start(void)
 {
 	trk_explicit_start(trig_activating_name);
-	trk_explicit_trig = nfstrsave(trig_activating_name);
+	trk_explicit_trig = trig_activating_name;
 }
 
 static void
@@ -294,7 +291,7 @@ trk_explicit_activate_awaiter(struct pkginfo *aw)
 		return;
 
 	if (fseek(trk_explicit_f, 0, SEEK_SET))
-		ohshite(_("failed to rewind trigger interest file `%.250s'"),
+		ohshite(_("failed to rewind trigger interest file '%.250s'"),
 		        trk_explicit_fn.buf);
 
 	while (trk_explicit_fgets(buf, sizeof(buf)) >= 0) {
@@ -313,8 +310,8 @@ trk_explicit_activate_awaiter(struct pkginfo *aw)
 
 		pend = pkg_spec_parse_pkg(buf, &err);
 		if (pend == NULL)
-			ohshit(_("trigger interest file `%.250s' syntax error; "
-			         "illegal package name `%.250s': %.250s"),
+			ohshit(_("trigger interest file '%.250s' syntax error; "
+			         "illegal package name '%.250s': %.250s"),
 			       trk_explicit_fn.buf, buf, err.str);
 
 		trig_record_activation(pend, noawait ? NULL : aw,
@@ -431,8 +428,8 @@ trk_file_interest_change(const char *trig, struct pkginfo *pkg,
 found:
 	tfi->options = opts;
 	if (signum > 1)
-		ohshit(_("duplicate file trigger interest for filename `%.250s' "
-		         "and package `%.250s'"), trig,
+		ohshit(_("duplicate file trigger interest for filename '%.250s' "
+		         "and package '%.250s'"), trig,
 		       pkgbin_name(pkg, pkgbin, pnaw_nonambig));
 	if (signum > 0)
 		return;
@@ -448,7 +445,7 @@ static void
 trig_file_interests_remove(void)
 {
 	if (unlink(triggersfilefile) && errno != ENOENT)
-		ohshite(_("cannot remove `%.250s'"), triggersfilefile);
+		ohshite(_("cannot remove '%.250s'"), triggersfilefile);
 }
 
 static void
@@ -502,7 +499,7 @@ trig_file_interests_ensure(void)
 	if (!f) {
 		if (errno == ENOENT)
 			goto ok;
-		ohshite(_("unable to read file triggers file `%.250s'"),
+		ohshite(_("unable to read file triggers file '%.250s'"),
 		        triggersfilefile);
 	}
 
@@ -513,7 +510,7 @@ trig_file_interests_ensure(void)
 		enum trig_options trig_opts = TRIG_AWAIT;
 		space = strchr(linebuf, ' ');
 		if (!space || linebuf[0] != '/')
-			ohshit(_("syntax error in file triggers file `%.250s'"),
+			ohshit(_("syntax error in file triggers file '%.250s'"),
 			       triggersfilefile);
 		*space++ = '\0';
 
@@ -530,8 +527,8 @@ trig_file_interests_ensure(void)
 		pkg = pkg_spec_parse_pkg(space, &err);
 		if (pkg == NULL)
 			ohshit(_("file triggers record mentions illegal "
-			         "package name `%.250s' (for interest in file "
-			         "`%.250s'): %.250s"), space, linebuf, err.str);
+			         "package name '%.250s' (for interest in file "
+			         "'%.250s'): %.250s"), space, linebuf, err.str);
 		pkgbin = &pkg->installed;
 
 		trk_file_interest_change(linebuf, pkg, pkgbin, +2, trig_opts);
@@ -600,7 +597,7 @@ static const char *trk_file_trig;
 static void
 trk_file_activate_start(void)
 {
-	trk_file_trig = nfstrsave(trig_activating_name);
+	trk_file_trig = trig_activating_name;
 }
 
 static void
@@ -668,8 +665,8 @@ parse_ci_call(const char *file, const char *cmd, trig_parse_cicb *cb,
 
 	emsg = trig_name_is_illegal(trig);
 	if (emsg)
-		ohshit(_("triggers ci file `%.250s' contains illegal trigger "
-		         "syntax in trigger name `%.250s': %.250s"),
+		ohshit(_("triggers ci file '%.250s' contains illegal trigger "
+		         "syntax in trigger name '%.250s': %.250s"),
 		       file, trig, emsg);
 	if (cb)
 		cb(trig, pkg, pkgbin, opts);
@@ -688,24 +685,24 @@ trig_parse_ci(const char *file, trig_parse_cicb *interest,
 	if (!f) {
 		if (errno == ENOENT)
 			return; /* No file is just like an empty one. */
-		ohshite(_("unable to open triggers ci file `%.250s'"), file);
+		ohshite(_("unable to open triggers ci file '%.250s'"), file);
 	}
 	push_cleanup(cu_closestream, ~0, NULL, 0, 1, f);
 
 	while ((l = fgets_checked(linebuf, sizeof(linebuf), f, file)) >= 0) {
-		for (cmd = linebuf; cisspace(*cmd); cmd++);
+		for (cmd = linebuf; c_iswhite(*cmd); cmd++) ;
 		if (*cmd == '#')
 			continue;
-		for (eol = linebuf + l; eol > cmd && cisspace(eol[-1]); eol--);
+		for (eol = linebuf + l; eol > cmd && c_iswhite(eol[-1]); eol--) ;
 		if (eol == cmd)
 			continue;
 		*eol = '\0';
 
-		for (spc = cmd; *spc && !cisspace(*spc); spc++);
+		for (spc = cmd; *spc && !c_iswhite(*spc); spc++) ;
 		if (!*spc)
 			ohshit(_("triggers ci file contains unknown directive syntax"));
 		*spc++ = '\0';
-		while (cisspace(*spc))
+		while (c_iswhite(*spc))
 			spc++;
 		if (strcmp(cmd, "interest") == 0 ||
 		    strcmp(cmd, "interest-await") == 0) {
@@ -718,7 +715,7 @@ trig_parse_ci(const char *file, trig_parse_cicb *interest,
 		} else if (strcmp(cmd, "activate-noawait") == 0) {
 			parse_ci_call(file, cmd, activate, spc, pkg, pkgbin, TRIG_NOAWAIT);
 		} else {
-			ohshit(_("triggers ci file contains unknown directive `%.250s'"),
+			ohshit(_("triggers ci file contains unknown directive '%.250s'"),
 			       cmd);
 		}
 	}
@@ -785,10 +782,10 @@ trig_incorporate(enum modstatdb_rw cstatus)
 		if (mkdir(triggersdir, 0755)) {
 			if (errno != EEXIST)
 				ohshite(_("unable to create triggers state"
-				          " directory `%.250s'"), triggersdir);
+				          " directory '%.250s'"), triggersdir);
 		} else if (chown(triggersdir, 0, 0)) {
 			ohshite(_("unable to set ownership of triggers state"
-			          " directory `%.250s'"), triggersdir);
+			          " directory '%.250s'"), triggersdir);
 		}
 		ur = trigdef_update_start(tduf);
 	}

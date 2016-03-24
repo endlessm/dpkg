@@ -2,7 +2,7 @@
  * dpkg - main program for package management
  * depcon.c - dependency and conflict checking
  *
- * Copyright © 1994,1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
@@ -337,11 +337,16 @@ depisok(struct dependency *dep, struct varbuf *whynot,
     case PKG_STAT_TRIGGERSPENDING:
     case PKG_STAT_TRIGGERSAWAITED:
       break;
-    case PKG_STAT_NOTINSTALLED:
-    case PKG_STAT_CONFIGFILES:
-    case PKG_STAT_HALFINSTALLED:
     case PKG_STAT_HALFCONFIGURED:
     case PKG_STAT_UNPACKED:
+    case PKG_STAT_HALFINSTALLED:
+      if (dep->type == dep_predepends ||
+          dep->type == dep_conflicts ||
+          dep->type == dep_breaks)
+        break;
+      /* Fall through. */
+    case PKG_STAT_CONFIGFILES:
+    case PKG_STAT_NOTINSTALLED:
       return true;
     default:
       internerr("unknown status depending '%d'", dep->up->status);

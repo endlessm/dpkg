@@ -2,7 +2,7 @@
  * dselect - Debian package maintenance user interface
  * pkginfo.cc - handles (re)draw of package list window infopad
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #include <config.h>
 #include <compat.h>
 
-#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -89,7 +88,7 @@ void packagelist::severalinfoblurb()
      "If you move the highlight to a line for a particular package "
      "you will see information about that package displayed here."
      "\n"
-     "You can use `o' and `O' to change the sort order and give yourself "
+     "You can use 'o' and 'O' to change the sort order and give yourself "
      "the opportunity to mark packages in different kinds of groups."));
   wordwrapinfo(0,vb.string());
 }
@@ -140,7 +139,6 @@ void packagelist::itd_statuscontrol() {
   } else {
     varbuf vb;
     varbufrecord(&vb,table[cursorline]->pkg,&table[cursorline]->pkg->installed);
-    vb.terminate();
     debug(dbg_general, "packagelist[%p]::idt_statuscontrol(); '%s'",
           this, vb.string());
     waddstr(infopad,vb.string());
@@ -156,7 +154,6 @@ void packagelist::itd_availablecontrol() {
   } else {
     varbuf vb;
     varbufrecord(&vb,table[cursorline]->pkg,&table[cursorline]->pkg->available);
-    vb.terminate();
     debug(dbg_general, "packagelist[%p]::idt_availablecontrol(); '%s'",
           this, vb.string());
     waddstr(infopad,vb.string());
@@ -178,7 +175,7 @@ void packagelist::redrawinfo() {
         this, (int)(currentinfo - baseinfo));
 
   (this->*currentinfo->display)();
-  whatinfovb.terminate();
+
   int y,x;
   getyx(infopad, y,x);
   if (x) y++;

@@ -2,8 +2,8 @@
  * dpkg - main program for package management
  * remove.c - functionality for removing packages
  *
- * Copyright © 1995 Ian Jackson <ian@chiark.greenend.org.uk>
- * Copyright © 2007-2014 Guillem Jover <guillem@debian.org>
+ * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
+ * Copyright © 2007-2015 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 #include <sys/stat.h>
 
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -35,9 +34,11 @@
 #include <stdio.h>
 
 #include <dpkg/i18n.h>
+#include <dpkg/c-ctype.h>
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg.h>
+#include <dpkg/path.h>
 #include <dpkg/dir.h>
 #include <dpkg/options.h>
 #include <dpkg/triglib.h>
@@ -56,7 +57,7 @@ static void checkforremoval(struct pkginfo *pkgtoremove,
   struct deppossi *possi;
   struct pkginfo *depender;
   enum dep_check ok;
-  int before;
+  struct varbuf_state raemsgs_state;
 
   for (possi = pkgdepcheck->depended.installed; possi; possi = possi->rev_next) {
     if (possi->up->type != dep_depends && possi->up->type != dep_predepends) continue;
@@ -71,14 +72,14 @@ static void checkforremoval(struct pkginfo *pkgtoremove,
       continue;
     }
     if (dependtry > 1) { if (findbreakcycle(pkgtoremove)) sincenothing= 0; }
-    before= raemsgs->used;
+    varbuf_snapshot(raemsgs, &raemsgs_state);
     ok= dependencies_ok(depender,pkgtoremove,raemsgs);
     if (ok == DEP_CHECK_HALT &&
         depender->clientdata->istobe == PKG_ISTOBE_REMOVE)
       ok = DEP_CHECK_DEFER;
     if (ok == DEP_CHECK_DEFER)
       /* Don't burble about reasons for deferral. */
-      varbuf_trunc(raemsgs, before);
+      varbuf_rollback(raemsgs, &raemsgs_state);
     if (ok < *rokp) *rokp= ok;
   }
 }
@@ -168,7 +169,7 @@ void deferred_remove(struct pkginfo *pkg) {
     return;
   }
 
-  oldconffsetflags(pkg->installed.conffiles);
+  pkg_conffiles_mark_old(pkg);
 
   printf(_("Removing %s (%s) ...\n"), pkg_name(pkg, pnaw_nonambig),
          versiondescribe(&pkg->installed.version, vdew_nonambig));
@@ -211,7 +212,7 @@ removal_bulk_remove_file(const char *filename, const char *filetype)
   debug(dbg_stupidlyverbose, "removal_bulk info not postrm or list");
 
   if (unlink(filename))
-    ohshite(_("unable to delete control info file `%.250s'"), filename);
+    ohshite(_("unable to delete control info file '%.250s'"), filename);
 
   debug(dbg_scripts, "removal_bulk info unlinked %s", filename);
 }
@@ -246,11 +247,11 @@ removal_bulk_file_is_shared(struct pkginfo *pkg, struct filenamenode *namenode)
 static void
 removal_bulk_remove_files(struct pkginfo *pkg)
 {
-  int before;
   struct reversefilelistiter rlistit;
   struct fileinlist *leftover;
   struct filenamenode *namenode;
   static struct varbuf fnvb;
+  struct varbuf_state fnvb_state;
   struct stat stab;
 
     pkg_set_status(pkg, PKG_STAT_HALFINSTALLED);
@@ -272,7 +273,7 @@ removal_bulk_remove_files(struct pkginfo *pkg)
       varbuf_add_str(&fnvb, instdir);
       varbuf_add_str(&fnvb, usenode->name);
       varbuf_end_str(&fnvb);
-      before= fnvb.used;
+      varbuf_snapshot(&fnvb, &fnvb_state);
 
       is_dir = stat(fnvb.buf, &stab) == 0 && S_ISDIR(stab.st_mode);
 
@@ -314,19 +315,19 @@ removal_bulk_remove_files(struct pkginfo *pkg)
 
       trig_path_activate(usenode, pkg);
 
-      varbuf_trunc(&fnvb, before);
+      varbuf_rollback(&fnvb, &fnvb_state);
       varbuf_add_str(&fnvb, DPKGTEMPEXT);
       varbuf_end_str(&fnvb);
       debug(dbg_eachfiledetail, "removal_bulk cleaning temp '%s'", fnvb.buf);
-      ensure_pathname_nonexisting(fnvb.buf);
+      path_remove_tree(fnvb.buf);
 
-      varbuf_trunc(&fnvb, before);
+      varbuf_rollback(&fnvb, &fnvb_state);
       varbuf_add_str(&fnvb, DPKGNEWEXT);
       varbuf_end_str(&fnvb);
       debug(dbg_eachfiledetail, "removal_bulk cleaning new '%s'", fnvb.buf);
-      ensure_pathname_nonexisting(fnvb.buf);
+      path_remove_tree(fnvb.buf);
 
-      varbuf_trunc(&fnvb, before);
+      varbuf_rollback(&fnvb, &fnvb_state);
       varbuf_end_str(&fnvb);
 
       debug(dbg_eachfiledetail, "removal_bulk removing '%s'", fnvb.buf);
@@ -344,7 +345,8 @@ removal_bulk_remove_files(struct pkginfo *pkg)
         push_leftover(&leftover,namenode);
         continue;
       }
-      if (errno != ENOTDIR) ohshite(_("cannot remove `%.250s'"),fnvb.buf);
+      if (errno != ENOTDIR)
+        ohshite(_("cannot remove '%.250s'"), fnvb.buf);
       debug(dbg_eachfiledetail, "removal_bulk unlinking '%s'", fnvb.buf);
       if (secure_unlink(fnvb.buf))
         ohshite(_("unable to securely remove '%.250s'"), fnvb.buf);
@@ -437,7 +439,8 @@ static void removal_bulk_remove_leftover_dirs(struct pkginfo *pkg) {
       push_leftover(&leftover,namenode);
       continue;
     }
-    if (errno != ENOTDIR) ohshite(_("cannot remove `%.250s'"),fnvb.buf);
+    if (errno != ENOTDIR)
+      ohshite(_("cannot remove '%.250s'"), fnvb.buf);
 
     if (lstat(fnvb.buf, &stab) == 0 && S_ISLNK(stab.st_mode)) {
       debug(dbg_eachfiledetail, "removal_bulk is a symlink to a directory");
@@ -459,7 +462,7 @@ static void removal_bulk_remove_leftover_dirs(struct pkginfo *pkg) {
 
 static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
   static const char *const removeconffexts[] = { REMOVECONFFEXTS, NULL };
-  int rc, removevbbase;
+  int rc;
   int conffnameused, conffbasenamelen;
   char *conffbasename;
   struct conffile *conff, **lconffp;
@@ -512,6 +515,8 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
 
     for (conff= pkg->installed.conffiles; conff; conff= conff->next) {
     static struct varbuf fnvb, removevb;
+      struct varbuf_state removevb_state;
+
       if (conff->obsolete) {
 	debug(dbg_conffdetail, "removal_bulk conffile obsolete %s",
 	      conff->name);
@@ -524,22 +529,23 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
         continue;
       conffnameused = fnvb.used;
       if (unlink(fnvb.buf) && errno != ENOENT && errno != ENOTDIR)
-        ohshite(_("cannot remove old config file `%.250s' (= `%.250s')"),
+        ohshite(_("cannot remove old config file '%.250s' (= '%.250s')"),
                 conff->name, fnvb.buf);
       p= strrchr(fnvb.buf,'/'); if (!p) continue;
       *p = '\0';
       varbuf_reset(&removevb);
       varbuf_add_str(&removevb, fnvb.buf);
       varbuf_add_char(&removevb, '/');
-      removevbbase= removevb.used;
       varbuf_end_str(&removevb);
+      varbuf_snapshot(&removevb, &removevb_state);
+
       dsd= opendir(removevb.buf);
       if (!dsd) {
         int e=errno;
         debug(dbg_conffdetail, "removal_bulk conffile no dsd %s %s",
               fnvb.buf, strerror(e)); errno= e;
         if (errno == ENOENT || errno == ENOTDIR) continue;
-        ohshite(_("cannot read config file dir `%.250s' (from `%.250s')"),
+        ohshite(_("cannot read config file directory '%.250s' (from '%.250s')"),
                 fnvb.buf, conff->name);
       }
       debug(dbg_conffdetail, "removal_bulk conffile cleaning dsd %s", fnvb.buf);
@@ -558,7 +564,8 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
               goto yes_remove;
           p= de->d_name+conffbasenamelen;
           if (*p++ == '~') {
-            while (*p && cisdigit(*p)) p++;
+            while (*p && c_isdigit(*p))
+              p++;
             if (*p == '~' && !*++p) goto yes_remove;
           }
         }
@@ -570,13 +577,13 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
         debug(dbg_stupidlyverbose, "removal_bulk conffile dsd entry not it");
         continue;
       yes_remove:
-        varbuf_trunc(&removevb, removevbbase);
+        varbuf_rollback(&removevb, &removevb_state);
         varbuf_add_str(&removevb, de->d_name);
         varbuf_end_str(&removevb);
         debug(dbg_conffdetail, "removal_bulk conffile dsd entry removing '%s'",
               removevb.buf);
         if (unlink(removevb.buf) && errno != ENOENT && errno != ENOTDIR)
-          ohshite(_("cannot remove old backup config file `%.250s' (of `%.250s')"),
+          ohshite(_("cannot remove old backup config file '%.250s' (of '%.250s')"),
                   removevb.buf, conff->name);
       }
       pop_cleanup(ehflag_normaltidy); /* closedir */

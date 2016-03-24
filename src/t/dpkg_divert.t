@@ -13,13 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use Test::More;
-use File::Spec;
-use Dpkg::File;
-use Dpkg::IPC;
-
 use strict;
 use warnings;
+
+use Test::More;
+
+use File::Spec;
+
+use Dpkg::File;
+use Dpkg::IPC;
 
 # Cleanup environment from variables that pollute the test runs.
 delete $ENV{DPKG_MAINTSCRIPT_PACKAGE};
@@ -41,6 +43,8 @@ if (! -x "@dd") {
 plan tests => 257;
 
 sub cleanup {
+    # On FreeBSD «rm -rf» cannot traverse a directory with mode 000.
+    system("test -d $testdir/nadir && rmdir $testdir/nadir");
     system("rm -rf $tmpdir && mkdir -p $testdir");
     system("mkdir -p $admindir/updates");
     system("rm -f $admindir/status && touch $admindir/status");
@@ -279,7 +283,11 @@ install_diversions('');
 
 system("touch $testdir/foo");
 call_divert(['--rename', '--add', "$testdir/foo"],
-            expect_stdout_like => qr{Adding.*local.*diversion.*\Q$testdir\E/foo.*\Q$testdir\E/foo.distrib},
+            expect_stdout_like => qr{
+                Adding.*local.*diversion.*
+                \Q$testdir\E/foo.*
+                \Q$testdir\E/foo.distrib
+            }x,
             expect_stderr => '');
 ok(-e "$testdir/foo.distrib", 'foo diverted');
 ok(!-e "$testdir/foo", 'foo diverted');
@@ -293,7 +301,11 @@ install_diversions('');
 
 system("touch $testdir/foo");
 call_divert(['--add', "$testdir/foo"],
-            expect_stdout_like => qr{Adding.*local.*diversion.*\Q$testdir\E/foo.*\Q$testdir\E/foo.distrib},
+            expect_stdout_like => qr{
+                Adding.*local.*diversion.*
+                \Q$testdir\E/foo.*
+                \Q$testdir\E/foo.distrib
+            }x,
             expect_stderr => '');
 ok(!-e "$testdir/foo.distrib", 'foo diverted');
 ok(-e "$testdir/foo", 'foo diverted');
@@ -466,7 +478,7 @@ call_divert(['--divert', "$testdir/foo.my", '--remove', "$testdir/foo"],
 call_divert(['--package', 'baz', '--remove', "$testdir/foo"],
             expect_failure => 1, expect_stderr_like => qr/mismatch on package/);
 call_divert(['--package', 'baz', '--divert', "$testdir/foo.my", '--remove', "$testdir/foo"],
-            expect_failure => 1, expect_stderr_like =>qr/mismatch on (package|divert-to)/);
+            expect_failure => 1, expect_stderr_like => qr/mismatch on (package|divert-to)/);
 
 call_divert(['--divert', "$testdir/foo.distrib", '--remove', "$testdir/foo"],
             expect_stdout_like => qr{Removing.*\Q$testdir\E/foo});
@@ -562,7 +574,8 @@ install_diversions(<<'EOF');
 EOF
 
 call_divert_sort(['--list'], expect_failure => 1,
-            expect_stderr_like => qr/(corrupt|unexpected eof)/, expect_stdout => '');
+                 expect_stderr_like => qr/(corrupt|unexpected end of file)/,
+                 expect_stdout => '');
 
 install_diversions(<<'EOF');
 /bin/sh
@@ -570,7 +583,8 @@ bash
 EOF
 
 call_divert_sort(['--list'], expect_failure => 1,
-            expect_stderr_like => qr/(corrupt|unexpected eof)/, expect_stdout => '');
+                 expect_stderr_like => qr/(corrupt|unexpected end of file)/,
+                 expect_stdout => '');
 
 cleanup();
 
@@ -613,8 +627,16 @@ SKIP: {
 
     system("chmod 500 $admindir");
     call_divert(["$testdir/foo"], expect_failure => 1, expect_stderr_like => qr/create.*new/);
-    system("chmod 755 $admindir; ln -s /dev/full $admindir/diversions-new");
-    call_divert(["$testdir/foo"], expect_failure => 1, expect_stderr_like => qr/(write|flush|close).*new/);
+
+    system("chmod 755 $admindir");
+
+    SKIP: {
+        skip 'device /dev/full is not available', 2 if not -c '/dev/full';
+
+        system("ln -s /dev/full $admindir/diversions-new");
+        call_divert(["$testdir/foo"], expect_failure => 1,
+                    expect_stderr_like => qr/(write|flush|close).*new/);
+    }
 }
 
 system("rm -f $admindir/diversions-new; mkdir $admindir/diversions-old");

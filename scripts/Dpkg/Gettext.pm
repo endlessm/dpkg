@@ -1,5 +1,8 @@
 # Copied from /usr/share/perl5/Debconf/Gettext.pm
 #
+# Copyright © 2000 Joey Hess <joeyh@debian.org>
+# Copyright © 2007, 2009-2010, 2012-2015 Guillem Jover <guillem@debian.org>
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -26,8 +29,15 @@ package Dpkg::Gettext;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
-our @EXPORT = qw(_g P_ textdomain ngettext);
+our $VERSION = '1.02';
+our @EXPORT = qw(
+    textdomain
+    ngettext
+    g_
+    P_
+    N_
+    _g
+);
 
 use Exporter qw(import);
 
@@ -43,30 +53,55 @@ The Dpkg::Gettext module is a convenience wrapper over the Locale::gettext
 module, to guarantee we always have working gettext functions, and to add
 some commonly used aliases.
 
-=head1 FUNCTIONS
+=head1 VARIABLES
 
 =over 4
 
-=item my $trans = _g($msgid)
+=item $Dpkg::Gettext::DEFAULT_TEXT_DOMAIN
 
-Calls gettext() on the $msgid and returns its translation for the current
-locale. If gettext() is not available, simply returns $msgid.
-
-=item my $trans = P_($msgid, $msgid_plural, $n)
-
-Calls ngettext(), returning the correct translation for the plural form
-dependent on $n. If gettext() is not available, returns $msgid if $n is 1
-or $msgid_plural otherwise.
+Specifies the default text domain name to be used with the short function
+aliases. This is intended to be used by the Dpkg modules, so that they
+can produce localized messages even when the calling program has set the
+current domain with textdomain(). If you would like to use the aliases
+for your own modules, you might want to set this variable to undef, or
+to another domain, but then the Dpkg modules will not produce localized
+messages.
 
 =back
 
 =cut
 
+our $DEFAULT_TEXT_DOMAIN = 'dpkg-dev';
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item $trans = g_($msgid)
+
+Calls dgettext() on the $msgid and returns its translation for the current
+locale. If dgettext() is not available, simply returns $msgid.
+
+=item $trans = C_($msgctxt, $msgid)
+
+Calls dgettext() on the $msgid and returns its translation for the specific
+$msgctxt supplied. If dgettext() is not available, simply returns $msgid.
+
+=item $trans = P_($msgid, $msgid_plural, $n)
+
+Calls dngettext(), returning the correct translation for the plural form
+dependent on $n. If dngettext() is not available, returns $msgid if $n is 1
+or $msgid_plural otherwise.
+
+=cut
+
+use constant GETTEXT_CONTEXT_GLUE => "\004";
+
 BEGIN {
     eval 'use Locale::gettext';
     if ($@) {
         eval q{
-            sub _g {
+            sub g_ {
                 return shift;
             }
             sub textdomain {
@@ -79,25 +114,74 @@ BEGIN {
                     return $msgid_plural;
                 }
             }
+            sub C_ {
+                my ($msgctxt, $msgid) = @_;
+                return $msgid;
+            }
             sub P_ {
                 return ngettext(@_);
             }
         };
     } else {
         eval q{
-            sub _g {
-                return gettext(shift);
+            sub g_ {
+                return dgettext($DEFAULT_TEXT_DOMAIN, shift);
+            }
+            sub C_ {
+                my ($msgctxt, $msgid) = @_;
+                return dgettext($DEFAULT_TEXT_DOMAIN,
+                                $msgctxt . GETTEXT_CONTEXT_GLUE . $msgid);
             }
             sub P_ {
-                return ngettext(@_);
+                return dngettext($DEFAULT_TEXT_DOMAIN, @_);
             }
         };
     }
 }
 
+=item $msgid = N_($msgid)
+
+A pseudo function that servers as a marked for automated extraction of
+messages, but does not call gettext(). The run-time translation is done
+at a different place in the code.
+
+=back
+
+=cut
+
+sub N_
+{
+    my $msgid = shift;
+    return $msgid;
+}
+
+# XXX: Backwards compatibility, to be removed on VERSION 2.00.
+sub _g ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
+{
+    my $msgid = shift;
+
+    require Carp;
+    Carp::carp('obsolete _g() function, please use g_() instead');
+
+    return g_($msgid);
+}
+
 =head1 CHANGES
 
-=head2 Version 1.00
+=head2 Version 1.02 (dpkg 1.18.3)
+
+New function: N_().
+
+=head2 Version 1.01 (dpkg 1.18.0)
+
+Now the short aliases (g_ and P_) will call domain aware functions with
+$DEFAULT_TEXT_DOMAIN.
+
+New functions: g_(), C_().
+
+Deprecated function: _g().
+
+=head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
 
