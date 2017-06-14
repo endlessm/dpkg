@@ -20,6 +20,8 @@ use warnings;
 
 our $VERSION = '0.01';
 
+use IO::Dir;
+
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 
@@ -101,6 +103,21 @@ sub parse {
     return $count;
 }
 
+sub load_dir {
+    my ($self, $dir) = @_;
+
+    my $count = 0;
+    my $dh = IO::Dir->new($dir) or syserr(g_('cannot open directory %s'), $dir);
+
+    while (defined(my $file = $dh->read)) {
+        my $pathname = "$dir/$file";
+        next unless -f $pathname;
+        $count += $self->load($pathname);
+    }
+
+    return $count;
+}
+
 sub get_files {
     my $self = shift;
 
@@ -122,6 +139,8 @@ sub add_file {
     $file->{priority} = $priority;
 
     $self->{files}->{$filename} = $file;
+
+    return $file;
 }
 
 sub del_file {

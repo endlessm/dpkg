@@ -23,7 +23,7 @@ if HAVE_SYS_ERRLIST
 libcompat_test_la_SOURCES += strerror.c
 endif
 
-if WITH_SELINUX
+if WITH_LIBSELINUX
 libcompat_test_la_SOURCES += selinux.c
 endif
 
@@ -38,6 +38,10 @@ endif
 
 if !HAVE_GETOPT
 libcompat_la_SOURCES += getopt.c getopt.h
+else
+if !HAVE_GETOPT_LONG
+libcompat_la_SOURCES += getopt.c getopt.h
+endif
 endif
 
 if !HAVE_GETOPT_LONG
@@ -64,7 +68,7 @@ if !HAVE_STRSIGNAL
 libcompat_la_SOURCES += strsignal.c
 endif
 
-if WITH_SELINUX
+if WITH_LIBSELINUX
 if !HAVE_SETEXECFILECON
 libcompat_la_SOURCES += selinux.c
 endif

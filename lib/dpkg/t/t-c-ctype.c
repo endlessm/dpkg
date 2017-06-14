@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -97,8 +97,7 @@ test_casing(void)
 	test_pass(c_tolower(-1) == -1);
 }
 
-static void
-test(void)
+TEST_ENTRY(test)
 {
 	test_plan(2063);
 

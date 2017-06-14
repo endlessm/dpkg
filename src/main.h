@@ -3,7 +3,7 @@
  * main.h - external definitions for this program
  *
  * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
- * Copyright © 2006, 2008-2015 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006, 2008-2016 Guillem Jover <guillem@debian.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 
 /* These two are defined in filesdb.h. */
 struct fileinlist;
-struct filenamenode_queue;
 struct filenamenode;
 
 enum pkg_istobe {
@@ -102,7 +101,6 @@ enum action {
 	act_arch_add,
 	act_arch_remove,
 	act_printarch,
-	act_printinstarch,
 	act_printforeignarches,
 
 	act_assertpredep,
@@ -111,6 +109,11 @@ enum action {
 	act_assertmulticonrep,
 	act_assertmultiarch,
 	act_assertverprovides,
+
+	act_validate_pkgname,
+	act_validate_trigname,
+	act_validate_archname,
+	act_validate_version,
 
 	act_audit,
 	act_unpackchk,
@@ -142,6 +145,7 @@ extern int fc_conff_ask;
 extern int fc_badverify;
 extern int fc_badversion;
 extern int fc_unsafe_io;
+extern int fc_script_chrootless;
 
 extern bool abort_processing;
 extern int errabort;
@@ -150,7 +154,11 @@ extern struct pkg_list *ignoredependss;
 
 struct invoke_hook {
 	struct invoke_hook *next;
-	const char *command;
+	char *command;
+};
+
+struct invoke_list {
+	struct invoke_hook *head, **tail;
 };
 
 /* from archives.c */
@@ -158,10 +166,6 @@ struct invoke_hook {
 int archivefiles(const char *const *argv);
 void process_archive(const char *filename);
 bool wanttoinstall(struct pkginfo *pkg);
-
-struct fileinlist *
-filenamenode_queue_push(struct filenamenode_queue *queue,
-                        struct filenamenode *namenode);
 
 /* from update.c */
 
@@ -178,6 +182,10 @@ int assertlongfilenames(const char *const *argv);
 int assertmulticonrep(const char *const *argv);
 int assertmultiarch(const char *const *argv);
 int assertverprovides(const char *const *argv);
+int validate_pkgname(const char *const *argv);
+int validate_trigname(const char *const *argv);
+int validate_archname(const char *const *argv);
+int validate_version(const char *const *argv);
 int predeppackage(const char *const *argv);
 int printarch(const char *const *argv);
 int printinstarch(const char *const *argv);
@@ -242,6 +250,7 @@ bool force_depends(struct deppossi *possi);
 bool force_conflicts(struct deppossi *possi);
 void conffile_mark_obsolete(struct pkginfo *pkg, struct filenamenode *namenode);
 void pkg_conffiles_mark_old(struct pkginfo *pkg);
+bool find_command(const char *prog);
 void checkpath(void);
 
 struct filenamenode *namenodetouse(struct filenamenode *namenode,

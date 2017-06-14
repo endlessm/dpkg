@@ -7,19 +7,27 @@ pkgconfdir = $(sysconfdir)/@PACKAGE@
 
 AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\" \
-	-DADMINDIR=\"$(admindir)\" -DLIBDIR=\"$(pkglibdir)\" \
+	-DADMINDIR=\"$(admindir)\" \
+	-DLIBDIR=\"$(pkglibexecdir)\" \
 	-DLOCALLIBDIR=\"/usr/local/lib/dpkg\" \
 	-idirafter $(top_srcdir)/lib/compat \
 	-iquote $(builddir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir)/lib
 AM_CXXFLAGS = \
-	-fno-rtti
+	-fno-rtti \
+	-fno-exceptions \
+	$(nil)
+if HAVE_LINKER_AS_NEEDED
+AM_LDFLAGS = \
+	-Wl,--as-needed
+endif
 
 
 bin_PROGRAMS = dselect
 
 dselect_SOURCES = \
+	cxx-support.cc \
 	dselect.h \
 	dselect-curses.h \
 	basecmds.cc \
@@ -54,11 +62,11 @@ CLEANFILES = curkeys.h
 curkeys.$(OBJEXT): curkeys.h
 curkeys.h: $(srcdir)/keyoverride $(srcdir)/mkcurkeys.pl
 	$(AM_V_GEN) cursesfile=`echo '#include "dselect-curses.h"' | \
-		$(CPP) $(CPPFLAGS) -I$(top_builddir) -I $(srcdir) - | \
-		grep '[^-]curses\.h' | head -n 1 | \
-		sed -e 's/^[^"]*"//; s/".*$$//'`; \
+	  $(CPP) $(CPPFLAGS) -I$(top_builddir) -I $(srcdir) - | \
+	  grep '[^-]curses\.h' | head -n 1 | \
+	  sed -e 's/^[^"]*"//; s/".*$$//'`; \
 	if [ "$$cursesfile" = "" ]; then \
-		echo "can't find curses file"; exit 1; \
+	  echo "can't find curses file"; exit 1; \
 	fi; \
 	$(PERL) $(srcdir)/mkcurkeys.pl $< $$cursesfile >$@
 

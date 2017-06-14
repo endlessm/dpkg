@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-06-26 16:12+0200\n"
 "Last-Translator: Changwoo Ryu <cwryu@debian.org>\n"
 "Language-Team: Korean <debian-l10n-korean@lists.debian.org>\n"
@@ -16,6 +16,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "아카이브 파일의 정보를 읽는데 실패했습니다"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "`%.255s' 아카이브를 읽는데 실패했습니다"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "`%.255s'을(를) 만들 수 없습니다"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "'%s' 파일을 닫을 수 없습니다"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -164,8 +184,8 @@ msgstr "%.250s 파일에서 예상치 못하게 파일이 끝났습니다"
 msgid "failed to seek"
 msgstr "tar 실행이 실패했습니다"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "%s 프로그램을 실행할 수 없습니다 (%s)"
@@ -336,11 +356,6 @@ msgstr "업데이트 디렉터리 `%.255s'을(를) 읽을 수 없습니다"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "합병한 업데이트 파일 %.255s을(를) 지우는데 실패했습니다"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "`%.255s'을(를) 만들 수 없습니다"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -460,8 +475,7 @@ msgstr "'%s' 파일을 동기화할 수 없습니다"
 msgid "unable to open directory '%s'"
 msgstr "'%s' 파일을 열 수 없습니다"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "'%s' 파일을 열 수 없습니다"
@@ -471,12 +485,6 @@ msgstr "'%s' 파일을 열 수 없습니다"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "'%s' 파일을 동기화할 수 없습니다"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "'%s' 파일을 닫을 수 없습니다"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -495,26 +503,16 @@ msgstr ""
 "'%3$.250s' 파일에 `%2$.50s'에 관한 %1$s 데이터베이스 레코드를 쓰는데 실패했습"
 "니다"
 
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "오류"
+
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: 복구 불가능한 치명적 오류, 중지합니다:\n"
-" %s\n"
-
-#: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid ""
-#| "%s: unrecoverable fatal error, aborting:\n"
-#| " %s\n"
-msgid ""
-"%s: outside error context, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: 복구 불가능한 치명적 오류, 중지합니다:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 #, fuzzy
@@ -523,18 +521,19 @@ msgid "out of memory for new error context"
 msgstr "새 클린업 엔트리에 필요한 메모리가 부족합니다"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: 정리하는 중에 오류가 발생했습니다:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
+#, fuzzy
 #| msgid "dpkg: too many nested errors during error recovery !!\n"
-msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "dpkg: 오류를 복구하는 동안에 너무 많은 오류가 발생했습니다!!\n"
 
 #: lib/dpkg/ehandle.c
@@ -546,16 +545,30 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "인수가 많은 새 클린업 엔트리에 필요한 메모리가 부족합니다"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid "%s: warning: %s\n"
-msgid "%s: error: %s\n"
-msgstr "%s: 경고: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: 복구 불가능한 치명적 오류, 중지합니다:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid "%s:%s:%d: internal error: %s\n"
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d: 내부 오류: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: 복구 불가능한 치명적 오류, 중지합니다:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "%s: internal gzip read error"
+msgid "internal error"
+msgstr "%s: 내부 gzip 읽기 오류"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -656,8 +669,8 @@ msgstr ""
 
 #: lib/dpkg/fields.c
 #, fuzzy, c-format
-#| msgid "value for `conffiles' has malformatted line `%.*s'"
-msgid "value for '%s' field has malformatted line '%.*s'"
+#| msgid "value for `conffiles' has malformed line `%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "`conffiles'의 값에 잘못된 줄, `%.*s'이(가) 있습니다"
 
 #: lib/dpkg/fields.c
@@ -962,6 +975,11 @@ msgid "invalid integer for --%s: '%.250s'"
 msgstr "--%s 옵션에 숫자가 잘못되었습니다: `%.250s'"
 
 #: lib/dpkg/options.c
+#, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "-%c 옵션에 숫자가 잘못되었습니다: '%.250s'"
+
+#: lib/dpkg/options.c
 #, fuzzy, c-format
 #| msgid "obsolete option '--%s'\n"
 msgid "obsolete option '--%s'"
@@ -1205,6 +1223,12 @@ msgid "version string has embedded spaces"
 msgstr "버전 문자열 안에 공백이 들어 있습니다"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is not number"
+msgid "epoch in version is empty"
+msgstr "버전의 epoch가 숫자가 아닙니다"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "버전의 epoch가 숫자가 아닙니다"
 
@@ -1223,6 +1247,18 @@ msgstr "버전의 epoch가 숫자가 아닙니다"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "버전 번호에서 콜론 뒤에 아무 것도 없습니다"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "버전 문자열이 비어 있습니다"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "버전 문자열이 비어 있습니다"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1268,6 +1304,12 @@ msgstr ""
 msgid "(no description available)"
 msgstr "(설명 없음)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax: %s"
+msgstr "버전 '%s'의 형식이 잘못되었습니다: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, fuzzy, c-format
 #| msgid "illegal package name in awaited trigger `%.255s': %s"
@@ -1280,10 +1322,9 @@ msgstr "대기 트리거 `%.255s'에서 사용할 수 없는 패키지 이름이
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "대기 트리거 `%.255s'에서 사용할 수 없는 패키지 이름이 나왔습니다: %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: 경고: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "경고"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1314,7 +1355,7 @@ msgstr "%s (하위 프로세스): %s\n"
 msgid "fork failed"
 msgstr "fork가 실패했습니다"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "%s 하위 프로세스가 오류 %d번을 리턴했습니다"
@@ -1345,64 +1386,79 @@ msgstr "하위 프로세스 %s이(가) 지연 상태 코드 %d을(를) 갖고 �
 msgid "wait for subprocess %s failed"
 msgstr "%s 하위 프로세스를 wait하는데 실패했습니다"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-"패키지 이름이 (`%.250s') 잘못되었습니다 (`%.250s' 트리거 전환 파일에서)"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat file '%s'"
+msgid "cannot stat pathname '%s'"
+msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "트리거 전환 파일이 (`%.250s') 잘렸습니다"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "`%.255s' 디렉터리를 읽을 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr "트리거 전환 파일의 (`%.250s') `%s' 문자에 문법 오류가 있습니다%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "컨트롤 디렉터리가 디렉터리가 아닙니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "트리거 잠금 파일을 (`%.250s') 열거나 만들 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy
 #| msgid "triggered"
 msgid "triggers area"
 msgstr "트리거"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "트리거가 전환한 파일을 (`%.250s') 열 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "트리거가 전환한 파일의 (`%.250s') 정보를 읽을 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "새로 트리거 전환한 파일을 (`%.250s') 열거나 만들 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr "트리거 전환 파일의 (`%.250s') `%s' 문자에 문법 오류가 있습니다%s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+"패키지 이름이 (`%.250s') 잘못되었습니다 (`%.250s' 트리거 전환 파일에서)"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "트리거가 전환한 파일을 (`%.250s') 읽는데 오류가 발생했습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "새로 트리거 전환한 파일에 (`%.250s') 쓸 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "새로 트리거 전환한 파일을 (`%.250s') 닫을 수 없습니다"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "새로 트리거 전환한 파일을 (`%.250s') 설치할 수 없습니다"
@@ -1689,11 +1745,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "아카이브 안의 `%.255s' 오브젝트의 타입이 알 수 없는 0x%x입니다"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
-
 #: src/archives.c
 #, fuzzy, c-format
 #| msgid "Replacing files in old package %s ...\n"
@@ -1917,28 +1968,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive 옵션은 적어도 하나의 경로 인수가 필요합니다"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "dpkg --recursive를 위해 find 실행"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "find의 파이프를 fdopen하는데 실패했습니다"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "find의 파이프를 읽는데 오류가 발생했습니다"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "find의 파이프를 닫는데 오류가 발생했습니다"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr ""
-"--recursive를 위한 find 프로그램이 처리할 수 없는 오류(%i)를 리턴했습니다"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "패키지를 찾을 수 없습니다 (*.deb과 일치하는 파일들)"
 
@@ -1946,6 +1975,18 @@ msgstr "패키지를 찾을 수 없습니다 (*.deb과 일치하는 파일들)"
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s 옵션은 적어도 하나의 패키지 아카이브 파일 인수가 필요합니다."
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "아카이브에 접근할 수 없습니다"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "'%.250s' 설정 파일이 일반 파일이 아닙니다"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2582,6 +2623,11 @@ msgstr ""
 "일치해야 합니다. 패키지의 preinst, postrm 스크립트는 언제나 --package와\n"
 "--divert 옵션을 지정하는 것이 좋습니다.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2940,11 +2986,52 @@ msgstr ""
 msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr "%.250s에 대한 미리 의존을 만족시킬 수 없습니다 (%.250s 때문에 필요)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, fuzzy, c-format
-#| msgid "obsolete option '--%s', please use '--%s' instead."
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "'--%s' 옵션은 더 이상 사용하지 않습니다. '--%s' 옵션을 사용하십시오."
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s 옵션은 적어도 하나의 패키지 이름 인수가 필요합니다"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "Package `%s' is not installed.\n"
+msgid "package name '%s' is invalid: %s"
+msgstr "`%s' 패키지는 설치하지 않았습니다.\n"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s 옵션은 적어도 하나의 패키지 이름 인수가 필요합니다"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "트리거 이름에 쓸 수 없는 문자가 들어 있습니다"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s 옵션은 적어도 하나의 패키지 이름 인수가 필요합니다"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr ""
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s 옵션은 인수를 받지 않습니다"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax"
+msgstr "버전 '%s'의 형식이 잘못되었습니다: %s"
 
 #: src/enquiry.c
 msgid ""
@@ -2959,12 +3046,6 @@ msgstr "--compare-versions 옵션에 관계가 잘못되었습니다"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-#| msgid "version '%s' has bad syntax: %s"
-msgid "version '%s' has bad syntax"
-msgstr "버전 '%s'의 형식이 잘못되었습니다: %s"
 
 #: src/errors.c
 #, fuzzy, c-format
@@ -3097,15 +3178,15 @@ msgstr "'%.250s' 패키지의 파일 목록 파일에 마지막 줄 바꿈이 �
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat file '%s'"
-msgid "control file '%s' missing value"
-msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
+#| msgid "files list file for package '%.250s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "'%.250s' 패키지의 파일 목록 파일에 마지막 줄 바꿈이 빠졌습니다"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat file '%s'"
-msgid "control file '%s' missing value separator"
-msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
+#| msgid "files list file for package '%.250s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "'%.250s' 패키지의 파일 목록 파일에 마지막 줄 바꿈이 빠졌습니다"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
@@ -3116,31 +3197,31 @@ msgstr "`%.250s' 패키지의 파일 목록에 빈 파일 이름이 있습니다
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to open files list file for package `%.250s'"
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "`%.250s' 패키지에 대한 파일 목록을 열 수 없습니다"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to stat files list file for package '%.250s'"
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "'%.250s' 패키지의 파일 목록 파일의 정보를 읽을 수 없습니다"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "files list file for package '%.250s' is missing final newline"
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "'%.250s' 패키지의 파일 목록 파일에 마지막 줄 바꿈이 빠졌습니다"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "cannot read config file dir `%.250s' (from `%.250s')"
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "설정 파일 디렉터리 `%.250s' 디렉터리를 읽을 수 없습니다 (`%.250s'에서)"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "error closing files list file for package `%.250s'"
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "`%.250s' 패키지의 파일 목록 파일을 닫는데 오류가 발생했습니다."
 
 #: src/help.c
@@ -3320,6 +3401,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3388,6 +3470,13 @@ msgstr ""
 "내부 사용을 위해서는: dpkg --assert-support-predepends | --predep-package |\n"
 "  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep.\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3616,6 +3705,10 @@ msgstr ""
 
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
+msgstr ""
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
 msgstr ""
 
 #: src/main.c
@@ -3852,6 +3945,10 @@ msgstr "%d번째 줄이 끝나기 전에 예상치 못하게 파일이 끝났습
 msgid "need an action option"
 msgstr "명령 옵션이 필요합니다"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 #, fuzzy
 #| msgid "unable to setenv for maintainer script"
@@ -3978,6 +4075,12 @@ msgstr " 패키지는 다음 패키지에 의존: "
 msgid "; however:\n"
 msgstr ": 하지만:\n"
 
+#: src/querycmd.c src/select.c
+#, fuzzy, c-format
+#| msgid "No packages found matching %s.\n"
+msgid "no packages found matching %s"
+msgstr "%s에 맞는 패키지가 없습니다.\n"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -4014,12 +4117,6 @@ msgstr "패키지 이름"
 #: src/querycmd.c
 msgid "Description"
 msgstr "설명"
-
-#: src/querycmd.c src/select.c
-#, fuzzy, c-format
-#| msgid "No packages found matching %s.\n"
-msgid "no packages found matching %s"
-msgstr "%s에 맞는 패키지가 없습니다.\n"
 
 #: src/querycmd.c
 #, c-format
@@ -4456,7 +4553,7 @@ msgstr "%d번째 줄에 사용할 수 없는 패키지 이름이 나왔습니다
 #: src/select.c
 #, fuzzy, c-format
 #| msgid "illegal package name at line %d: %.250s"
-msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "%d번째 줄에 사용할 수 없는 패키지 이름이 나왔습니다: %.250s"
 
 #: src/select.c
@@ -4471,7 +4568,8 @@ msgstr "표준 입력을 읽는데 오류가 발생했습니다"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 
 #: src/selinux.c
@@ -4891,6 +4989,40 @@ msgstr "통과\n"
 msgid "unable to create temporary directory"
 msgstr "임시 디렉터리를 만들 수 없습니다"
 
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid ""
+#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
+#| "%s"
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"dpkg: %2$s을(를) 담고 있는 %1$s 패키지를 고려할 때, 미리 의존 문제가 있습니"
+"다:\n"
+"%3$s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "미리 의존 문제 - %.250s 패키지를 설치할 수 없습니다"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "미리 의존 문제를 무시합니다!"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s, to allow removal of %s ...\n"
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "%2$s을(를) 지우기 위해 %1$s을(를) 설정 해제하는 중입니다 ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s ...\n"
+msgid "De-configuring %s (%s) ...\n"
+msgstr "%s 패키지를 지우는 중입니다 ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "conffile name '%.50s...' is too long, or missing final newline"
@@ -4960,14 +5092,43 @@ msgstr "새 정보 파일 `%.250s'을(를) `%.250s'(으)로 설치할 수 없습
 
 #: src/unpack.c
 #, c-format
+msgid "could not stat old file '%.250s' so not deleting it: %s"
+msgstr "오래된 파일 '%.250s'의 정보를 읽을 수 없으므로 지우지 않습니다: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "unable to delete old directory '%.250s': %s"
+msgstr "오래된 디렉터리 '%.250s'을(를) 지울 수 없습니다: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "old conffile '%.250s' was an empty directory (and has now been deleted)"
+msgstr "오래된 설정 파일 '%.250s'은(는) 빈 디렉터리였으며 이제 지워졌습니다"
+
+#: src/unpack.c
+#, c-format
+msgid "unable to stat other new file '%.250s'"
+msgstr "새로운 파일 `%.250s'의 정보를 읽을 수 없습니다"
+
+#: src/unpack.c
+#, c-format
+msgid ""
+"old file '%.250s' is the same as several new files! (both '%.250s' and "
+"'%.250s')"
+msgstr ""
+"오래된 파일 `%.250s'은(는) 새로운 파일과 같습니다! (%.250s와 %.250s 모두)"
+
+#: src/unpack.c
+#, c-format
+msgid "unable to securely remove old file '%.250s': %s"
+msgstr "오래된 '%.250s' 파일을 안전하게 지울 수 없습니다: %s"
+
+#: src/unpack.c
+#, c-format
 msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
 msgstr ""
 "(%s 패키지가 없어진 것에 유의하십시오. 완전히 다른 패키지로 대체되었습니"
 "다.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "아카이브에 접근할 수 없습니다"
 
 #: src/unpack.c
 #, fuzzy
@@ -4987,43 +5148,9 @@ msgstr "패키지의 아키텍처(%s)는 시스템(%s)과 맞지 않습니다."
 
 #: src/unpack.c
 #, fuzzy, c-format
-#| msgid ""
-#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
-#| "%s"
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"dpkg: %2$s을(를) 담고 있는 %1$s 패키지를 고려할 때, 미리 의존 문제가 있습니"
-"다:\n"
-"%3$s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "미리 의존 문제 - %.250s 패키지를 설치할 수 없습니다"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "미리 의존 문제를 무시합니다!"
-
-#: src/unpack.c
-#, fuzzy, c-format
 #| msgid "Preparing to replace %s %s (using %s) ...\n"
 msgid "Preparing to unpack %s ...\n"
 msgstr "%s %s 패키지를 대체할 준비하는 중입니다 (%s 사용) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s, to allow removal of %s ...\n"
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "%2$s을(를) 지우기 위해 %1$s을(를) 설정 해제하는 중입니다 ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s ...\n"
-msgid "De-configuring %s (%s) ...\n"
-msgstr "%s 패키지를 지우는 중입니다 ...\n"
 
 #: src/unpack.c
 #, fuzzy, c-format
@@ -5056,39 +5183,6 @@ msgstr "망가진 파일 시스템 tar 파일 - 망가진 패키지 아카이브
 #| msgid "dpkg-deb: zap possible trailing zeros"
 msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
 msgstr "dpkg-deb: 뒤에 나오는 0을 잘라 버립니다"
-
-#: src/unpack.c
-#, c-format
-msgid "could not stat old file '%.250s' so not deleting it: %s"
-msgstr "오래된 파일 '%.250s'의 정보를 읽을 수 없으므로 지우지 않습니다: %s"
-
-#: src/unpack.c
-#, c-format
-msgid "unable to delete old directory '%.250s': %s"
-msgstr "오래된 디렉터리 '%.250s'을(를) 지울 수 없습니다: %s"
-
-#: src/unpack.c
-#, c-format
-msgid "old conffile '%.250s' was an empty directory (and has now been deleted)"
-msgstr "오래된 설정 파일 '%.250s'은(는) 빈 디렉터리였으며 이제 지워졌습니다"
-
-#: src/unpack.c
-#, c-format
-msgid "unable to stat other new file '%.250s'"
-msgstr "새로운 파일 `%.250s'의 정보를 읽을 수 없습니다"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"old file '%.250s' is the same as several new files! (both '%.250s' and "
-"'%.250s')"
-msgstr ""
-"오래된 파일 `%.250s'은(는) 새로운 파일과 같습니다! (%.250s와 %.250s 모두)"
-
-#: src/unpack.c
-#, c-format
-msgid "unable to securely remove old file '%.250s': %s"
-msgstr "오래된 '%.250s' 파일을 안전하게 지울 수 없습니다: %s"
 
 #: src/update.c
 #, fuzzy, c-format
@@ -5132,21 +5226,22 @@ msgstr ""
 "웁니다."
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "'%.250s' 파일의 정보를 읽을 수 없습니다"
+#, fuzzy, c-format
+#| msgid "failed to write filename to tar pipe (data)"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "파일 이름을 tar 파이프에 쓰는데 실패했습니다 (데이터)"
+
+#: dpkg-deb/build.c
+#, fuzzy
+#| msgid "control"
+msgid "control member"
+msgstr "컨트롤"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "필드 이름 `%.*s'에 줄바꿈 문자가 있습니다"
-
-#: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "failed to write filename to tar pipe (data)"
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "파일 이름을 tar 파이프에 쓰는데 실패했습니다 (데이터)"
 
 #: dpkg-deb/build.c
 #, fuzzy
@@ -5230,6 +5325,12 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "패키지 이름에 영문 소문자나 숫자나 `-+.'이 아닌 문자가 들어 있습니다"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package name"
+msgid "package architecture is missing or empty"
+msgstr "패키지 이름"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s'에 사용자 정의 우선순위 값 '%s'이(가) 들어 있습니다"
@@ -5255,6 +5356,12 @@ msgstr "멤버"
 msgid "<compress> from tar -cf"
 msgstr "tar -cf에서 압축"
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "`%.255s'을(를) 만들 수 없습니다"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -5271,13 +5378,15 @@ msgid "not checking contents of control area"
 msgstr "컨트롤 영역의 내용을 검사하지 않습니다."
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: 알 수 없는 패키지 빌드하는 중입니다 ('%s'에서).\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: `%s' 패키지 빌드하는 중입니다 (`%s'에서).\n"
 
 #: dpkg-deb/build.c
@@ -5287,22 +5396,10 @@ msgid "failed to make temporary file (%s)"
 msgstr "임시 파일을 만드는데 실패했습니다 (데이터)"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control"
-msgid "control member"
-msgstr "컨트롤"
-
-#: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "failed to unlink tmpfile (data), %s"
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "임시 파일을 지우는데 실패했습니다 (데이터), %s"
-
-#: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control"
-msgid "compressing control member"
-msgstr "컨트롤"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
@@ -5331,24 +5428,15 @@ msgstr "'%s' 파일의 이름을 '%s'(으)로 바꿀 수 없습니다"
 msgid "shell command to move files"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "%2$.255s 안의 %1$s 안에서 예상치 못하게 파일이 끝났습니다"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "%2$.255s에서 %1$s 읽기에 오류가 발생했습니다"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "`%.255s' 아카이브를 읽는데 실패했습니다"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "아카이브 파일의 정보를 읽는데 실패했습니다"
 
 #: dpkg-deb/extract.c
 #, fuzzy
@@ -5443,8 +5531,8 @@ msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy, c-format
-#| msgid "archive has malformatted control length `%s'"
-msgid "archive has malformatted control member size '%s'"
+#| msgid "archive has malformed control length `%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "아카이브의 컨트롤 길이 `%s'의 형식이 틀렸습니다"
 
 #: dpkg-deb/extract.c
@@ -5606,7 +5694,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     일반 파일이 아닙니다      %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(컨트롤 아카이브에 `control' 파일이 없습니다!)\n"
 
 #: dpkg-deb/main.c
@@ -5692,9 +5782,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5702,7 +5789,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5779,14 +5866,15 @@ msgid "unknown compression type '%s'!"
 msgstr "알 수 없는 압축 종류 `%s'!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
-msgstr ""
+#, fuzzy, c-format
+#| msgid "unknown compression type `%s'!"
+msgid "obsolete compression type '%s'; use xz instead"
+msgstr "알 수 없는 압축 종류 `%s'!"
 
 #: dpkg-deb/main.c
 #, fuzzy, c-format
 #| msgid "unknown compression type `%s'!"
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "알 수 없는 압축 종류 `%s'!"
 
 #: dpkg-deb/main.c
@@ -5826,7 +5914,7 @@ msgstr "`%.250s' 파일이 손상되었습니다 - %.250s이(가) 빠졌습니�
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "`%.250s' 파일이 손상되었습니다 - %.250s 다음에 줄바꿈이 없습니다"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "%.250s 파일을 읽는데 오류가 발생했습니다"
@@ -5959,11 +6047,6 @@ msgstr ""
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "`%.250s' 파일이 손상되었습니다 - 지정한 번호의 구성 요소의 크기가 틀렸습니다"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "구성 요소 파일 `%.250s'의 정보를 읽을 수 없습니다"
 
 #: dpkg-split/info.c
 #, c-format
@@ -6158,11 +6241,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "도움말을 보려면 dpkg-split --help를 실행하십시오."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "%.250s 파일에서 예상치 못하게 파일이 끝났습니다"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -6482,18 +6560,10 @@ msgstr ""
 "  --version                버전을 표시합니다.\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "오류"
-
-#: utils/update-alternatives.c
 #, fuzzy, c-format
 #| msgid "Use --help for help about querying packages."
 msgid "Use '%s --help' for program usage information."
 msgstr "쿼리 프로그램에 대한 도움말은 --help 옵션을 사용하십시오."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "경고"
 
 #: utils/update-alternatives.c
 #, fuzzy, c-format
@@ -7006,6 +7076,68 @@ msgstr ""
 "다시 자동 업데이트를 하려면 `update-alternatives --auto %s' 명령을 사용하십시"
 "오."
 
+#, fuzzy
+#~| msgid "obsolete option '--%s', please use '--%s' instead."
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr ""
+#~ "'--%s' 옵션은 더 이상 사용하지 않습니다. '--%s' 옵션을 사용하십시오."
+
+#, fuzzy
+#~| msgid "cannot stat file '%s'"
+#~ msgid "control file '%s' missing value"
+#~ msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
+
+#, fuzzy
+#~| msgid "cannot stat file '%s'"
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "'%s' 파일의 정보를 읽을 수 없습니다"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "구성 요소 파일 `%.250s'의 정보를 읽을 수 없습니다"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "%.250s 파일에서 예상치 못하게 파일이 끝났습니다"
+
+#, fuzzy
+#~| msgid "%s: warning: %s\n"
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: 경고: %s\n"
+
+#, fuzzy
+#~| msgid "%s:%s:%d: internal error: %s\n"
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d: 내부 오류: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: 경고: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "트리거 전환 파일이 (`%.250s') 잘렸습니다"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "dpkg --recursive를 위해 find 실행"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "find의 파이프를 fdopen하는데 실패했습니다"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "find의 파이프를 읽는데 오류가 발생했습니다"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "find의 파이프를 닫는데 오류가 발생했습니다"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr ""
+#~ "--recursive를 위한 find 프로그램이 처리할 수 없는 오류(%i)를 리턴했습니다"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "'%.250s' 파일의 정보를 읽을 수 없습니다"
+
+#, fuzzy
+#~| msgid "control"
+#~ msgid "compressing control member"
+#~ msgstr "컨트롤"
+
 #~ msgid "Call %s."
 #~ msgstr "%s 호출."
 
@@ -7041,11 +7173,6 @@ msgstr ""
 
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "'%s'에 사용자 정의 필드 `%s'이(가) 들어 있습니다"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s 옵션은 인수를 받지 않습니다"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "`control' 컴포넌트를 열 수 없습니다"
@@ -7085,9 +7212,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "대체되는 %.250s 패키지를 푸는 중입니다 ...\n"
-
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "-%c 옵션에 숫자가 잘못되었습니다: '%.250s'"
 
 #, fuzzy
 #~| msgid "--add needs four arguments"

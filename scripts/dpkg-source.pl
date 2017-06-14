@@ -36,12 +36,14 @@ use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Util qw(:list);
-use Dpkg::Arch qw(debarch_eq debarch_is debarch_is_wildcard);
+use Dpkg::Arch qw(:operators);
 use Dpkg::Deps;
 use Dpkg::Compression;
 use Dpkg::Conf;
 use Dpkg::Control::Info;
+use Dpkg::Control::Tests;
 use Dpkg::Control::Fields;
+use Dpkg::Index;
 use Dpkg::Substvars;
 use Dpkg::Version;
 use Dpkg::Vars;
@@ -65,7 +67,9 @@ my %options = (
     # Misc options
     copy_orig_tarballs => 1,
     no_check => 0,
+    no_overwrite_dir => 1,
     require_valid_signature => 0,
+    require_strong_checksums => 0,
 );
 
 # Fields to remove/override
@@ -187,8 +191,12 @@ while (@options) {
         $options{copy_orig_tarballs} = 0;
     } elsif (m/^--no-check$/) {
         $options{no_check} = 1;
+    } elsif (m/^--no-overwrite-dir$/) {
+        $options{no_overwrite_dir} = 1;
     } elsif (m/^--require-valid-signature$/) {
         $options{require_valid_signature} = 1;
+    } elsif (m/^--require-strong-checksums$/) {
+        $options{require_strong_checksums} = 1;
     } elsif (m/^-V(\w[-:0-9A-Za-z]*)[=:](.*)$/s) {
         $substvars->set($1, $2);
     } elsif (m/^-T(.*)$/) {
@@ -227,6 +235,9 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     $ch_options{changelogformat} = $changelogformat if $changelogformat;
     my $changelog = changelog_parse(%ch_options);
     my $control = Dpkg::Control::Info->new($controlfile);
+
+    # <https://reproducible-builds.org/specs/source-date-epoch/>
+    $ENV{SOURCE_DATE_EPOCH} ||= $changelog->{timestamp} || time;
 
     my $srcpkg = Dpkg::Source::Package->new(options => \%options);
     my $fields = $srcpkg->{fields};
@@ -313,9 +324,8 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
                     push(@sourcearch, $v) unless $archadded{$v}++;
                 } else {
                     for my $a (split(/\s+/, $v)) {
-                        error(g_("'%s' is not a legal architecture string"),
-                              $a)
-                            unless $a =~ /^[\w-]+$/;
+                        error(g_("'%s' is not a legal architecture string"), $a)
+                            if debarch_is_illegal($a);
                         error(g_('architecture %s only allowed on its ' .
                                  "own (list for package %s is '%s')"),
                               $a, $p, $a)
@@ -356,7 +366,7 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     $fields->{'Package-List'} = "\n" . join("\n", sort @pkglist);
 
     # Check if we have a testsuite, and handle manual and automatic values.
-    set_testsuite_field($fields);
+    set_testsuite_fields($fields, @binarypackages);
 
     # Scan fields of dpkg-parsechangelog
     foreach (keys %{$changelog}) {
@@ -495,20 +505,49 @@ if ($options{opmode} =~ /^(build|print-format|(before|after)-build|commit)$/) {
     exit(0);
 }
 
-sub set_testsuite_field
+sub set_testsuite_fields
 {
-    my $fields = shift;
+    my ($fields, @binarypackages) = @_;
 
     my $testsuite_field = $fields->{'Testsuite'} // '';
     my %testsuite = map { $_ => 1 } split /\s*,\s*/, $testsuite_field;
     if (-e "$dir/debian/tests/control") {
+        error(g_('test control %s is not a regular file'),
+              'debian/tests/control') unless -f _;
         $testsuite{autopkgtest} = 1;
+
+        my $tests = Dpkg::Control::Tests->new();
+        $tests->load("$dir/debian/tests/control");
+
+        set_testsuite_triggers_field($tests, $fields, @binarypackages);
     } elsif ($testsuite{autopkgtest}) {
         warning(g_('%s field contains value %s, but no tests control file %s'),
                 'Testsuite', 'autopkgtest', 'debian/tests/control');
         delete $testsuite{autopkgtest};
     }
     $fields->{'Testsuite'} = join ', ', sort keys %testsuite;
+}
+
+sub set_testsuite_triggers_field
+{
+    my ($tests, $fields, @binarypackages) = @_;
+    my %testdeps;
+
+    # Never overwrite a manually defined field.
+    return if $fields->{'Testsuite-Triggers'};
+
+    foreach my $test ($tests->get()) {
+        next unless $test->{Depends};
+
+        my $deps = deps_parse($test->{Depends}, use_arch => 0, tests_dep => 1);
+        deps_iterate($deps, sub { $testdeps{$_[0]->{package}} = 1 });
+    }
+
+    # Remove our own binaries and meta-depends.
+    foreach my $pkg (@binarypackages, qw(@ @builddeps@)) {
+        delete $testdeps{$pkg};
+    }
+    $fields->{'Testsuite-Triggers'} = join ', ', sort keys %testdeps;
 }
 
 sub setopmode {
@@ -519,6 +558,48 @@ sub setopmode {
                  $options{opmode}, $opmode);
     }
     $options{opmode} = $opmode;
+}
+
+sub print_option {
+    my $opt = shift;
+    my $help;
+
+    if (length $opt->{name} > 25) {
+        $help .= sprintf "  %-25s\n%s%s.\n", $opt->{name}, ' ' x 27, $opt->{help};
+    } else {
+        $help .= sprintf "  %-25s%s.\n", $opt->{name}, $opt->{help};
+    }
+}
+
+sub get_format_help {
+    $build_format //= '1.0';
+
+    my $srcpkg = Dpkg::Source::Package->new();
+    $srcpkg->{fields}->{'Format'} = $build_format;
+    $srcpkg->upgrade_object_type(); # Fails if format is unsupported
+
+    my @cmdline = $srcpkg->describe_cmdline_options();
+
+    my $help_build = my $help_extract = '';
+    my $help;
+
+    foreach my $opt (@cmdline) {
+        $help_build .= print_option($opt) if $opt->{when} eq 'build';
+        $help_extract .= print_option($opt) if $opt->{when} eq 'extract';
+    }
+
+    if ($help_build) {
+        $help .= "\n";
+        $help .= "Build format $build_format options:\n";
+        $help .= $help_build || C_('source options', '<none>');
+    }
+    if ($help_extract) {
+        $help .= "\n";
+        $help .= "Extract format $build_format options:\n";
+        $help .= $help_extract || C_('source options', '<none>');
+    }
+
+    return $help;
 }
 
 sub version {
@@ -539,6 +620,8 @@ sub usage {
                            extract source package.
   -b, --build <dir>        build source package.
       --print-format <dir> print the format to be used for the source package.
+      --before-build <dir> run the corresponding source package format hook.
+      --after-build <dir>  run the corresponding source package format hook.
       --commit [<dir> [<patch-name>]]
                            store upstream changes in a new patch.')
     . "\n\n" . g_(
@@ -551,28 +634,37 @@ sub usage {
   -T<substvars-file>       read variables here.
   -D<field>=<value>        override or add a .dsc field and value.
   -U<field>                remove a field.
-  -q                       quiet mode.
-  -i[<regex>]              filter out files to ignore diffs of
+  -i, --diff-ignore[=<regex>]
+                           filter out files to ignore diffs of
                              (defaults to: '%s').
-  -I[<pattern>]            filter out files when building tarballs
+  -I, --tar-ignore[=<pattern>]
+                           filter out files when building tarballs
                              (defaults to: %s).
-  -Z<compression>          select compression to use (defaults to '%s',
+  -Z, --compression=<compression>
+                           select compression to use (defaults to '%s',
                              supported are: %s).
-  -z<level>                compression level to use (defaults to '%d',
+  -z, --compression-level=<level>
+                           compression level to use (defaults to '%d',
                              supported are: '1'-'9', 'best', 'fast')")
     . "\n\n" . g_(
 "Extract options:
   --no-copy                don't copy .orig tarballs
   --no-check               don't check signature and checksums before unpacking
+  --no-overwrite-dir       do not overwrite directory on extraction
   --require-valid-signature abort if the package doesn't have a valid signature
+  --require-strong-checksums
+                           abort if the package contains no strong checksums
   --ignore-bad-version     allow bad source package versions.")
-    . "\n\n" . g_(
+    . "\n" .
+    get_format_help()
+    . "\n" . g_(
 'General options:
+  -q                       quiet mode.
   -?, --help               show this help message.
       --version            show the version.')
     . "\n\n" . g_(
-'More options are available but they depend on the source package format.
-See dpkg-source(1) for more info.') . "\n",
+'Source format specific build and extract options are available;
+use --format with --help to see them.') . "\n",
     $Dpkg::PROGNAME,
     get_default_diff_ignore_regex(),
     join(' ', map { "-I$_" } get_default_tar_ignore_pattern()),

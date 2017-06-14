@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <dpkg/i18n.h>
@@ -135,6 +136,13 @@ path_remove_tree(const char *pathname)
 			return; /* OK, it was. */
 		if (errno == ENOTDIR)
 			return;
+	}
+	/* Trying to remove a directory or a file on a read-only filesystem,
+	 * even if non-existent, always returns EROFS. */
+	if (errno == EROFS) {
+		if (access(pathname, F_OK) < 0 && errno == ENOENT)
+			return;
+		errno = EROFS;
 	}
 	if (errno != ENOTEMPTY && errno != EEXIST) /* Huh? */
 		ohshite(_("unable to securely remove '%.255s'"), pathname);

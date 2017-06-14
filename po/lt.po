@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:50+0200\n"
 "Last-Translator: Gintautas Miliauskas <gintas@akl.lt>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
@@ -18,6 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2;\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr ""
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "nepavyko nuskaityti archyvo `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "nepavyko sukurti `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, fuzzy, c-format
+msgid "unable to close file '%s'"
+msgstr "neįmanoma išvalyti vsnprintf"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -158,8 +178,8 @@ msgstr "netikėta %.250s failo pabaiga"
 msgid "failed to seek"
 msgstr "nepavyko įvykdyti tar"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to execute %s (%s)"
 msgstr "nepavyksta įvykdyti %s"
@@ -326,11 +346,6 @@ msgstr "nepavyksta patikrinti atnaujinimų aplanko `%.255s' turinio"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "nepavyko pašalinti prijungto atnaujinimo failo %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "nepavyko sukurti `%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -447,8 +462,7 @@ msgstr "nepavyko užverti %s: %s"
 msgid "unable to open directory '%s'"
 msgstr "nepavyko užverti %s: %s"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to open file '%s'"
 msgstr "nepavyko užverti %s: %s"
@@ -458,12 +472,6 @@ msgstr "nepavyko užverti %s: %s"
 #, fuzzy, c-format
 msgid "unable to sync file '%s'"
 msgstr "nepavyko užverti %s: %s"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, fuzzy, c-format
-msgid "unable to close file '%s'"
-msgstr "neįmanoma išvalyti vsnprintf"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -480,17 +488,14 @@ msgstr "nepavyko būsenos failui nustatyti buferizavimo"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "nepavyko įrašyti %s įrašo apie `%.50s' į `%.250s'"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
 msgstr ""
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
 
@@ -501,18 +506,19 @@ msgid "out of memory for new error context"
 msgstr "pritrūko atminties vykdant valymą naujam įrašui"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: klaida valant:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
+#, fuzzy
 #| msgid "dpkg: too many nested errors during error recovery !!\n"
-msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "dpkg: too many nested errors during error recovery !!\n"
 
 #: lib/dpkg/ehandle.c
@@ -524,16 +530,17 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "pritrūko atminties vykdant valymą naujam įrašui su daug parametrų"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s: error: %s\n"
+msgid "unrecoverable fatal error, aborting"
 msgstr ""
-"%s: klaida valant:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%d: vidinė `%s' klaida\n"
+msgid "outside error context, aborting"
+msgstr ""
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+msgid "internal error"
+msgstr "%s: vidinė gzip klaida: `%s'"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -633,8 +640,8 @@ msgstr "panaudotas pasenęs `Revision' arba `Package-Revision' laukas"
 
 #: lib/dpkg/fields.c
 #, fuzzy, c-format
-#| msgid "value for `conffiles' has malformatted line `%.*s'"
-msgid "value for '%s' field has malformatted line '%.*s'"
+#| msgid "value for `conffiles' has malformed line `%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "`conffiles' reikšmė turi netaisyklingą eilutę `%.*s'"
 
 #: lib/dpkg/fields.c
@@ -938,6 +945,11 @@ msgstr "reikalingas sveikas skaičius --%s: `%.250s'"
 
 #: lib/dpkg/options.c
 #, fuzzy, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "reikalingas sveikas skaičius --%s: `%.250s'"
+
+#: lib/dpkg/options.c
+#, fuzzy, c-format
 msgid "obsolete option '--%s'"
 msgstr "Įspėjimas: parametras „--%s“ nebenaudotinas\n"
 
@@ -1173,6 +1185,12 @@ msgid "version string has embedded spaces"
 msgstr "versijos eilutėje yra tarpų"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is not number"
+msgid "epoch in version is empty"
+msgstr "laikmetis versijoje yra ne skaičius"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "laikmetis versijoje yra ne skaičius"
 
@@ -1191,6 +1209,18 @@ msgstr "laikmetis versijoje yra ne skaičius"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "versijos numeryje po kablelio nieko nėra"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "tuščia versijos eilutė"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "tuščia versijos eilutė"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1240,6 +1270,11 @@ msgstr ""
 msgid "(no description available)"
 msgstr "(aprašymas neprieinamas)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "dpkg: versija '%s' su bloga sintakse: %s\n"
+
 #: lib/dpkg/pkg-spec.c
 #, fuzzy, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1250,12 +1285,9 @@ msgstr "nekorektiškas paketo vardas eilutėje %d: %.250s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "nekorektiškas paketo vardas eilutėje %d: %.250s"
 
-#: lib/dpkg/report.c
-#, fuzzy, c-format
-msgid "%s: warning: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
 msgstr ""
-"%s: klaida valant:\n"
-" %s\n"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1286,7 +1318,7 @@ msgstr "%s (vidinis procesas): %s\n"
 msgid "fork failed"
 msgstr "nepavyko suskirstymas"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "vidinis procesas %s nutrūko gražindamas reikšmę %d"
@@ -1316,62 +1348,74 @@ msgstr "sub-procesas %s nepavyko su laukimo būsenos kodu %d"
 msgid "wait for subprocess %s failed"
 msgstr "%s laukimas nepavyko"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, fuzzy, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "nepavyko patikrinti kito naujo failo „%.250s“"
+#| msgid "unable to read %s: %s"
+msgid "cannot stat pathname '%s'"
+msgstr "nepavyko nuskaityti %s: %s"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+msgid "cannot open directory '%s'"
+msgstr "nepavyko užverti %s: %s"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+msgid "treewalk root %s is not a directory"
+msgstr "negaliu perskaityti informacijos aplanko"
+
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "nepavyko pakartotinai atverti `%.250s' dalinio failo"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy
 msgid "triggers area"
 msgstr "nepavyksta pasiekti dpkg būsenos vietos"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "nepavyko pakartotinai atverti `%.250s' dalinio failo"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "nepavyko patikrinti kito naujo failo „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "nepavyko patikrinti naujos distributyvo konfigūracijos failo „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr "klaida skaitant %s iš failo %.255s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "klaida skaitant %s iš failo %.255s"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "nepavyko patikrinti naujos distributyvo konfigūracijos failo „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "nepavyko patikrinti naujos distributyvo konfigūracijos failo „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "negaliu įdiegti naujos `%.255s' versijos"
@@ -1636,12 +1680,6 @@ msgstr "prieš diegiant kitą versiją nepavyko patikrinti atstatyto `%.255s'"
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "archyve esantis `%.255s' objektas yra nežinomo 0x%x tipo"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "unable to read %s: %s"
-msgid "cannot stat file '%s'"
-msgstr "nepavyko nuskaityti %s: %s"
-
 #: src/archives.c
 #, fuzzy, c-format
 #| msgid "Replacing files in old package %s ...\n"
@@ -1843,28 +1881,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive pasirinkimui reikia bent vienos kelio reikšmės"
 
 #: src/archives.c
-#, fuzzy
-msgid "find for dpkg --recursive"
-msgstr "nepavyko įvykdyti paieškos pasirinkimui --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "nepavyko atidaryti paieškos srauto"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "klaida skaitant paieškos srautą"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "klaida uždarant paieškos srautą"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "paieška pasirinkimui --recursive įvykdė neapdorojamą klaidą %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr ""
 "ieškojau, tačiau neradau nei vieno paketo atitinkančio (*.deb) kriterijų"
@@ -1873,6 +1889,18 @@ msgstr ""
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s reikia nors vienos paketo archyvo failo reikšmės"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "negaliu prieiti prie archyvo"
+
+#: src/archives.c
+#, fuzzy, c-format
+msgid "archive '%s' is not a regular file"
+msgstr ""
+"įspėjimas: konfigūracijos failas „%s“ nėra paprastas tekstinis failas\n"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2481,6 +2509,12 @@ msgid ""
 "divert.\n"
 msgstr ""
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, fuzzy, c-format
+#| msgid "unable to read %s: %s"
+msgid "cannot stat file '%s'"
+msgstr "nepavyko nuskaityti %s: %s"
+
 #: src/divertcmd.c
 #, fuzzy, c-format
 #| msgid "error writing `%s'"
@@ -2837,10 +2871,50 @@ msgstr ""
 msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr "negaliu patenkinti priklausomybių %.250s (norima dėl %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, fuzzy, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "Įspėjimas: parametras „--%s“ nebenaudotinas\n"
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s reikalinga bent viena paketo vardo reikšmė"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "Package `%s' is not installed.\n"
+msgid "package name '%s' is invalid: %s"
+msgstr "Paketas „%s“ neįdiegtas.\n"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s reikalinga bent viena paketo vardo reikšmė"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "trigger name '%s' is invalid: %s"
+msgstr "laukelyje `%s', nekorektiškas paketo pavadinimas `%.255s': %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s reikalinga bent viena paketo vardo reikšmė"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr ""
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s parametras nereikalauja nurodyti jokių reikšmių"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax"
+msgstr "dpkg: versija '%s' su bloga sintakse: %s\n"
 
 #: src/enquiry.c
 msgid ""
@@ -2856,11 +2930,6 @@ msgstr "blogas sąryšis su --compare-versions"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-msgid "version '%s' has bad syntax"
-msgstr "dpkg: versija '%s' su bloga sintakse: %s\n"
 
 #: src/errors.c
 #, fuzzy, c-format
@@ -2992,15 +3061,13 @@ msgstr "paketo `%.250s' failų sąrašo faile yra tuščias failo vardas"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "unable to read %s: %s"
-msgid "control file '%s' missing value"
-msgstr "nepavyko nuskaityti %s: %s"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "paketo `%.250s' failų sąrašo faile yra tuščias failo vardas"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "unable to read %s: %s"
-msgid "control file '%s' missing value separator"
-msgstr "nepavyko nuskaityti %s: %s"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "paketo `%.250s' failų sąrašo faile yra tuščias failo vardas"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
@@ -3011,29 +3078,29 @@ msgstr "paketo `%.250s' failų sąrašo faile yra tuščias failo vardas"
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to open files list file for package `%.250s'"
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "nepavyko atverti paketo „%.250s“ failų sarašo failo"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "nepavyko atverti paketo „%.250s“ failų sarašo failo"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "paketo `%.250s' failų sąrašo faile yra tuščias failo vardas"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "cannot read config file dir `%.250s' (from `%.250s')"
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "nepavyksta atverti konfigūracijos failų aplanko `%.250s' (iš `%.250s')"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "error closing files list file for package `%.250s'"
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "klaida uždarant paketo `%.250s' failo sąrašo failą"
 
 #: src/help.c
@@ -3175,6 +3242,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3240,6 +3308,13 @@ msgstr ""
 "Vidiniam naudojimui: dpkg --assert-support-predepends | --predep-package |\n"
 "  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep.\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3426,6 +3501,10 @@ msgstr ""
 
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
+msgstr ""
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
 msgstr ""
 
 #: src/main.c
@@ -3655,6 +3734,10 @@ msgstr "netikėta failo pabaiga prieš %d eilutės pabaigą"
 msgid "need an action option"
 msgstr "reikia veiksmo parametro"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 #, fuzzy
 msgid "unable to setenv for subprocesses"
@@ -3782,6 +3865,12 @@ msgstr " priklauso nuo "
 msgid "; however:\n"
 msgstr "; tačiau:\n"
 
+#: src/querycmd.c src/select.c
+#, fuzzy, c-format
+#| msgid "No packages found matching %s.\n"
+msgid "no packages found matching %s"
+msgstr "Nerasta paketų kurie atitiktu %s kriterijų.\n"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3817,12 +3906,6 @@ msgstr ""
 #: src/querycmd.c
 msgid "Description"
 msgstr "Aprašymas"
-
-#: src/querycmd.c src/select.c
-#, fuzzy, c-format
-#| msgid "No packages found matching %s.\n"
-msgid "no packages found matching %s"
-msgstr "Nerasta paketų kurie atitiktu %s kriterijų.\n"
 
 #: src/querycmd.c
 #, c-format
@@ -4248,7 +4331,7 @@ msgstr "nekorektiškas paketo vardas eilutėje %d: %.250s"
 #: src/select.c
 #, fuzzy, c-format
 #| msgid "illegal package name at line %d: %.250s"
-msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "nekorektiškas paketo vardas eilutėje %d: %.250s"
 
 #: src/select.c
@@ -4263,7 +4346,8 @@ msgstr "skaitymo klaida standartinėje įvestyje"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 
 #: src/selinux.c
@@ -4598,6 +4682,39 @@ msgstr "praėjo\n"
 msgid "unable to create temporary directory"
 msgstr "nepavyko sukurti laikino aplanko vardo"
 
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid ""
+#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
+#| "%s"
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"dpkg: dėl %s esančio %s, priklausomybių problema:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "priklausomybių problema - nediegiu %.250s"
+
+#: src/unpack.c
+#, fuzzy
+msgid "ignoring pre-dependency problem!"
+msgstr "dpkg: įspėjimas: ignoruojama prieš-priklausomybių problema!\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr ""
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s ...\n"
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Dekonfigūruojamas %s ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4667,100 +4784,6 @@ msgstr ""
 "nepavyko įdiegti naujo informacijos failo „%.250s“ su pavadinimu „%.250s“"
 
 #: src/unpack.c
-#, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Pažymėtinas %s dingimas, kuris buvo visiškai pakeistas.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "negaliu prieiti prie archyvo"
-
-#: src/unpack.c
-#, fuzzy
-#| msgid "control information length"
-msgid "package control information extraction"
-msgstr "valdymo informacijos dydis"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Įrašas apie %s iš %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "paketo architektūra (%s) netinka jūsų sistemai (%s)"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid ""
-#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
-#| "%s"
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"dpkg: dėl %s esančio %s, priklausomybių problema:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "priklausomybių problema - nediegiu %.250s"
-
-#: src/unpack.c
-#, fuzzy
-msgid "ignoring pre-dependency problem!"
-msgstr "dpkg: įspėjimas: ignoruojama prieš-priklausomybių problema!\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Preparing to replace %s %s (using %s) ...\n"
-msgid "Preparing to unpack %s ...\n"
-msgstr "Ruošiamasi pakeisti %s %s (naudojant %s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr ""
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s ...\n"
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Dekonfigūruojamas %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Išpakuojamas archyvas %s (iš %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Išpakuojamas archyvas %s (iš %s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr ""
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "klaida skaitant dpkg-deb tar išvestį"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "pažeistas failų sistemos tar failas - pažeistas paketų archyvas"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "dpkg-deb: zap possible trailing zeros"
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "dpkg-deb: naikinamos galimos tarpų sekos"
-
-#: src/unpack.c
 #, fuzzy, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
@@ -4795,6 +4818,63 @@ msgstr ""
 #, fuzzy, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "dpkg: perspėjimas: nepavyko %s seno failo „%%.250s“: %%s\n"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Pažymėtinas %s dingimas, kuris buvo visiškai pakeistas.)\n"
+
+#: src/unpack.c
+#, fuzzy
+#| msgid "control information length"
+msgid "package control information extraction"
+msgstr "valdymo informacijos dydis"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Įrašas apie %s iš %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "paketo architektūra (%s) netinka jūsų sistemai (%s)"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Preparing to replace %s %s (using %s) ...\n"
+msgid "Preparing to unpack %s ...\n"
+msgstr "Ruošiamasi pakeisti %s %s (naudojant %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Išpakuojamas archyvas %s (iš %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Išpakuojamas archyvas %s (iš %s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr ""
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "klaida skaitant dpkg-deb tar išvestį"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "pažeistas failų sistemos tar failas - pažeistas paketų archyvas"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "dpkg-deb: zap possible trailing zeros"
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "dpkg-deb: naikinamos galimos tarpų sekos"
 
 #: src/update.c
 #, fuzzy, c-format
@@ -4836,20 +4916,21 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "nepavyko patikrinti kito naujo failo „%.250s“"
+#| msgid "failed to write to pipe in copy"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "kopijuojant nepavyko įrašyti į srautą"
+
+#: dpkg-deb/build.c
+#, fuzzy
+#| msgid "control area"
+msgid "control member"
+msgstr "valdymo sritis"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "naujos eilutės žymė laukelyje `%.*s'"
-
-#: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "failed to write to pipe in copy"
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "kopijuojant nepavyko įrašyti į srautą"
 
 #: dpkg-deb/build.c
 #, fuzzy
@@ -4938,6 +5019,12 @@ msgstr ""
 "paketo pavadinime yra simbolių kurie nėra mažosios raidės, skaičiai ar `-+.'"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture (%s) does not match system (%s)"
+msgid "package architecture is missing or empty"
+msgstr "paketo architektūra (%s) netinka jūsų sistemai (%s)"
+
+#: dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "įspėjimas: „%s“ įrašyta naudotojo nustatyta Svarbumo reikšmė „%s“\n"
@@ -4964,6 +5051,12 @@ msgstr "tarp dalių"
 msgid "<compress> from tar -cf"
 msgstr ""
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "nepavyko sukurti `%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -4979,12 +5072,13 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: daromas paketas `%s' - `%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: daromas paketas `%s' - `%s'.\n"
 
 #: dpkg-deb/build.c
@@ -4994,22 +5088,10 @@ msgid "failed to make temporary file (%s)"
 msgstr "nepavyko sukurti laikino failo (duomenys)"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "control member"
-msgstr "valdymo sritis"
-
-#: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "failed to unlink tmpfile (data), %s"
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "nepavyko atsieti laikinos failo (duomenys), %s"
-
-#: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "compressing control member"
-msgstr "valdymo sritis"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
@@ -5036,24 +5118,15 @@ msgstr "nepavyko rašyti %s: %s"
 msgid "shell command to move files"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "klaida skaitant %s iš failo %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "nepavyko nuskaityti archyvo `%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy
@@ -5140,8 +5213,8 @@ msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy, c-format
-#| msgid "archive has malformatted control length `%s'"
-msgid "archive has malformatted control member size '%s'"
+#| msgid "archive has malformed control length `%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "archyve yra sugadintas valdymo informacijos dydis `%s'"
 
 #: dpkg-deb/extract.c
@@ -5304,7 +5377,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     ne paprastas %.255s failas\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(valdymo archyve nėra „control“ failo!)\n"
 
 #: dpkg-deb/main.c
@@ -5375,9 +5450,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5385,7 +5457,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5435,13 +5507,13 @@ msgid "unknown compression type '%s'!"
 msgstr ""
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
-msgstr ""
+#, fuzzy, c-format
+msgid "obsolete compression type '%s'; use xz instead"
+msgstr "nežinomas --%s parametras"
 
 #: dpkg-deb/main.c
 #, fuzzy, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "nežinomas --%s parametras"
 
 #: dpkg-deb/main.c
@@ -5475,7 +5547,7 @@ msgstr ""
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr ""
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "klaida skaitant %.250s"
@@ -5595,11 +5667,6 @@ msgstr "failas „%.250s“ sugadintas - negeras nurodyto dydžio dalių skaiči
 #, c-format
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr "failas „%.250s“ sugadintas - negeras nurodyto dydžio dalies dydis"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "nepavyko įvykdyti fstat daliniam „%.250s“ failui"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5743,11 +5810,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Norėdami gauti pagalbą įvykdykite dpkg-split --help"
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "netikėta %.250s failo pabaiga"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5967,16 +6029,8 @@ msgid ""
 msgstr ""
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr ""
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
-msgstr ""
-
-#: utils/update-alternatives.c
-msgid "warning"
 msgstr ""
 
 #: utils/update-alternatives.c
@@ -6437,6 +6491,71 @@ msgid "to return to automatic updates use '%s --auto %s'"
 msgstr ""
 
 #, fuzzy
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "Įspėjimas: parametras „--%s“ nebenaudotinas\n"
+
+#, fuzzy
+#~| msgid "unable to read %s: %s"
+#~ msgid "control file '%s' missing value"
+#~ msgstr "nepavyko nuskaityti %s: %s"
+
+#, fuzzy
+#~| msgid "unable to read %s: %s"
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "nepavyko nuskaityti %s: %s"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "nepavyko įvykdyti fstat daliniam „%.250s“ failui"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "netikėta %.250s failo pabaiga"
+
+#, fuzzy
+#~ msgid "%s: error: %s\n"
+#~ msgstr ""
+#~ "%s: klaida valant:\n"
+#~ " %s\n"
+
+#, fuzzy
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%d: vidinė `%s' klaida\n"
+
+#, fuzzy
+#~ msgid "%s: warning: %s\n"
+#~ msgstr ""
+#~ "%s: klaida valant:\n"
+#~ " %s\n"
+
+#, fuzzy
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "nepavyko patikrinti kito naujo failo „%.250s“"
+
+#, fuzzy
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "nepavyko įvykdyti paieškos pasirinkimui --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "nepavyko atidaryti paieškos srauto"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "klaida skaitant paieškos srautą"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "klaida uždarant paieškos srautą"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "paieška pasirinkimui --recursive įvykdė neapdorojamą klaidą %i"
+
+#, fuzzy
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "nepavyko patikrinti kito naujo failo „%.250s“"
+
+#, fuzzy
+#~| msgid "control area"
+#~ msgid "compressing control member"
+#~ msgstr "valdymo sritis"
+
+#, fuzzy
 #~ msgid "syntax error: invalid uid in statoverride file"
 #~ msgstr "nepavyko atverti statoverride failo"
 
@@ -6469,11 +6588,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "įspėjimas: „%s“ turi naudotojo nustatytą lauką „%s“\n"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s parametras nereikalauja nurodyti jokių reikšmių"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "nepavyko atverti `control' komponento"
@@ -6511,10 +6625,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Išpakuojamas %.250s pakaitalas...\n"
-
-#, fuzzy
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "reikalingas sveikas skaičius --%s: `%.250s'"
 
 #, fuzzy
 #~ msgid "--%s needs at two arguments"

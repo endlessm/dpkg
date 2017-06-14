@@ -12,6 +12,7 @@ SUBDIRS = \
 	utils \
 	$(MAYBE_DSELECT) \
 	scripts \
+	t-func \
 	po \
 	man
 
@@ -19,10 +20,15 @@ ACLOCAL_AMFLAGS = -I m4
 
 
 dist_pkgdata_DATA = \
-	cputable \
-	ostable \
-	abitable \
-	triplettable
+	data/pie-compile.specs \
+	data/pie-link.specs \
+	data/no-pie-compile.specs \
+	data/no-pie-link.specs \
+	data/cputable \
+	data/ostable \
+	data/abitable \
+	data/tupletable \
+	$(nil)
 
 EXTRA_DIST = \
 	.mailmap \
@@ -53,10 +59,8 @@ EXTRA_DIST = \
 	debian/dpkg.manpages \
 	debian/dpkg.postinst \
 	debian/dpkg.postrm \
-	debian/dpkg.preinst \
 	debian/dpkg.prerm \
 	debian/dpkg.logrotate \
-	debian/dpkg.links \
 	debian/dpkg.lintian-overrides \
 	debian/dselect.cfg \
 	debian/dselect.docs \
@@ -146,6 +150,11 @@ endif
 
 test_scripts = \
 	t/pod.t \
+	t/pod-spell.t \
+	t/pod-coverage.t \
+	t/synopsis.t \
+	t/minimum-version.t \
+	t/syntax.t \
 	t/strict.t \
 	t/critic.t \
 	$(nil)
@@ -157,7 +166,7 @@ test_data = \
 # We need to use absolute paths here due to strict.t invoking a sub-perl,
 # while changing dir to source dir on out-of-tree builds.
 TEST_ENV_VARS = \
-	DPKG_DATADIR=$(abs_top_srcdir) \
+	DPKG_DATADIR=$(abs_top_srcdir)/data \
 	$(nil)
 
 include $(top_srcdir)/check.am
@@ -175,13 +184,14 @@ update-po:
 dist-hook:
 	echo $(VERSION) >$(distdir)/.dist-version
 	if [ -e .git ]; then \
-		for file in `git ls-files | grep -v .gitignore`; do \
-			if [ ! -e "$(distdir)/$$file" ]; then \
-				echo "$$file is missing in $(distdir)" >&2 ; \
-				exit 1 ; \
-			fi ; \
-		done ; \
-		git log -C --stat 1.15.0.. >$(distdir)/ChangeLog; \
+	  for file in `git ls-files | grep -v .gitignore`; do \
+	    if [ ! -e "$(distdir)/$$file" ]; then \
+	      echo "$$file is missing in $(distdir)" >&2 ; \
+	      exit 1 ; \
+	    fi ; \
+	  done ; \
+	  XDG_CONFIG_HOME= HOME= \
+	  git log -C --stat 1.15.0.. >$(distdir)/ChangeLog; \
 	fi
 
 clean-local: doc-clean coverage-clean check-clean

@@ -103,6 +103,8 @@ getselections(const char *const *argv)
 
   pkg_array_destroy(&array);
 
+  modstatdb_shutdown();
+
   return 0;
 }
 
@@ -180,7 +182,7 @@ setselections(const char *const *argv)
     if (!pkg_is_informative(pkg, &pkg->installed) &&
         !pkg_is_informative(pkg, &pkg->available)) {
       db_possibly_outdated = true;
-      warning(_("package not in database at line %d: %.250s"), lno, namevb.buf);
+      warning(_("package not in status nor available database at line %d: %.250s"), lno, namevb.buf);
       continue;
     }
 
@@ -199,7 +201,8 @@ setselections(const char *const *argv)
 
   if (db_possibly_outdated)
     warning(_("found unknown packages; this might mean the available database\n"
-              "is outdated, and needs to be updated through a frontend method"));
+              "is outdated, and needs to be updated through a frontend method;\n"
+              "please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"));
 
   return 0;
 }
@@ -208,7 +211,7 @@ int
 clearselections(const char *const *argv)
 {
   enum modstatdb_rw msdbflags;
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg;
 
   if (*argv)
@@ -222,12 +225,12 @@ clearselections(const char *const *argv)
   modstatdb_open(msdbflags);
   pkg_infodb_upgrade();
 
-  it = pkg_db_iter_new();
-  while ((pkg = pkg_db_iter_next_pkg(it))) {
+  iter = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(iter))) {
     if (!pkg->installed.essential)
       pkg_set_want(pkg, PKG_WANT_DEINSTALL);
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
 
   modstatdb_shutdown();
 

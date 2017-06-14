@@ -29,10 +29,13 @@ this system installation.
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.03';
 our @EXPORT_OK = qw(
     $PROGNAME
     $PROGVERSION
+    $PROGMAKE
+    $PROGTAR
+    $PROGPATCH
     $CONFDIR
     $ADMINDIR
     $LIBDIR
@@ -60,6 +63,19 @@ Contains the name of the current program.
 
 Contains the version of the dpkg suite.
 
+=item $Dpkg::PROGMAKE
+
+Contains the name of the system GNU make program.
+
+=item $Dpkg::PROGTAR
+
+Contains the name of the system GNU tar program.
+
+=item $Dpkg::PROGPATCH
+
+Contains the name of the system GNU patch program (or another implementation
+that is directory traversal resistant).
+
 =item $Dpkg::CONFDIR
 
 Contains the path to the dpkg system configuration directory.
@@ -84,10 +100,15 @@ our ($PROGNAME) = $0 =~ m{(?:.*/)?([^/]*)};
 
 # The following lines are automatically fixed at install time
 our $PROGVERSION = '1.18.x';
+our $PROGMAKE = $ENV{DPKG_PROGMAKE} // 'make';
+our $PROGTAR = $ENV{DPKG_PROGTAR} // 'tar';
+our $PROGPATCH = $ENV{DPKG_PROGPATCH} // 'patch';
+
 our $CONFDIR = '/etc/dpkg';
 our $ADMINDIR = '/var/lib/dpkg';
 our $LIBDIR = '.';
 our $DATADIR = '..';
+
 $DATADIR = $ENV{DPKG_DATADIR} if defined $ENV{DPKG_DATADIR};
 
 # XXX: Backwards compatibility, to be removed on VERSION 2.00.
@@ -99,6 +120,14 @@ our $pkgdatadir = $DATADIR;
 ## use critic
 
 =head1 CHANGES
+
+=head2 Version 1.03 (dpkg 1.18.24)
+
+New variable: $PROGPATCH.
+
+=head2 Version 1.02 (dpkg 1.18.11)
+
+New variable: $PROGTAR, $PROGMAKE.
 
 =head2 Version 1.01 (dpkg 1.17.0)
 

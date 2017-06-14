@@ -63,8 +63,6 @@ static int opt_skip_auto = 0;
 static int opt_verbose = 0;
 static int opt_force = 0;
 
-#define ALT_TMP_EXT ".dpkg-tmp"
-
 /*
  * Functions.
  */
@@ -271,6 +269,30 @@ xstrdup(const char *str)
 	return new_str;
 }
 
+static char * DPKG_ATTR_VPRINTF(1)
+xvasprintf(const char *fmt, va_list args)
+{
+	char *str;
+
+	if (vasprintf(&str, fmt, args) < 0)
+		error(_("failed to allocate memory"));
+
+	return str;
+}
+
+static char * DPKG_ATTR_PRINTF(1)
+xasprintf(const char *fmt, ...)
+{
+	va_list args;
+	char *str;
+
+	va_start(args, fmt);
+	str = xvasprintf(fmt, args);
+	va_end(args);
+
+	return str;
+}
+
 static char *
 areadlink(const char *linkname)
 {
@@ -316,28 +338,19 @@ xreadlink(const char *linkname)
 	return buf;
 }
 
-static char * DPKG_ATTR_VPRINTF(1)
-xvasprintf(const char *fmt, va_list args)
+static bool
+pathname_is_missing(const char *pathname)
 {
-	char *str;
+	struct stat st;
 
-	if (vasprintf(&str, fmt, args) < 0)
-		error(_("failed to allocate memory"));
+	errno = 0;
+	if (stat(pathname, &st) == 0)
+		return false;
 
-	return str;
-}
+	if (errno == ENOENT)
+		return true;
 
-static char * DPKG_ATTR_PRINTF(1)
-xasprintf(const char *fmt, ...)
-{
-	va_list args;
-	char *str;
-
-	va_start(args, fmt);
-	str = xvasprintf(fmt, args);
-	va_end(args);
-
-	return str;
+	syserr(_("cannot stat file '%s'"), pathname);
 }
 
 static void
@@ -352,11 +365,13 @@ set_action(const char *new_action)
 static const char *
 admindir_init(void)
 {
-	const char *basedir, *dpkg_basedir;
+	const char *basedir, *basedir_env;
 
-	dpkg_basedir = getenv("DPKG_ADMINDIR");
-	if (dpkg_basedir)
-		basedir = dpkg_basedir;
+	/* Try to get the admindir from an environment variable, usually set
+	 * by the system package manager. */
+	basedir_env = getenv(ADMINDIR_ENVVAR);
+	if (basedir_env)
+		basedir = basedir_env;
 	else
 		basedir = ADMINDIR;
 
@@ -513,9 +528,8 @@ fileset_free(struct fileset *fs)
 	free(fs);
 }
 
-/* name and file must be allocated with malloc */
 static void
-fileset_add_slave(struct fileset *fs, char *name, char *file)
+fileset_add_slave(struct fileset *fs, const char *name, const char *file)
 {
 	struct slave_file *sl, *cur, *prev = NULL;
 
@@ -532,8 +546,8 @@ fileset_add_slave(struct fileset *fs, char *name, char *file)
 	/* Otherwise add new at the end */
 	sl = xmalloc(sizeof(*sl));
 	sl->next = NULL;
-	sl->name = name;
-	sl->file = file;
+	sl->name = xstrdup(name);
+	sl->file = xstrdup(file);
 	if (prev)
 		prev->next = sl;
 	else
@@ -567,16 +581,11 @@ fileset_has_slave(struct fileset *fs, const char *name)
 static bool
 fileset_can_install_slave(struct fileset *fs, const char *slave_name)
 {
-	struct stat st;
-
 	/* Decide whether the slave alternative must be setup */
 	if (fileset_has_slave(fs, slave_name)) {
 		const char *slave = fileset_get_slave(fs, slave_name);
 
-		errno = 0;
-		if (stat(slave, &st) == -1 && errno != ENOENT)
-			syserr(_("cannot stat file '%s'"), slave);
-		if (errno == 0)
+		if (!pathname_is_missing(slave))
 			return true;
 	}
 
@@ -904,10 +913,9 @@ alternative_add_choice(struct alternative *a, struct fileset *fs)
 	a->modified = true;
 }
 
-/* slave_name and slave_link must be allocated with malloc */
 static struct slave_link *
-alternative_add_slave(struct alternative *a, char *slave_name,
-                      char *slave_link)
+alternative_add_slave(struct alternative *a,
+                      const char *slave_name, const char *slave_link)
 {
 	struct slave_link *sl, *new;
 
@@ -924,8 +932,8 @@ alternative_add_slave(struct alternative *a, char *slave_name,
 
 	/* Otherwise create new and add at the end */
 	new = xmalloc(sizeof(*new));
-	new->name = slave_name;
-	new->link = slave_link;
+	new->name = xstrdup(slave_name);
+	new->link = xstrdup(slave_link);
 	new->updated = false;
 	new->next = NULL;
 	if (sl)
@@ -941,7 +949,7 @@ alternative_copy_slave(struct alternative *a, struct slave_link *sl)
 {
 	struct slave_link *sl_new;
 
-	sl_new = alternative_add_slave(a, xstrdup(sl->name), xstrdup(sl->link));
+	sl_new = alternative_add_slave(a, sl->name, sl->link);
 	sl_new->updated = sl->updated;
 }
 
@@ -970,15 +978,14 @@ alternative_set_status(struct alternative *a, enum alternative_status status)
 	a->status = status;
 }
 
-/* link must be allocated with malloc */
 static void
-alternative_set_link(struct alternative *a, char *linkname)
+alternative_set_link(struct alternative *a, const char *linkname)
 {
 	if (a->master_link == NULL || strcmp(linkname, a->master_link) != 0)
 		a->modified = true;
 
 	free(a->master_link);
-	a->master_link = linkname;
+	a->master_link = xstrdup(linkname);
 }
 
 static bool
@@ -1135,8 +1142,8 @@ alternative_parse_slave(struct alternative *a, struct altdb_context *ctx)
 		free(name);
 		return false;
 	}
-	if (alternative_has_slave(a, name)) {
-		sl = alternative_get_slave(a, name);
+	sl = alternative_get_slave(a, name);
+	if (sl) {
 		free(name);
 		ctx->bad_format(ctx, _("duplicate slave name %s"), sl->name);
 	}
@@ -1158,6 +1165,8 @@ alternative_parse_slave(struct alternative *a, struct altdb_context *ctx)
 	}
 
 	alternative_add_slave(a, name, linkname);
+	free(linkname);
+	free(name);
 
 	return true;
 }
@@ -1167,7 +1176,6 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx)
 {
 	struct fileset *fs;
 	struct slave_link *sl;
-	struct stat st;
 	char *master_file;
 
 	master_file = altdb_get_line(ctx, _("master file"));
@@ -1180,11 +1188,8 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx)
 	if (fs)
 		ctx->bad_format(ctx, _("duplicate path %s"), master_file);
 
-	if (stat(master_file, &st)) {
+	if (pathname_is_missing(master_file)) {
 		char *junk;
-
-		if (errno != ENOENT)
-			syserr(_("cannot stat file '%s'"), master_file);
 
 		/* File not found - remove. */
 		if (ctx->flags & ALTDB_WARN_PARSER)
@@ -1217,8 +1222,9 @@ alternative_parse_fileset(struct alternative *a, struct altdb_context *ctx)
 
 		fs = fileset_new(master_file, prio);
 		for (sl = a->slaves; sl; sl = sl->next) {
-			fileset_add_slave(fs, xstrdup(sl->name),
-			                  altdb_get_line(ctx, _("slave file")));
+			char *slave_file = altdb_get_line(ctx, _("slave file"));
+			fileset_add_slave(fs, sl->name, slave_file);
+			free(slave_file);
 		}
 		alternative_add_choice(a, fs);
 	}
@@ -1233,6 +1239,7 @@ alternative_load(struct alternative *a, enum altdb_flags flags)
 	struct altdb_context ctx;
 	struct stat st;
 	char *status;
+	char *master_link;
 
 	/* Initialize parse context */
 	if (setjmp(ctx.on_error)) {
@@ -1274,7 +1281,9 @@ alternative_load(struct alternative *a, enum altdb_flags flags)
 	                       ALT_ST_AUTO : ALT_ST_MANUAL);
 	free(status);
 
-	alternative_set_link(a, altdb_get_line(&ctx, _("master link")));
+	master_link = altdb_get_line(&ctx, _("master link"));
+	alternative_set_link(a, master_link);
+	free(master_link);
 
 	/* Parse the description of the slaves links of the alternative */
 	while (alternative_parse_slave(a, &ctx));
@@ -1399,7 +1408,6 @@ alternative_set_current(struct alternative *a, char *new_choice)
 static const char *
 alternative_get_current(struct alternative *a)
 {
-	struct stat st;
 	char *curlink;
 	char *file;
 
@@ -1407,15 +1415,9 @@ alternative_get_current(struct alternative *a)
 		return a->current;
 
 	curlink = xasprintf("%s/%s", altdir, a->master_name);
-	if (lstat(curlink, &st)) {
-		if (errno == ENOENT) {
-			free(curlink);
-			return alternative_set_current(a, NULL);
-		}
+	file = areadlink(curlink);
+	if (file == NULL && errno != ENOENT)
 		syserr(_("cannot stat file '%s'"), curlink);
-	}
-
-	file = xreadlink(curlink);
 	free(curlink);
 
 	return alternative_set_current(a, file);
@@ -1581,9 +1583,7 @@ alternative_select_choice(struct alternative *a)
 			return xstrdup(current);
 		errno = 0;
 		idx = strtol(selection, &ret, 10);
-		if (idx < 0 || errno != 0)
-			continue;
-		if (*ret == '\0') {
+		if (idx >= 0 && errno == 0 && *ret == '\0') {
 			/* Look up by index */
 			if (idx == 0) {
 				alternative_set_status(a, ALT_ST_AUTO);
@@ -2120,13 +2120,7 @@ alternative_select_mode(struct alternative *a, const char *current_choice)
 	if (current_choice) {
 		/* Detect manually modified alternative, switch to manual. */
 		if (!alternative_has_choice(a, current_choice)) {
-			struct stat st;
-
-			errno = 0;
-			if (stat(current_choice, &st) == -1 && errno != ENOENT)
-				syserr(_("cannot stat file '%s'"), current_choice);
-
-			if (errno == ENOENT) {
+			if (pathname_is_missing(current_choice)) {
 				warning(_("%s/%s is dangling; it will be updated "
 				          "with best choice"), altdir, a->master_name);
 				alternative_set_status(a, ALT_ST_AUTO);
@@ -2149,11 +2143,17 @@ static void
 alternative_evolve_slave(struct alternative *a, const char *cur_choice,
                          struct slave_link *sl, struct fileset *fs)
 {
-	struct stat st;
+	struct slave_link *sl_old;
 	char *new_file = NULL;
 	const char *old, *new;
 
-	old = alternative_get_slave(a, sl->name)->link;
+	sl_old = alternative_get_slave(a, sl->name);
+	if (sl_old == NULL) {
+		sl->updated = true;
+		return;
+	}
+
+	old = sl_old->link;
 	new = sl->link;
 
 	if (cur_choice && strcmp(cur_choice, fs->master_file) == 0) {
@@ -2169,13 +2169,8 @@ alternative_evolve_slave(struct alternative *a, const char *cur_choice,
 	    alternative_path_classify(old) == ALT_PATH_SYMLINK) {
 		bool rename_link = false;
 
-		if (new_file) {
-			errno = 0;
-			if (stat(new_file, &st) == -1 && errno != ENOENT)
-				syserr(_("cannot stat file '%s'"),
-				       new_file);
-			rename_link = (errno == 0);
-		}
+		if (new_file)
+			rename_link = !pathname_is_missing(new_file);
 
 		if (rename_link) {
 			info(_("renaming %s slave link from %s to %s"),
@@ -2203,16 +2198,12 @@ alternative_evolve(struct alternative *a, struct alternative *b,
 		     a->master_link, b->master_link);
 		checked_mv(a->master_link, b->master_link);
 	}
-	alternative_set_link(a, xstrdup(b->master_link));
+	alternative_set_link(a, b->master_link);
 
 	/* Check if new slaves have been added, or existing
 	 * ones renamed. */
 	for (sl = b->slaves; sl; sl = sl->next) {
-		if (alternative_has_slave(a, sl->name))
-			alternative_evolve_slave(a, cur_choice, sl, fs);
-		else
-			sl->updated = true;
-
+		alternative_evolve_slave(a, cur_choice, sl, fs);
 		alternative_copy_slave(a, sl);
 	}
 }
@@ -2471,7 +2462,6 @@ alternative_check_install_args(struct alternative *inst_alt,
 	struct alternative_map *alt_map_links, *alt_map_parent;
 	struct alternative *found;
 	struct slave_link *sl;
-	struct stat st;
 
 	alternative_check_name(inst_alt->master_name);
 	alternative_check_link(inst_alt->master_link);
@@ -2496,13 +2486,9 @@ alternative_check_install_args(struct alternative *inst_alt,
 		      inst_alt->master_link, found->master_name);
 	}
 
-	if (stat(fileset->master_file, &st) == -1) {
-		if (errno == ENOENT)
-			error(_("alternative path %s doesn't exist"),
-			      fileset->master_file);
-		else
-			syserr(_("cannot stat file '%s'"), fileset->master_file);
-	}
+	if (pathname_is_missing(fileset->master_file))
+		error(_("alternative path %s doesn't exist"),
+		      fileset->master_file);
 
 	for (sl = inst_alt->slaves; sl; sl = sl->next) {
 		const char *file = fileset_get_slave(fileset, sl->name);
@@ -2620,7 +2606,7 @@ main(int argc, char **argv)
 			a = alternative_new(argv[i + 2]);
 			inst_alt = alternative_new(argv[i + 2]);
 			alternative_set_status(inst_alt, ALT_ST_AUTO);
-			alternative_set_link(inst_alt, xstrdup(argv[i + 1]));
+			alternative_set_link(inst_alt, argv[i + 1]);
 			fileset = fileset_new(argv[i + 3], prio);
 
 			i += 4;
@@ -2656,7 +2642,7 @@ main(int argc, char **argv)
 			   strcmp("--set-selections", argv[i]) == 0) {
 			set_action(argv[i] + 2);
 		} else if (strcmp("--slave", argv[i]) == 0) {
-			char *slink, *sname, *spath;
+			const char *slink, *sname, *spath;
 			struct slave_link *sl;
 
 			if (action == NULL ||
@@ -2665,9 +2651,9 @@ main(int argc, char **argv)
 			if (MISSING_ARGS(3))
 				badusage(_("--slave needs <link> <name> <path>"));
 
-			slink = xstrdup(argv[i + 1]);
-			sname = xstrdup(argv[i + 2]);
-			spath = xstrdup(argv[i + 3]);
+			slink = argv[i + 1];
+			sname = argv[i + 2];
+			spath = argv[i + 3];
 
 			if (strcmp(slink, spath) == 0)
 				badusage(_("<link> and <path> can't be the same"));
@@ -2690,7 +2676,7 @@ main(int argc, char **argv)
 			}
 
 			alternative_add_slave(inst_alt, sname, slink);
-			fileset_add_slave(fileset, xstrdup(sname), spath);
+			fileset_add_slave(fileset, sname, spath);
 
 			i+= 3;
 		} else if (strcmp("--log", argv[i]) == 0) {

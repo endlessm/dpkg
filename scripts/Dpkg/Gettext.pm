@@ -98,7 +98,10 @@ or $msgid_plural otherwise.
 use constant GETTEXT_CONTEXT_GLUE => "\004";
 
 BEGIN {
-    eval 'use Locale::gettext';
+    eval q{
+        pop @INC if $INC[-1] eq '.';
+        use Locale::gettext;
+    };
     if ($@) {
         eval q{
             sub g_ {
@@ -160,8 +163,8 @@ sub _g ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 {
     my $msgid = shift;
 
-    require Carp;
-    Carp::carp('obsolete _g() function, please use g_() instead');
+    warnings::warnif('deprecated',
+                     'obsolete _g() function, please use g_() instead');
 
     return g_($msgid);
 }

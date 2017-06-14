@@ -70,10 +70,6 @@ my @option_spec = (
     'extra-override|e=s' => \$extra_override_file,
 );
 
-sub debug {
-    print @_, "\n" if $debug;
-}
-
 sub version {
     printf g_("Debian %s version %s.\n"), $Dpkg::PROGNAME, $Dpkg::PROGVERSION;
 }
@@ -165,7 +161,7 @@ sub load_src_override {
 	return;
     }
 
-    debug "source override file $file";
+    debug(1, "source override file $file");
     my $comp_file = Dpkg::Compression::FileHandle->new(filename => $file);
     while (<$comp_file>) {
     	s/#.*//;
@@ -300,6 +296,8 @@ push @ARGV, undef if @ARGV < 2;
 push @ARGV, '' if @ARGV < 3;
 my ($dir, $override, $prefix) = @ARGV;
 
+report_options(debug_level => $debug);
+
 load_override $override if defined $override;
 load_src_override $src_override, $override;
 load_override_extra $extra_override_file if defined $extra_override_file;
@@ -309,7 +307,7 @@ my $scan_dsc = sub {
     push @dsc, $File::Find::name if m/\.dsc$/;
 };
 
-find({ follow => 1, wanted => $scan_dsc }, $dir);
+find({ follow => 1, follow_skip => 2, wanted => $scan_dsc }, $dir);
 foreach my $fn (@dsc) {
     # FIXME: Fix it instead to not die on syntax and general errors?
     eval {

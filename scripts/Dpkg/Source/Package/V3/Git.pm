@@ -55,7 +55,7 @@ sub import {
              'git is not in the PATH'));
 }
 
-sub sanity_check {
+sub _sanity_check {
     my $srcdir = shift;
 
     if (! -d "$srcdir/.git") {
@@ -69,6 +69,26 @@ sub sanity_check {
     }
 
     return 1;
+}
+
+my @module_cmdline = (
+    {
+        name => '--git-ref=<ref>',
+        help => N_('specify a git <ref> to include in the git bundle'),
+        when => 'build',
+    }, {
+        name => '--git-depth=<number>',
+        help => N_('create a shallow clone with <number> depth'),
+        when => 'build',
+    }
+);
+
+sub describe_cmdline_options {
+    my $self = shift;
+
+    my @cmdline = ( $self->SUPER::describe_cmdline_options(), @module_cmdline );
+
+    return @cmdline;
 }
 
 sub parse_cmdline_option {
@@ -99,7 +119,7 @@ sub do_build {
     my ($dirname, $updir) = fileparse($dir);
     my $basenamerev = $self->get_basename(1);
 
-    sanity_check($dir);
+    _sanity_check($dir);
 
     my $old_cwd = getcwd();
     chdir $dir or syserr(g_("unable to chdir to '%s'"), $dir);
@@ -215,7 +235,11 @@ sub do_extract {
         error(g_('format v3.0 (git) expected %s'), "$basenamerev.git");
     }
 
-    erasedir($newdirectory);
+    if ($self->{options}{no_overwrite_dir} and -e $newdirectory) {
+        error(g_('unpack target exists: %s'), $newdirectory);
+    } else {
+        erasedir($newdirectory);
+    }
 
     # Extract git bundle.
     info(g_('cloning %s'), $bundle);
@@ -230,7 +254,7 @@ sub do_extract {
         subprocerr('cp') if $?;
     }
 
-    sanity_check($newdirectory);
+    _sanity_check($newdirectory);
 }
 
 1;

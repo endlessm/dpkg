@@ -1,4 +1,4 @@
-# Copyright © 2007 Raphaël Hertzog <hertzog@debian.org>
+# Copyright © 2007, 2016 Raphaël Hertzog <hertzog@debian.org>
 # Copyright © 2007-2008, 2012-2015 Guillem Jover <guillem@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use feature qw(state);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our @EXPORT_OK = qw(
     blank_library_paths
     setup_library_paths
@@ -37,8 +37,7 @@ use Dpkg::ErrorHandling;
 use Dpkg::Shlibs::Objdump;
 use Dpkg::Util qw(:list);
 use Dpkg::Path qw(resolve_symlink canonpath);
-use Dpkg::Arch qw(debarch_to_gnutriplet get_build_arch get_host_arch
-                  gnutriplet_to_multiarch debarch_to_multiarch);
+use Dpkg::Arch qw(get_build_arch get_host_arch :mappers);
 
 use constant DEFAULT_LIBRARY_PATH =>
     qw(/lib /usr/lib);
@@ -46,7 +45,10 @@ use constant DEFAULT_LIBRARY_PATH =>
 use constant DEFAULT_MULTILIB_PATH =>
     qw(/lib32 /usr/lib32 /lib64 /usr/lib64);
 
-my @librarypaths;
+# Library paths set by the user.
+my @custom_librarypaths;
+# Library paths from the system.
+my @system_librarypaths;
 my $librarypaths_init;
 
 sub parse_ldso_conf {
@@ -68,8 +70,8 @@ sub parse_ldso_conf {
 	} elsif (m{^\s*/}) {
 	    s/^\s+//;
 	    my $libdir = $_;
-	    if (none { $_ eq $libdir } @librarypaths) {
-		push @librarypaths, $libdir;
+	    if (none { $_ eq $libdir } (@custom_librarypaths, @system_librarypaths)) {
+		push @system_librarypaths, $libdir;
 	    }
 	}
     }
@@ -77,18 +79,22 @@ sub parse_ldso_conf {
 }
 
 sub blank_library_paths {
-    @librarypaths = ();
+    @custom_librarypaths = ();
+    @system_librarypaths = ();
     $librarypaths_init = 1;
 }
 
 sub setup_library_paths {
-    @librarypaths = ();
+    @custom_librarypaths = ();
+    @system_librarypaths = ();
 
     # XXX: Deprecated. Update library paths with LD_LIBRARY_PATH.
     if ($ENV{LD_LIBRARY_PATH}) {
         foreach my $path (split /:/, $ENV{LD_LIBRARY_PATH}) {
             $path =~ s{/+$}{};
-            push @librarypaths, $path;
+            # XXX: This should be added to @custom_librarypaths, but as this
+            # is deprecated we do not care as the code will go away.
+            push @system_librarypaths, $path;
         }
     }
 
@@ -108,15 +114,15 @@ sub setup_library_paths {
     }
     # Define list of directories containing crossbuilt libraries.
     if ($multiarch) {
-        push @librarypaths, "/lib/$multiarch", "/usr/lib/$multiarch";
+        push @system_librarypaths, "/lib/$multiarch", "/usr/lib/$multiarch";
     }
 
-    push @librarypaths, DEFAULT_LIBRARY_PATH;
+    push @system_librarypaths, DEFAULT_LIBRARY_PATH;
 
     # Update library paths with ld.so config.
     parse_ldso_conf('/etc/ld.so.conf') if -e '/etc/ld.so.conf';
 
-    push @librarypaths, DEFAULT_MULTILIB_PATH;
+    push @system_librarypaths, DEFAULT_MULTILIB_PATH;
 
     $librarypaths_init = 1;
 }
@@ -126,13 +132,13 @@ sub add_library_dir {
 
     setup_library_paths() if not $librarypaths_init;
 
-    unshift @librarypaths, $dir;
+    push @custom_librarypaths, $dir;
 }
 
 sub get_library_paths {
     setup_library_paths() if not $librarypaths_init;
 
-    return @librarypaths;
+    return (@custom_librarypaths, @system_librarypaths);
 }
 
 # find_library ($soname, \@rpath, $format, $root)
@@ -141,19 +147,24 @@ sub find_library {
 
     setup_library_paths() if not $librarypaths_init;
 
+    my @librarypaths = (@{$rpath}, @custom_librarypaths, @system_librarypaths);
+    my @libs;
+
     $root //= '';
     $root =~ s{/+$}{};
-    my @rpath = @{$rpath};
-    foreach my $dir (@rpath, @librarypaths) {
+    foreach my $dir (@librarypaths) {
 	my $checkdir = "$root$dir";
 	if (-e "$checkdir/$lib") {
 	    my $libformat = Dpkg::Shlibs::Objdump::get_format("$checkdir/$lib");
 	    if ($format eq $libformat) {
-		return canonpath("$checkdir/$lib");
+		push @libs, canonpath("$checkdir/$lib");
+	    } else {
+		debug(1, "Skipping lib $checkdir/$lib, libabi=0x%s != objabi=0x%s",
+		      unpack('H*', $libformat), unpack('H*', $format));
 	    }
 	}
     }
-    return;
+    return @libs;
 }
 
 1;

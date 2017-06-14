@@ -16,14 +16,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 41;
+use Test::More tests => 44;
+use Test::Dpkg qw(:paths);
 
 BEGIN {
     use_ok('Dpkg::Checksums');
 }
 
-my $srcdir = $ENV{srcdir} // '.';
-my $datadir = $srcdir . '/t/Dpkg_Checksums';
+my $datadir = test_get_data_path('t/Dpkg_Checksums');
 
 my @data = (
     {
@@ -89,11 +89,12 @@ foreach my $c (@expected_checksums) {
 
     ok(defined checksums_get_property($c, 'name'), "Checksum $c has name");
     ok(defined checksums_get_property($c, 'regex'), "Checksum $c has regex");
+    ok(defined checksums_get_property($c, 'strong'), "Checksum $c has strong");
 }
 
 my $ck = Dpkg::Checksums->new();
 
-is(scalar $ck->get_files(), 0, 'No checkums recorded');
+is(scalar $ck->get_files(), 0, 'No checksums recorded');
 
 # Check add_from_file()
 

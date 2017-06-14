@@ -104,14 +104,11 @@ DPKG_BEGIN_DECLS
 #define DPKGSTAT	"dpkg-statoverride"
 #define DPKGTRIGGER	"dpkg-trigger"
 #define DPKG		"dpkg"
-#define DEBSIGVERIFY	"/usr/bin/debsig-verify"
+#define DEBSIGVERIFY	"debsig-verify"
 
 #define RM		"rm"
 #define CAT		"cat"
-#define FIND		"find"
 #define DIFF		"diff"
-
-#define FIND_EXPRSTARTCHARS "-(),!"
 
 #include <dpkg/progname.h>
 #include <dpkg/ehandle.h>

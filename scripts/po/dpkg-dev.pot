@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: dpkg 1.18.4\n"
+"Project-Id-Version: dpkg 1.18.24\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:28+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,22 +20,22 @@ msgstr ""
 
 #: scripts/dpkg-architecture.pl scripts/dpkg-buildflags.pl
 #: scripts/dpkg-buildpackage.pl scripts/dpkg-checkbuilddeps.pl
-#: scripts/dpkg-distaddfile.pl scripts/dpkg-genchanges.pl
-#: scripts/dpkg-gencontrol.pl scripts/dpkg-gensymbols.pl
-#: scripts/dpkg-mergechangelogs.pl scripts/dpkg-name.pl
-#: scripts/dpkg-parsechangelog.pl scripts/dpkg-scanpackages.pl
-#: scripts/dpkg-scansources.pl scripts/dpkg-shlibdeps.pl scripts/dpkg-source.pl
-#: scripts/dpkg-vendor.pl scripts/changelog/debian.pl
+#: scripts/dpkg-distaddfile.pl scripts/dpkg-genbuildinfo.pl
+#: scripts/dpkg-genchanges.pl scripts/dpkg-gencontrol.pl
+#: scripts/dpkg-gensymbols.pl scripts/dpkg-mergechangelogs.pl
+#: scripts/dpkg-name.pl scripts/dpkg-parsechangelog.pl
+#: scripts/dpkg-scanpackages.pl scripts/dpkg-scansources.pl
+#: scripts/dpkg-shlibdeps.pl scripts/dpkg-source.pl scripts/dpkg-vendor.pl
 #, perl-format
 msgid "Debian %s version %s.\n"
 msgstr ""
 
 #: scripts/dpkg-architecture.pl scripts/dpkg-buildflags.pl
 #: scripts/dpkg-buildpackage.pl scripts/dpkg-distaddfile.pl
-#: scripts/dpkg-genchanges.pl scripts/dpkg-gencontrol.pl
-#: scripts/dpkg-gensymbols.pl scripts/dpkg-parsechangelog.pl
-#: scripts/dpkg-shlibdeps.pl scripts/dpkg-source.pl scripts/dpkg-vendor.pl
-#: scripts/changelog/debian.pl
+#: scripts/dpkg-genbuildinfo.pl scripts/dpkg-genchanges.pl
+#: scripts/dpkg-gencontrol.pl scripts/dpkg-gensymbols.pl
+#: scripts/dpkg-parsechangelog.pl scripts/dpkg-shlibdeps.pl
+#: scripts/dpkg-source.pl scripts/dpkg-vendor.pl
 msgid ""
 "\n"
 "This is free software; see the GNU General Public License version 2 or\n"
@@ -111,8 +111,9 @@ msgid "%s is not a supported variable name"
 msgstr ""
 
 #: scripts/dpkg-architecture.pl scripts/dpkg-buildflags.pl
-#: scripts/dpkg-distaddfile.pl scripts/dpkg-genchanges.pl
-#: scripts/dpkg-gencontrol.pl scripts/dpkg-gensymbols.pl scripts/dpkg-name.pl
+#: scripts/dpkg-distaddfile.pl scripts/dpkg-genbuildinfo.pl
+#: scripts/dpkg-genchanges.pl scripts/dpkg-gencontrol.pl
+#: scripts/dpkg-gensymbols.pl scripts/dpkg-name.pl
 #: scripts/dpkg-parsechangelog.pl scripts/dpkg-shlibdeps.pl
 #: scripts/dpkg-vendor.pl
 #, perl-format
@@ -163,9 +164,9 @@ msgstr ""
 msgid "%s needs a parameter"
 msgstr ""
 
-#: scripts/dpkg-buildpackage.pl scripts/dpkg-genchanges.pl
-#: scripts/dpkg-gencontrol.pl scripts/dpkg-gensymbols.pl
-#: scripts/dpkg-parsechangelog.pl
+#: scripts/dpkg-buildpackage.pl scripts/dpkg-genbuildinfo.pl
+#: scripts/dpkg-genchanges.pl scripts/dpkg-gencontrol.pl
+#: scripts/dpkg-gensymbols.pl scripts/dpkg-parsechangelog.pl
 #, perl-format
 msgid "Usage: %s [<option>...]"
 msgstr ""
@@ -173,90 +174,106 @@ msgstr ""
 #: scripts/dpkg-buildpackage.pl
 msgid ""
 "Options:\n"
-"  -F             normal full build (binaries and sources, default).\n"
-"  -g             source and arch-indep build.\n"
-"  -G             source and arch-specific build.\n"
-"  -b             binary-only, no source files.\n"
-"  -B             binary-only, only arch-specific files.\n"
-"  -A             binary-only, only arch-indep files.\n"
-"  -S             source-only, no binary files.\n"
-"  -nc            do not clean source tree (implies -b).\n"
-"  -tc            clean source tree when finished.\n"
-"  -D             check build dependencies and conflicts (default).\n"
-"  -d             do not check build dependencies and conflicts.\n"
-"  -P<profiles>   assume given build profiles as active (comma-separated "
-"list).\n"
-"  -R<rules>      rules file to execute (default is debian/rules).\n"
-"  -T<target>     call debian/rules <target> with the proper environment.\n"
-"      --as-root  ensure -T calls the target with root rights.\n"
-"  -j[<number>]   jobs to run simultaneously (passed to <rules>), forced "
-"mode.\n"
-"  -J[<number>]   jobs to run simultaneously (passed to <rules>), opt-in "
-"mode.\n"
-"  -r<gain-root-command>\n"
-"                 command to gain root privileges (default is fakeroot).\n"
-"  --check-command=<check-command>\n"
-"                 command to check the .changes file (no default).\n"
-"  --check-option=<opt>\n"
-"                 pass <opt> to <check-command>.\n"
-"  --hook-<hook-name>=<hook-command>\n"
-"                 set <hook-command> as the hook <hook-name>, known hooks:\n"
-"                   init preclean source build binary changes postclean\n"
-"                   check sign done\n"
-"  -p<sign-command>\n"
-"                 command to sign .dsc and/or .changes files\n"
-"                   (default is gpg2 or gpg).\n"
-"  -k<keyid>      the key to use for signing.\n"
-"  -ap            add pause before starting signature process.\n"
-"  -us            unsigned source package.\n"
-"  -uc            unsigned .changes file.\n"
-"      --force-sign\n"
-"                 force signing the resulting files.\n"
-"      --admindir=<directory>\n"
-"                 change the administrative directory.\n"
-"  -?, --help     show this help message.\n"
-"      --version  show the version."
+"      --build=<type>[,...]    specify the build <type>: full, source, "
+"binary,\n"
+"                                any, all (default is 'full').\n"
+"  -F                          normal full build (source and binary; "
+"default).\n"
+"  -g                          source and arch-indep build.\n"
+"  -G                          source and arch-specific build.\n"
+"  -b                          binary-only, no source files.\n"
+"  -B                          binary-only, only arch-specific files.\n"
+"  -A                          binary-only, only arch-indep files.\n"
+"  -S                          source-only, no binary files.\n"
+"  -nc, --no-pre-clean         do not pre clean source tree (implies -b).\n"
+"       --pre-clean            pre clean source tree (default).\n"
+"  -tc, --post-clean           clean source tree when finished.\n"
+"  -D                          check build dependencies and conflicts "
+"(default).\n"
+"  -d                          do not check build dependencies and "
+"conflicts.\n"
+"      --[no-]check-builddeps  ditto.\n"
+"      --ignore-builtin-builddeps\n"
+"                              do not check builtin build dependencies.\n"
+"  -P, --build-profiles=<profiles>\n"
+"                              assume comma-separated build profiles as "
+"active.\n"
+"  -R, --rules-file=<rules>    rules file to execute (default is debian/"
+"rules).\n"
+"  -T, --rules-target=<target> call debian/rules <target>.\n"
+"      --as-root               ensure -T calls the target with root rights.\n"
+"  -j, --jobs[=<number>|auto]  jobs to run simultaneously (passed to "
+"<rules>),\n"
+"                                forced mode.\n"
+"  -J, --jobs-try[=<number>|auto]\n"
+"                              jobs to run simultaneously (passed to "
+"<rules>),\n"
+"                                opt-in mode (default is auto).\n"
+"  -r, --root-command=<command>\n"
+"                              command to gain root rights (default is "
+"fakeroot).\n"
+"      --check-command=<command>\n"
+"                              command to check the .changes file (no "
+"default).\n"
+"      --check-option=<opt>    pass <opt> to check <command>.\n"
+"      --hook-<name>=<command> set <command> as the hook <name>, known "
+"hooks:\n"
+"                                init preclean source build binary buildinfo\n"
+"                                changes postclean check sign done\n"
+"      --buildinfo-option=<opt>\n"
+"                              pass option <opt> to dpkg-genbuildinfo.\n"
+"  -p, --sign-command=<command>\n"
+"                              command to sign .dsc and/or .changes files\n"
+"                                (default is gpg2 or gpg).\n"
+"  -k, --sign-key=<keyid>      the key to use for signing.\n"
+"  -ap, --sign-pause           add pause before starting signature process.\n"
+"  -us, --unsigned-source      unsigned source package.\n"
+"  -ui, --unsigned-buildinfo   unsigned .buildinfo file.\n"
+"  -uc, --unsigned-changes     unsigned .buildinfo and .changes file.\n"
+"      --no-sign               do not sign any file.\n"
+"      --force-sign            force signing the resulting files.\n"
+"      --admindir=<directory>  change the administrative directory.\n"
+"  -?, --help                  show this help message.\n"
+"      --version               show the version."
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 msgid ""
 "Options passed to dpkg-architecture:\n"
-"  -a, --host-arch <arch>    set the host Debian architecture.\n"
-"  -t, --host-type <type>    set the host GNU system type.\n"
-"      --target-arch <arch>  set the target Debian architecture.\n"
-"      --target-type <type>  set the target GNU system type."
+"  -a, --host-arch <arch>      set the host Debian architecture.\n"
+"  -t, --host-type <type>      set the host GNU system type.\n"
+"      --target-arch <arch>    set the target Debian architecture.\n"
+"      --target-type <type>    set the target GNU system type."
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 msgid ""
 "Options passed to dpkg-genchanges:\n"
-"  -si            source includes orig, if new upstream (default).\n"
-"  -sa            source includes orig, always.\n"
-"  -sd            source is diff and .dsc only.\n"
-"  -v<version>    changes since version <version>.\n"
-"  -m<maint>      maintainer for package is <maint>.\n"
-"  -e<maint>      maintainer for release is <maint>.\n"
-"  -C<descfile>   changes are described in <descfile>.\n"
-"      --changes-option=<opt>\n"
-"                 pass option <opt> to dpkg-genchanges."
+"  -si                         source includes orig, if new upstream "
+"(default).\n"
+"  -sa                         source includes orig, always.\n"
+"  -sd                         source is diff and .dsc only.\n"
+"  -v<version>                 changes since version <version>.\n"
+"  -m, --release-by=<maint>    maintainer for this release is <maint>.\n"
+"  -e, --build-by=<maint>      maintainer for this build is <maint>.\n"
+"  -C<descfile>                changes are described in <descfile>.\n"
+"      --changes-option=<opt>  pass option <opt> to dpkg-genchanges."
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 msgid ""
 "Options passed to dpkg-source:\n"
-"  -sn            force Debian native source format.\n"
-"  -s[sAkurKUR]   see dpkg-source for explanation.\n"
-"  -z<level>      compression level to use for source.\n"
-"  -Z<compressor> compression to use for source (gz|xz|bzip2|lzma).\n"
-"  -i[<regex>]    ignore diffs of files matching regex.\n"
-"  -I[<pattern>]  filter out files when building tarballs.\n"
-"      --source-option=<opt>\n"
-"                 pass option <opt> to dpkg-source.\n"
-msgstr ""
-
-#: scripts/dpkg-buildpackage.pl scripts/dpkg-genchanges.pl
-#, perl-format
-msgid "cannot combine %s and %s"
+"  -sn                         force Debian native source format.\n"
+"  -s[sAkurKUR]                see dpkg-source for explanation.\n"
+"  -z, --compression-level=<level>\n"
+"                              compression level to use for source.\n"
+"  -Z, --compression=<compressor>\n"
+"                              compression to use for source (gz|xz|bzip2|"
+"lzma).\n"
+"  -i, --diff-ignore[=<regex>] ignore diffs of files matching <regex>.\n"
+"  -I, --tar-ignore[=<pattern>]\n"
+"                              filter out files when building tarballs.\n"
+"      --source-option=<opt>   pass option <opt> to dpkg-source.\n"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
@@ -295,17 +312,17 @@ msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 #, perl-format
-msgid "gain-root-commmand '%s' not found"
+msgid "gain-root-command '%s' not found"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 #, perl-format
-msgid "check-commmand '%s' not found"
+msgid "check-command '%s' not found"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 #, perl-format
-msgid "sign-commmand '%s' not found"
+msgid "sign-command '%s' not found"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
@@ -347,13 +364,6 @@ msgid ""
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
-#, perl-format
-msgid ""
-"%s must be updated to support the 'build-arch' and 'build-indep' targets (at "
-"least '%s' seems to be missing)"
-msgstr ""
-
-#: scripts/dpkg-buildpackage.pl
 msgid "parse changes file"
 msgstr ""
 
@@ -366,11 +376,8 @@ msgid "Press <enter> to start the signing process.\n"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
-msgid "failed to sign .dsc and .changes file"
-msgstr ""
-
-#: scripts/dpkg-buildpackage.pl
-msgid "failed to sign .changes file"
+#, perl-format
+msgid "failed to sign %s file"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
@@ -388,15 +395,16 @@ msgid "unknown %% substitution in hook: %%%s"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl scripts/dpkg-checkbuilddeps.pl
-#: scripts/dpkg-name.pl scripts/Dpkg/Arch.pm scripts/Dpkg/IPC.pm
-#: scripts/Dpkg/Shlibs.pm
+#: scripts/dpkg-genbuildinfo.pl scripts/dpkg-name.pl scripts/Dpkg/Arch.pm
+#: scripts/Dpkg/IPC.pm scripts/Dpkg/Shlibs.pm
 #, perl-format
 msgid "cannot open %s"
 msgstr ""
 
 #: scripts/dpkg-buildpackage.pl scripts/dpkg-distaddfile.pl
-#: scripts/dpkg-gencontrol.pl scripts/Dpkg/Interface/Storable.pm
-#: scripts/Dpkg/Source/Package/V2.pm scripts/Dpkg/Source/Patch.pm
+#: scripts/dpkg-genbuildinfo.pl scripts/dpkg-gencontrol.pl
+#: scripts/Dpkg/Interface/Storable.pm scripts/Dpkg/Source/Package/V2.pm
+#: scripts/Dpkg/Source/Patch.pm
 #, perl-format
 msgid "cannot close %s"
 msgstr ""
@@ -427,6 +435,13 @@ msgstr ""
 
 #: scripts/dpkg-buildpackage.pl
 msgid "full upload (original source is included)"
+msgstr ""
+
+#: scripts/dpkg-buildpackage.pl
+#, perl-format
+msgid ""
+"%s must be updated to support the 'build-arch' and 'build-indep' targets (at "
+"least '%s' seems to be missing)"
 msgstr ""
 
 #: scripts/dpkg-checkbuilddeps.pl
@@ -492,23 +507,52 @@ msgstr ""
 msgid "filename, section and priority may contain no whitespace"
 msgstr ""
 
-#: scripts/dpkg-distaddfile.pl scripts/dpkg-gencontrol.pl
-#: scripts/dpkg-mergechangelogs.pl scripts/Dpkg/Compression/FileHandle.pm
-#: scripts/Dpkg/IPC.pm scripts/Dpkg/Interface/Storable.pm
-#: scripts/Dpkg/Source/Functions.pm scripts/Dpkg/Source/Package.pm
-#: scripts/Dpkg/Source/Package/V2.pm scripts/Dpkg/Source/Package/V3/Quilt.pm
-#: scripts/Dpkg/Source/Quilt.pm
+#: scripts/dpkg-distaddfile.pl scripts/dpkg-genbuildinfo.pl
+#: scripts/dpkg-gencontrol.pl scripts/dpkg-mergechangelogs.pl
+#: scripts/Dpkg/Compression/FileHandle.pm scripts/Dpkg/IPC.pm
+#: scripts/Dpkg/Interface/Storable.pm scripts/Dpkg/Source/Functions.pm
+#: scripts/Dpkg/Source/Package.pm scripts/Dpkg/Source/Package/V2.pm
+#: scripts/Dpkg/Source/Package/V3/Quilt.pm scripts/Dpkg/Source/Quilt.pm
 #, perl-format
 msgid "cannot write %s"
 msgstr ""
 
-#: scripts/dpkg-distaddfile.pl scripts/dpkg-gencontrol.pl
+#: scripts/dpkg-distaddfile.pl scripts/dpkg-genbuildinfo.pl
+#: scripts/dpkg-gencontrol.pl
 msgid "install new files list file"
+msgstr ""
+
+#: scripts/dpkg-genbuildinfo.pl
+msgid ""
+"Options:\n"
+"  --build=<type>[,...]     specify the build <type>: full, source, binary,\n"
+"                             any, all (default is 'full').\n"
+"  -c<control-file>         get control info from this file.\n"
+"  -l<changelog-file>       get per-version info from this file.\n"
+"  -f<files-list-file>      get .deb files list from this file.\n"
+"  -F<changelog-format>     force changelog format.\n"
+"  -O[<buildinfo-file>]     write to stdout (or <buildinfo-file>).\n"
+"  -u<upload-files-dir>     directory with files (default is '..').\n"
+"  --always-include-path    always include Build-Path.\n"
+"  --admindir=<directory>   change the administrative directory.\n"
+"  -?, --help               show this help message.\n"
+"      --version            show the version.\n"
+msgstr ""
+
+#: scripts/dpkg-genbuildinfo.pl
+msgid "binary build with no binary artifacts found; .buildinfo is meaningless"
+msgstr ""
+
+#: scripts/dpkg-genbuildinfo.pl
+#, perl-format
+msgid "cannot install output buildinfo file '%s'"
 msgstr ""
 
 #: scripts/dpkg-genchanges.pl
 msgid ""
 "Options:\n"
+"  --build=<type>[,...]     specify the build <type>: full, source, binary,\n"
+"                             any, all (default is 'full').\n"
 "  -g                       source and arch-indep build.\n"
 "  -G                       source and arch-specific build.\n"
 "  -b                       binary-only, no source files.\n"
@@ -532,6 +576,7 @@ msgid ""
 "  -T<substvars-file>       read variables here, not debian/substvars.\n"
 "  -D<field>=<value>        override or add a field and value.\n"
 "  -U<field>                remove a field.\n"
+"  -O[<filename>]           write to stdout (default) or <filename>.\n"
 "  -?, --help               show this help message.\n"
 "      --version            show the version.\n"
 msgstr ""
@@ -624,10 +669,6 @@ msgstr ""
 msgid "package %s has priority %s in control file but %s in files list"
 msgstr ""
 
-#: scripts/dpkg-genchanges.pl
-msgid "write original source message"
-msgstr ""
-
 #: scripts/dpkg-genchanges.pl scripts/Dpkg/Source/Package.pm
 #, perl-format
 msgid "missing information for critical output field %s"
@@ -692,13 +733,6 @@ msgstr ""
 
 #: scripts/dpkg-gencontrol.pl
 #, perl-format
-msgid "'%s' is not a legal architecture string."
-msgid_plural "'%s' are not legal architecture strings."
-msgstr[0] ""
-msgstr[1] ""
-
-#: scripts/dpkg-gencontrol.pl
-#, perl-format
 msgid ""
 "current host architecture '%s' does not appear in package's architecture "
 "list (%s)"
@@ -730,11 +764,6 @@ msgstr ""
 #: scripts/Dpkg/Source/Patch.pm
 #, perl-format
 msgid "cannot stat %s"
-msgstr ""
-
-#: scripts/dpkg-gencontrol.pl
-#, perl-format
-msgid "cannot open new output control file '%s'"
 msgstr ""
 
 #: scripts/dpkg-gencontrol.pl
@@ -956,7 +985,6 @@ msgid ""
 "Options:\n"
 "  -l <changelog-file>      get per-version info from this file.\n"
 "  -F <changelog-format>    force changelog format.\n"
-"  -L <libdir>              look for changelog parsers in <libdir>.\n"
 "  -S, --show-field <field> show the values for <field>.\n"
 "  -?, --help               show this help message.\n"
 "      --version            show the version."
@@ -983,7 +1011,7 @@ msgid ""
 msgstr ""
 
 #: scripts/dpkg-parsechangelog.pl
-msgid "missing library directory"
+msgid "-L is obsolete; it is without effect"
 msgstr ""
 
 #: scripts/dpkg-parsechangelog.pl
@@ -1027,8 +1055,7 @@ msgstr ""
 msgid "unconditional maintainer override for %s"
 msgstr ""
 
-#: scripts/dpkg-scanpackages.pl scripts/dpkg-shlibdeps.pl
-#: scripts/Dpkg/Changelog/Parse.pm scripts/Dpkg/IPC.pm
+#: scripts/dpkg-scanpackages.pl scripts/dpkg-shlibdeps.pl scripts/Dpkg/IPC.pm
 #: scripts/Dpkg/Shlibs/Objdump.pm
 #, perl-format
 msgid "cannot fork for %s"
@@ -1078,7 +1105,7 @@ msgstr ""
 
 #: scripts/dpkg-scanpackages.pl
 #, perl-format
-msgid "binary directory %s not found"
+msgid "binary path %s not found"
 msgstr ""
 
 #: scripts/dpkg-scanpackages.pl
@@ -1182,7 +1209,8 @@ msgstr ""
 
 #: scripts/dpkg-shlibdeps.pl
 #, perl-format
-msgid "couldn't find library %s needed by %s (ELF format: '%s'; RPATH: '%s')"
+msgid ""
+"cannot find library %s needed by %s (ELF format: '%s' abi: '%s'; RPATH: '%s')"
 msgstr ""
 
 #: scripts/dpkg-shlibdeps.pl
@@ -1286,7 +1314,10 @@ msgid ""
 "  -t<type>                 set package type (default is deb).\n"
 "  -x<package>              exclude package from the generated dependencies.\n"
 "  -S<package-build-dir>    search needed libraries in the given\n"
-"                           package build directory first.\n"
+"                             package build directory first.\n"
+"  -I<package-build-dir>    ignore needed libraries, shlibs and symbols "
+"files\n"
+"                             in the given build directory.\n"
 "  -v                       enable verbose mode (can be used multiple "
 "times).\n"
 "  --ignore-missing-info    don't fail if dependency information can't be "
@@ -1458,7 +1489,10 @@ msgstr ""
 msgid "--%s needs the .dsc file as first argument, not a directory"
 msgstr ""
 
-#: scripts/dpkg-source.pl
+#: scripts/dpkg-source.pl scripts/Dpkg/Source/Package/V1.pm
+#: scripts/Dpkg/Source/Package/V2.pm scripts/Dpkg/Source/Package/V3/Bzr.pm
+#: scripts/Dpkg/Source/Package/V3/Git.pm
+#: scripts/Dpkg/Source/Package/V3/Native.pm
 #, perl-format
 msgid "unpack target exists: %s"
 msgstr ""
@@ -1480,7 +1514,17 @@ msgstr ""
 
 #: scripts/dpkg-source.pl
 #, perl-format
+msgid "test control %s is not a regular file"
+msgstr ""
+
+#: scripts/dpkg-source.pl
+#, perl-format
 msgid "%s field contains value %s, but no tests control file %s"
+msgstr ""
+
+#: scripts/dpkg-source.pl
+msgctxt "source options"
+msgid "<none>"
 msgstr ""
 
 #: scripts/dpkg-source.pl
@@ -1496,6 +1540,10 @@ msgid ""
 "  -b, --build <dir>        build source package.\n"
 "      --print-format <dir> print the format to be used for the source "
 "package.\n"
+"      --before-build <dir> run the corresponding source package format "
+"hook.\n"
+"      --after-build <dir>  run the corresponding source package format "
+"hook.\n"
 "      --commit [<dir> [<patch-name>]]\n"
 "                           store upstream changes in a new patch."
 msgstr ""
@@ -1513,14 +1561,17 @@ msgid ""
 "  -T<substvars-file>       read variables here.\n"
 "  -D<field>=<value>        override or add a .dsc field and value.\n"
 "  -U<field>                remove a field.\n"
-"  -q                       quiet mode.\n"
-"  -i[<regex>]              filter out files to ignore diffs of\n"
+"  -i, --diff-ignore[=<regex>]\n"
+"                           filter out files to ignore diffs of\n"
 "                             (defaults to: '%s').\n"
-"  -I[<pattern>]            filter out files when building tarballs\n"
+"  -I, --tar-ignore[=<pattern>]\n"
+"                           filter out files when building tarballs\n"
 "                             (defaults to: %s).\n"
-"  -Z<compression>          select compression to use (defaults to '%s',\n"
+"  -Z, --compression=<compression>\n"
+"                           select compression to use (defaults to '%s',\n"
 "                             supported are: %s).\n"
-"  -z<level>                compression level to use (defaults to '%d',\n"
+"  -z, --compression-level=<level>\n"
+"                           compression level to use (defaults to '%d',\n"
 "                             supported are: '1'-'9', 'best', 'fast')"
 msgstr ""
 
@@ -1530,22 +1581,27 @@ msgid ""
 "  --no-copy                don't copy .orig tarballs\n"
 "  --no-check               don't check signature and checksums before "
 "unpacking\n"
+"  --no-overwrite-dir       do not overwrite directory on extraction\n"
 "  --require-valid-signature abort if the package doesn't have a valid "
 "signature\n"
+"  --require-strong-checksums\n"
+"                           abort if the package contains no strong "
+"checksums\n"
 "  --ignore-bad-version     allow bad source package versions."
 msgstr ""
 
 #: scripts/dpkg-source.pl
 msgid ""
 "General options:\n"
+"  -q                       quiet mode.\n"
 "  -?, --help               show this help message.\n"
 "      --version            show the version."
 msgstr ""
 
 #: scripts/dpkg-source.pl
 msgid ""
-"More options are available but they depend on the source package format.\n"
-"See dpkg-source(1) for more info."
+"Source format specific build and extract options are available;\n"
+"use --format with --help to see them."
 msgstr ""
 
 #: scripts/dpkg-vendor.pl
@@ -1570,50 +1626,6 @@ msgstr ""
 msgid "vendor %s doesn't exist in %s"
 msgstr ""
 
-#: scripts/changelog/debian.pl
-#, perl-format
-msgid "Usage: %s [<option>...] [<changelog-file>]"
-msgstr ""
-
-#: scripts/changelog/debian.pl
-msgid ""
-"Options:\n"
-"      --file <file>       changelog <file> to parse (defaults to '-').\n"
-"  -l, --label <file>      changelog <file> name to use in error messages.\n"
-"      --format <output-format>\n"
-"                          set the output format (defaults to 'dpkg').\n"
-"      --all               include all changes.\n"
-"  -s, --since <version>   include all changes later than <version>.\n"
-"  -v <version>            ditto.\n"
-"  -u, --until <version>   include all changes earlier than <version>.\n"
-"  -f, --from <version>    include all changes equal or later than "
-"<version>.\n"
-"  -t, --to <version>      include all changes up to or equal than "
-"<version>.\n"
-"  -c, --count <number>    include <number> entries from the top (or tail if\n"
-"                            <number> is lower than 0).\n"
-"  -n <number>             ditto.\n"
-"  -o, --offset <number>   change starting point for --count, counted from\n"
-"                            the top (or tail if <number> is lower than 0).\n"
-"  -?, --help              print usage information.\n"
-"  -V, --version           print version information.\n"
-msgstr ""
-
-#: scripts/changelog/debian.pl
-#, perl-format
-msgid "output format %s not supported"
-msgstr ""
-
-#: scripts/changelog/debian.pl
-#, perl-format
-msgid "more than one file specified (%s and %s)"
-msgstr ""
-
-#: scripts/changelog/debian.pl scripts/Dpkg/Changelog/Parse.pm
-#, perl-format
-msgid "fatal error occurred while parsing %s"
-msgstr ""
-
 #: scripts/Dpkg/Arch.pm
 msgid ""
 "cannot determine CC system type, falling back to default (native compilation)"
@@ -1622,6 +1634,11 @@ msgstr ""
 #: scripts/Dpkg/Arch.pm
 #, perl-format
 msgid "unknown CC system type %s, falling back to default (native compilation)"
+msgstr ""
+
+#: scripts/Dpkg/Arch.pm
+#, perl-format
+msgid "'%s' is not a legal architecture in list '%s'"
 msgstr ""
 
 #: scripts/Dpkg/BuildFlags.pm
@@ -1639,8 +1656,24 @@ msgstr ""
 msgid "invalid flag in %s: %s"
 msgstr ""
 
-#: scripts/Dpkg/Changelog.pm scripts/Dpkg/ErrorHandling.pm
-msgid "warning"
+#: scripts/Dpkg/BuildOptions.pm
+#, perl-format
+msgid "unknown %s feature in %s variable: %s"
+msgstr ""
+
+#: scripts/Dpkg/BuildOptions.pm
+#, perl-format
+msgid "incorrect value in %s option of %s variable: %s"
+msgstr ""
+
+#: scripts/Dpkg/Build/Types.pm
+#, perl-format
+msgid "cannot combine %s and %s"
+msgstr ""
+
+#: scripts/Dpkg/Build/Types.pm
+#, perl-format
+msgid "unknown build type %s"
 msgstr ""
 
 #: scripts/Dpkg/Changelog.pm
@@ -1756,6 +1789,11 @@ msgstr ""
 
 #: scripts/Dpkg/Changelog/Entry/Debian.pm
 #, perl-format
+msgid "version '%s' is invalid: %s"
+msgstr ""
+
+#: scripts/Dpkg/Changelog/Entry/Debian.pm
+#, perl-format
 msgid "bad key-value after ';': '%s'"
 msgstr ""
 
@@ -1777,11 +1815,6 @@ msgstr ""
 #: scripts/Dpkg/Changelog/Entry/Debian.pm
 #, perl-format
 msgid "unknown key-value %s"
-msgstr ""
-
-#: scripts/Dpkg/Changelog/Entry/Debian.pm
-#, perl-format
-msgid "version '%s' is invalid: %s"
 msgstr ""
 
 #: scripts/Dpkg/Changelog/Entry/Debian.pm
@@ -1814,11 +1847,6 @@ msgstr ""
 
 #: scripts/Dpkg/Changelog/Parse.pm
 #, perl-format
-msgid "unknown output format %s"
-msgstr ""
-
-#: scripts/Dpkg/Changelog/Parse.pm
-#, perl-format
 msgid "cannot create pipe for %s"
 msgstr ""
 
@@ -1829,26 +1857,17 @@ msgstr ""
 
 #: scripts/Dpkg/Changelog/Parse.pm
 #, perl-format
-msgid "format parser %s not executable"
+msgid "changelog format %s is unknown: %s"
 msgstr ""
 
 #: scripts/Dpkg/Changelog/Parse.pm
 #, perl-format
-msgid "changelog format %s is unknown"
+msgid "fatal error occurred while parsing %s"
 msgstr ""
 
 #: scripts/Dpkg/Changelog/Parse.pm
 #, perl-format
-msgid "cannot execute format parser: %s"
-msgstr ""
-
-#: scripts/Dpkg/Changelog/Parse.pm
-msgid "output of changelog parser"
-msgstr ""
-
-#: scripts/Dpkg/Changelog/Parse.pm
-#, perl-format
-msgid "changelog parser %s"
+msgid "unknown output format %s"
 msgstr ""
 
 #: scripts/Dpkg/Checksums.pm
@@ -1913,6 +1932,27 @@ msgid "parsed version of changelog"
 msgstr ""
 
 #: scripts/Dpkg/Control.pm
+msgid "header stanza of copyright file"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
+msgid "files stanza of copyright file"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
+msgid "license stanza of copyright file"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
+msgid "package's tests control file"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
+#, perl-format
+msgid "repository's %s file"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
 #, perl-format
 msgid "entry in repository's %s file"
 msgstr ""
@@ -1924,6 +1964,10 @@ msgstr ""
 
 #: scripts/Dpkg/Control.pm
 msgid "control info of a .deb package"
+msgstr ""
+
+#: scripts/Dpkg/Control.pm
+msgid "build information file"
 msgstr ""
 
 #: scripts/Dpkg/Control.pm
@@ -2021,11 +2065,24 @@ msgstr ""
 
 #: scripts/Dpkg/Dist/Files.pm
 #, perl-format
+msgid "cannot open directory %s"
+msgstr ""
+
+#: scripts/Dpkg/Dist/Files.pm
+#, perl-format
 msgid "invalid filename %s"
 msgstr ""
 
 #: scripts/Dpkg/ErrorHandling.pm
 msgid "info"
+msgstr ""
+
+#: scripts/Dpkg/ErrorHandling.pm
+msgid "notice"
+msgstr ""
+
+#: scripts/Dpkg/ErrorHandling.pm
+msgid "warning"
 msgstr ""
 
 #: scripts/Dpkg/ErrorHandling.pm
@@ -2109,6 +2166,11 @@ msgstr ""
 
 #: scripts/Dpkg/Package.pm
 msgid "must start with an alphanumeric character"
+msgstr ""
+
+#: scripts/Dpkg/Shlibs/Objdump.pm
+#, perl-format
+msgid "unknown executable format in file '%s'"
 msgstr ""
 
 #: scripts/Dpkg/Shlibs/Objdump.pm
@@ -2229,6 +2291,10 @@ msgid "invalid Format field '%s'"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package.pm
+msgid "source package uses only weak checksums"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package.pm
 #, perl-format
 msgid "%s and %s fields are required to compute the source basename"
 msgstr ""
@@ -2240,7 +2306,7 @@ msgstr ""
 
 #: scripts/Dpkg/Source/Package.pm
 #, perl-format
-msgid "could not verify signature on %s since gpg isn't installed"
+msgid "cannot verify signature on %s since GnuPG is not installed"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package.pm
@@ -2266,6 +2332,58 @@ msgstr ""
 #: scripts/Dpkg/Source/Package.pm
 #, perl-format
 msgid "'%s' is not supported by the source format '%s'"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "auto select original source"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "use packed original source (unpack and keep)"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "use packed original source (unpack and remove)"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "use unpacked original source (pack and keep)"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "use unpacked original source (pack and remove)"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "trust packed and unpacked original sources are same"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "there is no diff, do main tarfile only"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "like -sa, -sk, -sp, -su, -sr but may overwrite"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm scripts/Dpkg/Source/Package/V2.pm
+msgid "abort if generated diff has upstream files changes"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "leave original source packed in current directory"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "do not copy original source to current directory"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "unpack original source tree too"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V1.pm
+msgid "do not apply debian diff to upstream sources"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V1.pm
@@ -2470,6 +2588,46 @@ msgid "unrepresentable changes to source"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V2.pm
+msgid "include removed files in the patch"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "include timestamp in the patch"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "include binary files in the tarball"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "do not prepare build tree by applying patches"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "do not unapply patches if previously applied"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "unapply patches if previously applied (default)"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "create an empty original tarball if missing"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "record generated patches, instead of aborting"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "do not extract debian tarball into upstream sources"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
+msgid "do not apply patches at the end of the extraction"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
 #, perl-format
 msgid "duplicate files in %s source package: %s"
 msgstr ""
@@ -2608,6 +2766,10 @@ msgid "Enter the desired patch name: "
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V2.pm
+msgid "no patch name given; cannot proceed"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V2.pm
 msgid "cannot find an editor"
 msgstr ""
 
@@ -2660,6 +2822,10 @@ msgid "expected %s, got %s"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V3/Custom.pm
+msgid "define the format of the generated source package"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V3/Custom.pm
 msgid "Format '3.0 (custom)' is only used to create source packages"
 msgstr ""
 
@@ -2685,6 +2851,14 @@ msgstr ""
 #: scripts/Dpkg/Source/Package/V3/Git.pm
 #, perl-format
 msgid "git repository %s uses submodules; this is not yet supported"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V3/Git.pm
+msgid "specify a git <ref> to include in the git bundle"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V3/Git.pm
+msgid "create a shallow clone with <number> depth"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V3/Git.pm
@@ -2739,6 +2913,14 @@ msgstr ""
 
 #: scripts/Dpkg/Source/Package/V3/Native.pm
 msgid "native package version may not have a revision"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V3/Quilt.pm
+msgid "use a single debianization patch"
+msgstr ""
+
+#: scripts/Dpkg/Source/Package/V3/Quilt.pm
+msgid "accept quilt metadata <version> even if unknown"
 msgstr ""
 
 #: scripts/Dpkg/Source/Package/V3/Quilt.pm
@@ -2899,7 +3081,14 @@ msgstr ""
 
 #: scripts/Dpkg/Source/Patch.pm
 #, perl-format
-msgid "diff '%s' patches file %s twice"
+msgid ""
+"diff '%s' patches files multiple times; split the diff in multiple files or "
+"merge the hunks into a single one"
+msgstr ""
+
+#: scripts/Dpkg/Source/Patch.pm
+#, perl-format
+msgid "diff '%s' patches file %s more than once"
 msgstr ""
 
 #: scripts/Dpkg/Source/Patch.pm
@@ -3003,12 +3192,17 @@ msgstr ""
 
 #: scripts/Dpkg/Substvars.pm
 #, perl-format
+msgid "invalid source version %s"
+msgstr ""
+
+#: scripts/Dpkg/Substvars.pm
+#, perl-format
 msgid "too many substitutions - recursive ? - in '%s'"
 msgstr ""
 
 #: scripts/Dpkg/Substvars.pm
 #, perl-format
-msgid "deprecated substitution variable ${%s}"
+msgid "obsolete substitution variable ${%s}"
 msgstr ""
 
 #: scripts/Dpkg/Substvars.pm
@@ -3033,16 +3227,6 @@ msgstr ""
 
 #: scripts/Dpkg/Vendor/Debian.pm
 #, perl-format
-msgid "unknown %s feature in %s variable: %s"
-msgstr ""
-
-#: scripts/Dpkg/Vendor/Debian.pm
-#, perl-format
-msgid "incorrect value in %s option of %s variable: %s"
-msgstr ""
-
-#: scripts/Dpkg/Vendor/Debian.pm
-#, perl-format
 msgid "unknown host architecture '%s'"
 msgstr ""
 
@@ -3058,15 +3242,6 @@ msgid ""
 "Maintainer field"
 msgstr ""
 
-#: scripts/Dpkg/Vendor/Ubuntu.pm
-msgid "'hardening' flag found but 'hardening-wrapper' not installed"
-msgstr ""
-
-#: scripts/Dpkg/Vendor/Ubuntu.pm
-#, perl-format
-msgid "overriding %s in environment: %s"
-msgstr ""
-
 #: scripts/Dpkg/Version.pm
 #, perl-format
 msgid "%s is not a valid version"
@@ -3074,6 +3249,18 @@ msgstr ""
 
 #: scripts/Dpkg/Version.pm
 msgid "version number cannot be empty"
+msgstr ""
+
+#: scripts/Dpkg/Version.pm
+msgid "epoch part of the version number cannot be empty"
+msgstr ""
+
+#: scripts/Dpkg/Version.pm
+msgid "upstream version cannot be empty"
+msgstr ""
+
+#: scripts/Dpkg/Version.pm
+msgid "revision cannot be empty"
 msgstr ""
 
 #: scripts/Dpkg/Version.pm

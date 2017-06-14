@@ -45,6 +45,26 @@ sub init_options {
     $self->SUPER::init_options();
 }
 
+my @module_cmdline = (
+    {
+        name => '--single-debian-patch',
+        help => N_('use a single debianization patch'),
+        when => 'build',
+    }, {
+        name => '--allow-version-of-quilt-db=<version>',
+        help => N_('accept quilt metadata <version> even if unknown'),
+        when => 'build',
+    }
+);
+
+sub describe_cmdline_options {
+    my $self = shift;
+
+    my @cmdline = ( $self->SUPER::describe_cmdline_options(), @module_cmdline );
+
+    return @cmdline;
+}
+
 sub parse_cmdline_option {
     my ($self, $opt) = @_;
     return 1 if $self->SUPER::parse_cmdline_option($opt);
@@ -60,7 +80,7 @@ sub parse_cmdline_option {
     return 0;
 }
 
-sub build_quilt_object {
+sub _build_quilt_object {
     my ($self, $dir) = @_;
     return $self->{quilt}{$dir} if exists $self->{quilt}{$dir};
     $self->{quilt}{$dir} = Dpkg::Source::Quilt->new($dir);
@@ -76,7 +96,7 @@ sub can_build {
     return (0, g_('non-native package version does not contain a revision'))
         if $v->is_native();
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     $msg = $quilt->find_problems();
     return (0, $msg) if $msg;
     return 1;
@@ -101,7 +121,7 @@ sub apply_patches {
         $opts{verbose} = 0;
     }
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     $quilt->load_series(%opts) if $opts{warn_options}; # Trigger warnings
 
     # Always create the quilt db so that if the maintainer calls quilt to
@@ -146,7 +166,7 @@ sub apply_patches {
 sub unapply_patches {
     my ($self, $dir, %opts) = @_;
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
 
     $opts{verbose} //= 1;
 
@@ -179,7 +199,7 @@ sub prepare_build {
 sub do_build {
     my ($self, $dir) = @_;
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     my $version = $quilt->get_db_version();
 
     if (defined($version) and $version != 2) {
@@ -197,7 +217,7 @@ sub do_build {
 
 sub after_build {
     my ($self, $dir) = @_;
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     my $pc_unapply = $quilt->get_db_file('.dpkg-source-unapply');
     my $opt_unapply = $self->{options}{unapply_patches};
     if (($opt_unapply eq 'auto' and -e $pc_unapply) or $opt_unapply eq 'yes') {
@@ -209,13 +229,13 @@ sub after_build {
 sub check_patches_applied {
     my ($self, $dir) = @_;
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     my $next = $quilt->next();
     return if not defined $next;
 
     my $first_patch = File::Spec->catfile($dir, 'debian', 'patches', $next);
     my $patch_obj = Dpkg::Source::Patch->new(filename => $first_patch);
-    return unless $patch_obj->check_apply($dir);
+    return unless $patch_obj->check_apply($dir, fatal_dupes => 1);
 
     $self->apply_patches($dir, usage => 'preparation', verbose => 1);
 }
@@ -223,7 +243,7 @@ sub check_patches_applied {
 sub register_patch {
     my ($self, $dir, $tmpdiff, $patch_name) = @_;
 
-    my $quilt = $self->build_quilt_object($dir);
+    my $quilt = $self->_build_quilt_object($dir);
     my $patch = $quilt->get_patch_file($patch_name);
 
     if (-s $tmpdiff) {

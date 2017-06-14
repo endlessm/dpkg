@@ -33,7 +33,6 @@ Source Repository
 -----------------
 
   <https://anonscm.debian.org/cgit/dpkg/dpkg.git>
-  <git://anonscm.debian.org/dpkg/dpkg.git>
 
 
 Building from git source
@@ -46,7 +45,6 @@ some required software needs to be installed:
   GNU automake >= 1.11
   GNU libtool >= 2.0
   GNU gettext >= 0.19 (or just autopoint if using --disable-nls)
-  flex
 
 After installing the needed software, and running the following command on
 the git tree:
@@ -55,6 +53,10 @@ the git tree:
 
 the source should be roughly equivalent to the distributed tar source.
 
+To enable translated documentation this software will be needed:
+
+  po4a >= 0.43
+
 
 Building from tar source
 ------------------------
@@ -62,28 +64,34 @@ Building from tar source
 The minimum software required to configure and build dpkg from a tarball is:
 
   C89 compiler with few C99 extensions (see doc/coding-style.txt)
-  GNU make
+  perl (see doc/coding-style.txt)
   pkg-config
-  perl
+  GNU make
 
 To enable optional functionality or programs, this software might be needed:
 
-  zlib (used instead of gzip command-line tool)
-  xz's liblzma (used instead of xz command-line tool)
-  libbzip2 (used instead of bzip2 command-line tool)
+  libmd (used by libdpkg, currently falling back to embedded code)
+  libz (from zlib, used instead of gzip command-line tool)
+  liblzma (from xz utils, used instead of xz command-line tool)
+  libbz2 (from bzip2, used instead of bzip2 command-line tool)
   libselinux
   curses compatible library (needed on --enable-dselect)
 
 To run the test suite («make check»):
 
-  IO-String perl module
+  IO-String perl module (optional)
+  Test::MinimumVersion perl module (optional, author)
   Test::Pod perl module (optional)
+  Test::Spelling perl module (optional, author)
   Test::Strict perl module (optional)
-  Test::Perl::Critic perl module (optional)
+  Test::Synopsis perl module (optional, author)
+  Test::Perl::Critic perl module (optional, author)
+  aspell (optional, author)
+  aspell-en (optional, author)
 
-  Define the environment variable DPKG_DEVEL_MODE to run the test suite
-  in development mode, to include tests that might not be pertinent during
-  normal release builds.
+  Define the environment variable DPKG_DEVEL_MODE or AUTHOR_TESTING to run
+  the test suite in development mode, to include tests that might not be
+  pertinent during normal release builds.
 
 To enable additional developer's documentation («make doc») this software
 will be needed:
@@ -91,10 +99,6 @@ will be needed:
   pod2man
   doxygen
   dot
-
-To enable translated documentation this software will be needed:
-
-  po4a >= 0.36.4 (>= 0.41 for VPATH builds)
 
 To enable code coverage («./configure --enable-coverage; make coverage»)
 this software is needed:
@@ -114,5 +118,5 @@ programs:
 And the following to disable modifications to the build flags:
 
   --disable-compiler-warnings
-  --disable-compiler-optimisations
-  --disable-linker-optimisations
+  --disable-compiler-optimizations
+  --disable-linker-optimizations

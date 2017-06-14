@@ -8,6 +8,7 @@ bin_SCRIPTS = \
 	dpkg-buildpackage \
 	dpkg-checkbuilddeps \
 	dpkg-distaddfile \
+	dpkg-genbuildinfo \
 	dpkg-genchanges \
 	dpkg-gencontrol \
 	dpkg-gensymbols \
@@ -21,16 +22,13 @@ bin_SCRIPTS = \
 	dpkg-source \
 	dpkg-vendor
 
-changelogdir = $(pkglibdir)/parsechangelog
-changelog_SCRIPTS = \
-	changelog/debian
-
 EXTRA_DIST = \
 	dpkg-architecture.pl \
 	dpkg-buildflags.pl \
 	dpkg-buildpackage.pl \
 	dpkg-checkbuilddeps.pl \
 	dpkg-distaddfile.pl \
+	dpkg-genbuildinfo.pl \
 	dpkg-genchanges.pl \
 	dpkg-gencontrol.pl \
 	dpkg-gensymbols.pl \
@@ -43,22 +41,23 @@ EXTRA_DIST = \
 	dpkg-shlibdeps.pl \
 	dpkg-source.pl \
 	dpkg-vendor.pl \
-	changelog/debian.pl \
 	$(test_scripts) \
 	$(test_data)
 
 
 CLEANFILES = \
 	$(test_data_objects) \
-	$(bin_SCRIPTS) $(changelog_SCRIPTS)
+	$(bin_SCRIPTS)
 
 perllibdir = $(PERL_LIBDIR)
 nobase_dist_perllib_DATA = \
 	Dpkg/Arch.pm \
-	Dpkg/BuildEnv.pm \
 	Dpkg/BuildFlags.pm \
 	Dpkg/BuildOptions.pm \
 	Dpkg/BuildProfiles.pm \
+	Dpkg/Build/Env.pm \
+	Dpkg/Build/Info.pm \
+	Dpkg/Build/Types.pm \
 	Dpkg/Changelog.pm \
 	Dpkg/Changelog/Debian.pm \
 	Dpkg/Changelog/Entry.pm \
@@ -76,6 +75,8 @@ nobase_dist_perllib_DATA = \
 	Dpkg/Control/Info.pm \
 	Dpkg/Control/HashCore.pm \
 	Dpkg/Control/Hash.pm \
+	Dpkg/Control/Tests.pm \
+	Dpkg/Control/Tests/Entry.pm \
 	Dpkg/Control/Types.pm \
 	Dpkg/Deps.pm \
 	Dpkg/Dist/Files.pm \
@@ -123,16 +124,19 @@ EXTRA_DIST += \
 # Keep it even if empty to have man3dir correctly set
 man3_MANS =
 
-do_perl_subst = $(AM_V_GEN) \
-		sed -e "s:^\#![[:space:]]*/usr/bin/perl:\#!$(PERL):" \
-		    -e "s:\$$CONFDIR[[:space:]]*=[[:space:]]*['\"][^'\"]*['\"]:\$$CONFDIR='$(pkgconfdir)':" \
-		    -e "s:\$$ADMINDIR[[:space:]]*=[[:space:]]*['\"][^'\"]*['\"]:\$$ADMINDIR='$(admindir)':" \
-		    -e "s:\$$LIBDIR[[:space:]]*=[[:space:]]*['\"][^'\"]*['\"]:\$$LIBDIR='$(pkglibdir)':" \
-		    -e "s:\$$DATADIR[[:space:]]*=[[:space:]]*['\"][^'\"]*['\"]:\$$DATADIR='$(pkgdatadir)':" \
-		    -e "s:\$$PROGVERSION[[:space:]]*=[[:space:]]*['\"][^'\"]*[\"']:\$$PROGVERSION='$(PACKAGE_VERSION)':"
+do_perl_subst = $(AM_V_GEN) sed \
+	-e "s:^\#![[:space:]]*/usr/bin/perl:\#!$(PERL):" \
+	-e "s:our \$$CONFDIR = .*;:our \$$CONFDIR = '$(pkgconfdir)';:" \
+	-e "s:our \$$ADMINDIR = .*;:our \$$ADMINDIR = '$(admindir)';:" \
+	-e "s:our \$$LIBDIR = .*;:our \$$LIBDIR = '$(pkglibexecdir)';:" \
+	-e "s:our \$$DATADIR = .*;:our \$$DATADIR = '$(pkgdatadir)';:" \
+	-e "s:our \$$PROGMAKE = .*;:our \$$PROGMAKE = '$(MAKE)';:" \
+	-e "s:our \$$PROGTAR = .*;:our \$$PROGTAR = '$(TAR)';:" \
+	-e "s:our \$$PROGPATCH = .*;:our \$$PROGPATCH = '$(PATCH)';:" \
+	-e "s:our \$$PROGVERSION = .*;:our \$$PROGVERSION = '$(PACKAGE_VERSION)';:"
 
-do_shell_subst = $(AM_V_GEN) \
-		 sed -e "s:^version[[:space:]]*=[[:space:]]*['\"][^'\"]*[\"']:version=\"$(PACKAGE_VERSION)\":"
+do_shell_subst = $(AM_V_GEN) sed \
+	-e "s:^version[[:space:]]*=[[:space:]]*['\"][^'\"]*[\"']:version=\"$(PACKAGE_VERSION)\":"
 
 SUFFIXES = .pl .sh
 
@@ -153,12 +157,12 @@ if BUILD_POD_DOC
 # Remove empty manual pages (perl modules not documented)
 	$(MKDIR_P) $(DESTDIR)$(man3dir)
 	for module in $(nobase_dist_perllib_DATA); do \
-	    name=`echo $$module | sed -e 's|/|::|g' -e 's/\.pm$$//'`; \
-	    $(POD2MAN) --utf8 --center=libdpkg-perl --release=$(VERSION) \
-		--name="$$name"	--section=3 $(srcdir)/$$module \
-		>$(DESTDIR)$(man3dir)/$$name.3; \
-	    test -s $(DESTDIR)$(man3dir)/$$name.3 || \
-		rm -f $(DESTDIR)$(man3dir)/$$name.3; \
+	  name=`echo $$module | sed -e 's|/|::|g' -e 's/\.pm$$//'`; \
+	  $(POD2MAN) --utf8 --center=libdpkg-perl --release=$(VERSION) \
+	    --name="$$name" --section=3 $(srcdir)/$$module \
+	    >$(DESTDIR)$(man3dir)/$$name.3; \
+	  test -s $(DESTDIR)$(man3dir)/$$name.3 || \
+	  rm -f $(DESTDIR)$(man3dir)/$$name.3; \
 	done
 endif
 
@@ -173,7 +177,7 @@ install-data-hook:
 uninstall-local:
 if BUILD_POD_DOC
 	for module in $(nobase_dist_perllib_DATA); do \
-	    rm -f $(DESTDIR)$(man3dir)/`echo $$module | sed -e 's|/|::|g' -e 's/\.pm$$/.3/'`; \
+	  rm -f $(DESTDIR)$(man3dir)/`echo $$module | sed -e 's|/|::|g' -e 's/\.pm$$/.3/'`; \
 	done
 endif
 
@@ -189,7 +193,10 @@ coverage-clean:
 	rm -rf cover_db
 
 TEST_ENV_VARS = \
-	DPKG_DATADIR=$(srcdir)/.. \
+	DPKG_PROGTAR=$(TAR) \
+	DPKG_PROGPATCH=$(PATCH) \
+	DPKG_PROGMAKE=$(MAKE) \
+	DPKG_DATADIR=$(top_srcdir)/data \
 	DPKG_ORIGINS_DIR=$(srcdir)/t/origins
 TEST_COVERAGE = $(PERL_COVERAGE)
 
@@ -201,10 +208,12 @@ test_scripts = \
 	t/Dpkg_Package.t \
 	t/Dpkg_Shlibs_Cppfilt.t \
 	t/Dpkg_Shlibs.t \
-	t/Dpkg_BuildEnv.t \
 	t/Dpkg_BuildFlags.t \
 	t/Dpkg_BuildOptions.t \
 	t/Dpkg_BuildProfiles.t \
+	t/Dpkg_Build_Env.t \
+	t/Dpkg_Build_Info.t \
+	t/Dpkg_Build_Types.t \
 	t/Dpkg_Checksums.t \
 	t/Dpkg_ErrorHandling.t \
 	t/Dpkg_Exit.t \
@@ -221,6 +230,7 @@ test_scripts = \
 	t/Dpkg_Changelog.t \
 	t/Dpkg_Changelog_Ubuntu.t \
 	t/Dpkg_Control.t \
+	t/Dpkg_Control_Tests.t \
 	t/Dpkg_Index.t \
 	t/Dpkg_Substvars.t \
 	t/Dpkg_IPC.t \
@@ -231,6 +241,8 @@ test_scripts = \
 	t/Dpkg_Source_Archive.t \
 	t/Dpkg_Source_Package.t \
 	t/Dpkg_Dist_Files.t \
+	t/dpkg_source.t \
+	t/dpkg_buildpackage.t \
 	t/merge_changelogs.t \
 	t/mk.t \
 	$(nil)
@@ -273,6 +285,7 @@ test_data = \
 	t/Dpkg_Shlibs/spacesyms-o-map.pl \
 	t/Dpkg_Source_Patch/c-style.patch \
 	t/Dpkg_Source_Patch/ghost-hunk.patch \
+	t/Dpkg_Source_Patch/indent-header.patch \
 	t/Dpkg_Source_Patch/index-+++.patch \
 	t/Dpkg_Source_Patch/index-alone.patch \
 	t/Dpkg_Source_Patch/index-inert.patch \
@@ -283,6 +296,7 @@ test_data = \
 	t/Dpkg_Changelog/misplaced-tz \
 	t/Dpkg_Changelog/regressions \
 	t/Dpkg_Changelog/shadow \
+	t/Dpkg_Changelog/unreleased \
 	t/Dpkg_Checksums/empty \
 	t/Dpkg_Checksums/data-1 \
 	t/Dpkg_Checksums/data-2 \
@@ -296,10 +310,25 @@ test_data = \
 	t/Dpkg_Control/bogus-armor-inline.dsc \
 	t/Dpkg_Control/bogus-armor-nested.dsc \
 	t/Dpkg_Control/bogus-armor-spaces.dsc \
+	t/Dpkg_Control_Tests/tests-missing-fields \
+	t/Dpkg_Control_Tests/tests-plain-text \
+	t/Dpkg_Control_Tests/tests-valid \
 	t/Dpkg_Source_Quilt/parse/debian/patches/series \
 	t/Dpkg_Substvars/substvars1 \
 	t/Dpkg_Substvars/substvars2 \
 	t/Dpkg_Dist_Files/files-byhand \
+	t/Dpkg_Dist_Files/files-fragment-a \
+	t/Dpkg_Dist_Files/files-fragment-b \
+	t/dpkg_buildpackage/test-source_0.dsc \
+	t/dpkg_buildpackage/test-source_0_all.changes \
+	t/dpkg_buildpackage/test-source_0_any.changes \
+	t/dpkg_buildpackage/test-source_0_binary.changes \
+	t/dpkg_buildpackage/test-source_0_full.changes \
+	t/dpkg_buildpackage/test-source_0_source.changes \
+	t/dpkg_source/testsuite_0.dsc \
+	t/dpkg_source/testsuite_1.dsc \
+	t/dpkg_source/testsuite_2.dsc \
+	t/dpkg_source/testsuite_3.dsc \
 	t/merge_changelogs/ch-old \
 	t/merge_changelogs/ch-a \
 	t/merge_changelogs/ch-b \
@@ -343,8 +372,7 @@ $(srcdir)/t/Dpkg_Shlibs/libobjdump.basictags-i386.so: $(srcdir)/t/Dpkg_Shlibs/ba
 
 $(srcdir)/t/Dpkg_Shlibs/libobjdump.patterns.so: $(srcdir)/t/Dpkg_Shlibs/patterns.cpp $(srcdir)/t/Dpkg_Shlibs/patterns.map
 	$(CXX) $(CXXFLAGS) -shared -fPIC -Wl,-soname -Wl,libpatterns.so.1 \
-	    -Wl,--version-script=$(srcdir)/t/Dpkg_Shlibs/patterns.map $< \
-	    -o $@
+	  -Wl,--version-script=$(srcdir)/t/Dpkg_Shlibs/patterns.map $< -o $@
 
 $(srcdir)/t/Dpkg_Shlibs/spacesyms.c: $(srcdir)/t/Dpkg_Shlibs/spacesyms-c-gen.pl
 	$(srcdir)/t/Dpkg_Shlibs/spacesyms-c-gen.pl > $@
@@ -356,8 +384,7 @@ $(srcdir)/t/Dpkg_Shlibs/spacesyms.o: $(srcdir)/t/Dpkg_Shlibs/spacesyms.c $(srcdi
 
 $(srcdir)/t/Dpkg_Shlibs/libobjdump.spacesyms.so: $(srcdir)/t/Dpkg_Shlibs/spacesyms.o $(srcdir)/t/Dpkg_Shlibs/spacesyms.map
 	$(CC) -shared -Wl,-soname -Wl,libspacesyms.so.1 \
-	    -Wl,--version-script=$(srcdir)/t/Dpkg_Shlibs/spacesyms.map $< \
-	    -o $@
+	  -Wl,--version-script=$(srcdir)/t/Dpkg_Shlibs/spacesyms.map $< -o $@
 
 .PHONY: refresh-test-data
 

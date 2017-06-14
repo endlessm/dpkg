@@ -6,7 +6,7 @@
 # Copyright © 2000 Wichert Akkerman
 # Copyright © 2006 Frank Lichtenheld
 # Copyright © 2006-2010,2012-2015 Guillem Jover <guillem@debian.org>
-# Copyright © 2007 Raphaël Hertzog
+# Copyright © 2007, 2016 Raphaël Hertzog <hertzog@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -71,15 +71,10 @@ my $warnings = WARN_SYM_NOT_FOUND | WARN_DEP_AVOIDABLE;
 my $debug = 0;
 my @exclude = ();
 my @pkg_dir_to_search = ();
+my @pkg_dir_to_ignore = ();
 my $host_arch = get_host_arch();
 
 my (@pkg_shlibs, @pkg_symbols, @pkg_root_dirs);
-if (-d 'debian') {
-    push @pkg_symbols, glob 'debian/*/DEBIAN/symbols';
-    push @pkg_shlibs, glob 'debian/*/DEBIAN/shlibs';
-    my %uniq = map { guess_pkg_root_dir($_) => 1 } (@pkg_symbols, @pkg_shlibs);
-    push @pkg_root_dirs, keys %uniq;
-}
 
 my ($stdout, %exec);
 foreach (@ARGV) {
@@ -93,6 +88,8 @@ foreach (@ARGV) {
 	Dpkg::Shlibs::add_library_dir($1);
     } elsif (m/^-S(.*)$/) {
 	push @pkg_dir_to_search, $1;
+    } elsif (m/^-I(.*)$/) {
+	push @pkg_dir_to_ignore, $1;
     } elsif (m/^-O$/) {
 	$stdout = 1;
     } elsif (m/^-O(.+)$/) {
@@ -146,6 +143,20 @@ foreach (@ARGV) {
 }
 usageerr(g_('need at least one executable')) unless scalar keys %exec;
 
+report_options(debug_level => $debug);
+
+sub ignore_pkgdir {
+    my $path = shift;
+    return any { $path =~ /^\Q$_\E/ } @pkg_dir_to_ignore;
+}
+
+if (-d 'debian') {
+    push @pkg_symbols, grep { !ignore_pkgdir($_) } glob 'debian/*/DEBIAN/symbols';
+    push @pkg_shlibs, grep { !ignore_pkgdir($_) } glob 'debian/*/DEBIAN/shlibs';
+    my %uniq = map { guess_pkg_root_dir($_) => 1 } (@pkg_symbols, @pkg_shlibs);
+    push @pkg_root_dirs, keys %uniq;
+}
+
 my $control = Dpkg::Control::Info->new();
 my $fields = $control->get_source();
 my $bd_value = deps_concat($fields->{'Build-Depends'}, $fields->{'Build-Depends-Arch'});
@@ -155,7 +166,7 @@ error(g_('error occurred while parsing %s'), 'Build-Depends/Build-Depends-Arch')
 
 my %dependencies;
 
-# Statictics on soname seen in the whole run (with multiple analysis of
+# Statistics on soname seen in the whole run (with multiple analysis of
 # binaries)
 my %global_soname_notfound;
 my %global_soname_used;
@@ -172,7 +183,7 @@ my $error_count = 0;
 my $cur_field;
 foreach my $file (keys %exec) {
     $cur_field = $exec{$file};
-    print ">> Scanning $file (for $cur_field field)\n" if $debug;
+    debug(1, ">> Scanning $file (for $cur_field field)");
 
     my $obj = Dpkg::Shlibs::Objdump::Object->new($file);
     my @sonames = $obj->get_needed_libraries;
@@ -180,37 +191,48 @@ foreach my $file (keys %exec) {
     # Load symbols files for all needed libraries (identified by SONAME)
     my %libfiles;
     my %altlibfiles;
+    my %soname_libs;
     my %soname_notfound;
     my %alt_soname;
     foreach my $soname (@sonames) {
-	my $lib = my_find_library($soname, $obj->{RPATH}, $obj->{format}, $file);
-	unless (defined $lib) {
+	my @libs = my_find_library($soname, $obj->{RPATH}, $obj->{exec_abi}, $file);
+	unless (scalar @libs) {
 	    $soname_notfound{$soname} = 1;
 	    $global_soname_notfound{$soname} = 1;
-	    my $msg = g_("couldn't find library %s needed by %s (ELF " .
-			 "format: '%s'; RPATH: '%s')");
+	    my $msg = g_('cannot find library %s needed by %s (ELF ' .
+	                 "format: '%s' abi: '%s'; RPATH: '%s')");
+	    my $exec_abi = unpack 'H*', $obj->{exec_abi};
 	    if (scalar(split_soname($soname))) {
-		errormsg($msg, $soname, $file, $obj->{format}, join(':', @{$obj->{RPATH}}));
+		errormsg($msg, $soname, $file, $obj->{format}, $exec_abi, join(':', @{$obj->{RPATH}}));
 		$error_count++;
 	    } else {
-		warning($msg, $soname, $file, $obj->{format}, join(':', @{$obj->{RPATH}}));
+		warning($msg, $soname, $file, $obj->{format}, $exec_abi, join(':', @{$obj->{RPATH}}));
 	    }
 	    next;
 	}
-	$libfiles{$lib} = $soname;
-	my $reallib = realpath($lib);
-	if ($reallib ne $lib) {
-	    $altlibfiles{$reallib} = $soname;
-	}
-	print "Library $soname found in $lib\n" if $debug;
+
+	# Track shared libraries for a given SONAME.
+	push @{$soname_libs{$soname}}, @libs;
+
+	# Track shared libraries for package mapping.
+	foreach my $lib (@libs) {
+	    $libfiles{$lib} = $soname;
+	    my $reallib = realpath($lib);
+	    if ($reallib ne $lib) {
+		$altlibfiles{$reallib} = $soname;
+	    }
+	    debug(1, "Library $soname found in $lib");
+        }
     }
     my $file2pkg = find_packages(keys %libfiles, keys %altlibfiles);
     my $symfile = Dpkg::Shlibs::SymbolFile->new();
     my $dumplibs_wo_symfile = Dpkg::Shlibs::Objdump->new();
     my @soname_wo_symfile;
-    foreach my $lib (keys %libfiles) {
-	my $soname = $libfiles{$lib};
+    SONAME: foreach my $soname (@sonames) {
+      # Select the first good entry from the ordered list that we got from
+      # find_library(), and skip to the next SONAME.
 
+      foreach my $lib (@{$soname_libs{$soname}}) {
 	if (none { $_ ne '' } @{$file2pkg->{$lib}}) {
 	    # The path of the library as calculated is not the
 	    # official path of a packaged file, try to fallback on
@@ -226,10 +248,11 @@ foreach my $file (keys %exec) {
 	    # Empty package name will lead to consideration of symbols
 	    # file from the package being built only
 	    $file2pkg->{$lib} = [''];
-	    print "No associated package found for $lib\n" if $debug;
+	    debug(1, "No associated package found for $lib");
 	}
 
 	# Load symbols/shlibs files from packages providing libraries
+        my $missing_wanted_shlibs_info = 0;
 	foreach my $pkg (@{$file2pkg->{$lib}}) {
 	    my $symfile_path;
             my $haslocaldep = 0;
@@ -245,7 +268,7 @@ foreach my $file (keys %exec) {
             }
             if (defined($symfile_path)) {
                 # Load symbol information
-                print "Using symbols file $symfile_path for $soname\n" if $debug;
+                debug(1, "Using symbols file $symfile_path for $soname");
                 $symfile_cache{$symfile_path} //=
                    Dpkg::Shlibs::SymbolFile->new(file => $symfile_path);
                 $symfile->merge_object_from_symfile($symfile_cache{$symfile_path}, $soname);
@@ -258,11 +281,13 @@ foreach my $file (keys %exec) {
 		my $dep = $symfile->get_dependency($soname);
 		my $minver = $symfile->get_smallest_version($soname) || '';
 		update_dependency_version($dep, $minver);
-		print " Minimal version of ($dep) initialized with ($minver)\n"
-		    if $debug > 1;
+		debug(2, " Minimal version of ($dep) initialized with ($minver)");
+
+                # Found a symbols file for the SONAME.
+                next SONAME;
 	    } else {
 		# No symbol file found, fall back to standard shlibs
-                print "Using shlibs+objdump for $soname (file $lib)\n" if $debug;
+                debug(1, "Using shlibs+objdump for $soname (file $lib)");
                 $objdump_cache{$lib} //= Dpkg::Shlibs::Objdump::Object->new($lib);
                 my $libobj = $objdump_cache{$lib};
                 my $id = $dumplibs_wo_symfile->add_object($libobj);
@@ -271,31 +296,47 @@ foreach my $file (keys %exec) {
 		    $alt_soname{$id} = $soname;
 		}
 		push @soname_wo_symfile, $soname;
+
 		# Only try to generate a dependency for libraries with a SONAME
-		if ($libobj->is_public_library() and not
-		    add_shlibs_dep($soname, $pkg, $lib)) {
-		    # This failure is fairly new, try to be kind by
-		    # ignoring as many cases that can be safely ignored
-		    my $ignore = 0;
-		    # 1/ when the lib and the binary are in the same
-		    # package
-		    my $root_file = guess_pkg_root_dir($file);
-		    my $root_lib = guess_pkg_root_dir($lib);
-		    $ignore++ if defined $root_file and defined $root_lib
-			and check_files_are_the_same($root_file, $root_lib);
-		    # 2/ when the lib is not versioned and can't be
-		    # handled by shlibs
-		    $ignore++ unless scalar(split_soname($soname));
-		    # 3/ when we have been asked to do so
-		    $ignore++ if $ignore_missing_info;
-		    error(g_('no dependency information found for %s ' .
-		             "(used by %s)\n" .
-		             'Hint: check if the library actually comes ' .
-		             'from a package.'), $lib, $file)
-		        unless $ignore;
+                if (not $libobj->is_public_library()) {
+                    debug(1, "Skipping shlibs+objdump info for private library $lib");
+                    next;
 		}
+
+                # If we found a shlibs file for the SONAME, skip to the next.
+                next SONAME if add_shlibs_dep($soname, $pkg, $lib);
+
+                $missing_wanted_shlibs_info = 1;
+
+                debug(1, "No shlibs+objdump info available, trying next package for $lib");
 	    }
 	}
+
+        next if not $missing_wanted_shlibs_info;
+
+        # We will only reach this point, if we have found no symbols nor
+        # shlibs files for the given SONAME.
+
+        # This failure is fairly new, try to be kind by
+        # ignoring as many cases that can be safely ignored
+        my $ignore = 0;
+        # 1/ when the lib and the binary are in the same
+        # package
+        my $root_file = guess_pkg_root_dir($file);
+        my $root_lib = guess_pkg_root_dir($lib);
+        $ignore++ if defined $root_file and defined $root_lib
+            and check_files_are_the_same($root_file, $root_lib);
+        # 2/ when the lib is not versioned and can't be
+        # handled by shlibs
+        $ignore++ unless scalar split_soname($soname);
+        # 3/ when we have been asked to do so
+        $ignore++ if $ignore_missing_info;
+        error(g_('no dependency information found for %s ' .
+                 "(used by %s)\n" .
+                 'Hint: check if the library actually comes ' .
+                 'from a package.'), $lib, $file)
+            unless $ignore;
+      }
     }
 
     # Scan all undefined symbols of the binary and resolve to a
@@ -324,7 +365,7 @@ foreach my $file (keys %exec) {
         warning(g_('binaries to analyze should already be ' .
                    "installed in their package's directory"));
     }
-    print "Analyzing all undefined symbols\n" if $debug > 1;
+    debug(2, 'Analyzing all undefined symbols');
     foreach my $sym ($obj->get_undefined_dynamic_symbols()) {
 	my $name = $sym->{name};
 	if ($sym->{version}) {
@@ -332,13 +373,13 @@ foreach my $file (keys %exec) {
 	} else {
 	    $name .= '@' . 'Base';
 	}
-        print " Looking up symbol $name\n" if $debug > 1;
+        debug(2, " Looking up symbol $name");
 	my %symdep = $symfile->lookup_symbol($name, \@sonames);
 	if (keys %symdep) {
 	    my $depends = $symfile->get_dependency($symdep{soname},
 		$symdep{symbol}{dep_id});
-            print " Found in symbols file of $symdep{soname} (minver: " .
-                  "$symdep{symbol}{minver}, dep: $depends)\n" if $debug > 1;
+            debug(2, " Found in symbols file of $symdep{soname} (minver: " .
+                     "$symdep{symbol}{minver}, dep: $depends)");
 	    $soname_used{$symdep{soname}}++;
 	    $global_soname_used{$symdep{soname}}++;
             if (exists $alt_soname{$symdep{soname}}) {
@@ -350,7 +391,7 @@ foreach my $file (keys %exec) {
 	} else {
 	    my $syminfo = $dumplibs_wo_symfile->locate_symbol($name);
 	    if (not defined($syminfo)) {
-                print " Not found\n" if $debug > 1;
+                debug(2, ' Not found');
                 next unless ($warnings & WARN_SYM_NOT_FOUND);
 		next if $disable_warnings;
 		# Complain about missing symbols only for executables
@@ -378,7 +419,7 @@ foreach my $file (keys %exec) {
 		    }
 		}
 	    } else {
-                print " Found in $syminfo->{soname} ($syminfo->{objid})\n" if $debug > 1;
+                debug(2, " Found in $syminfo->{soname} ($syminfo->{objid})");
 		if (exists $alt_soname{$syminfo->{soname}}) {
 		    # Also count usage on alternate soname
 		    $soname_used{$alt_soname{$syminfo->{soname}}}++;
@@ -398,15 +439,15 @@ foreach my $file (keys %exec) {
 	# extracted from build-dependencies
 	my $dev_pkg = $symfile->get_field($soname, 'Build-Depends-Package');
 	if (defined $dev_pkg) {
-            print "Updating dependencies of $soname with build-dependencies\n" if $debug;
+            debug(1, "Updating dependencies of $soname with build-dependencies");
 	    my $minver = get_min_version_from_deps($build_deps, $dev_pkg);
 	    if (defined $minver) {
 		foreach my $dep ($symfile->get_dependencies($soname)) {
 		    update_dependency_version($dep, $minver, 1);
-                    print " Minimal version of $dep updated with $minver\n" if $debug;
+                    debug(1, " Minimal version of $dep updated with $minver");
 		}
 	    } else {
-                print " No minimal version found in $dev_pkg build-dependency\n" if $debug;
+                debug(1, " No minimal version found in $dev_pkg build-dependency");
             }
 	}
 
@@ -563,7 +604,9 @@ sub usage {
   -t<type>                 set package type (default is deb).
   -x<package>              exclude package from the generated dependencies.
   -S<package-build-dir>    search needed libraries in the given
-                           package build directory first.
+                             package build directory first.
+  -I<package-build-dir>    ignore needed libraries, shlibs and symbols files
+                             in the given build directory.
   -v                       enable verbose mode (can be used multiple times).
   --ignore-missing-info    don't fail if dependency information can't be found.
   --warnings=<value>       define set of active warnings (see manual page).
@@ -641,12 +684,12 @@ sub add_shlibs_dep {
 	push @shlibs, $control_file if defined $control_file;
     }
     push @shlibs, $shlibsdefault;
-    print " Looking up shlibs dependency of $soname provided by '$pkg'\n" if $debug;
+    debug(1, " Looking up shlibs dependency of $soname provided by '$pkg'");
     foreach my $file (@shlibs) {
 	next if not -e $file;
 	my $dep = extract_from_shlibs($soname, $file);
 	if (defined($dep)) {
-	    print " Found $dep in $file\n" if $debug;
+	    debug(1, " Found $dep in $file");
 	    foreach (split(/,\s*/, $dep)) {
 		# Note: the value is empty for shlibs based dependency
 		# symbol based dependency will put a valid version as value
@@ -655,7 +698,7 @@ sub add_shlibs_dep {
 	    return 1;
 	}
     }
-    print " Found nothing\n" if $debug;
+    debug(1, ' Found nothing');
     return 0;
 }
 
@@ -806,7 +849,10 @@ sub my_find_library {
     # - package build tree of the binary which is analyzed
     # - package build tree given on the command line (option -S)
     # - other package build trees that contain either a shlibs or a
-    # symbols file
+    #   symbols file
+    # But ignore:
+    # - package build tree given on the command line (option -I)
+
     my @builddirs;
     my $pkg_root = guess_pkg_root_dir($execfile);
     push @builddirs, $pkg_root if defined $pkg_root;
@@ -815,17 +861,15 @@ sub my_find_library {
     my %dir_checked;
     foreach my $builddir (@builddirs) {
 	next if defined($dir_checked{$builddir});
-	$file = find_library($lib, \@RPATH, $format, $builddir);
-	return $file if defined($file);
+	next if ignore_pkgdir($builddir);
+	my @libs = find_library($lib, \@RPATH, $format, $builddir);
+	return @libs if scalar @libs;
 	$dir_checked{$builddir} = 1;
     }
 
     # Fallback in the root directory if we have not found what we were
     # looking for in the packages
-    $file = find_library($lib, \@RPATH, $format, '');
-    return $file if defined($file);
-
-    return;
+    return find_library($lib, \@RPATH, $format, '');
 }
 
 my %cached_pkgmatch = ();
@@ -864,7 +908,9 @@ sub find_packages {
 		or syserr(g_('write diversion info to stderr'));
 	} elsif (m/^([-a-z0-9+.:, ]+): (\/.*)$/) {
 	    my ($pkgs, $path) = ($1, $2);
+	    my $realpath = realpath($path);
 	    $cached_pkgmatch{$path} = $pkgmatch->{$path} = [ split /, /, $pkgs ];
+	    $cached_pkgmatch{$realpath} = $pkgmatch->{$realpath} = [ split /, /, $pkgs ];
 	} else {
 	    warning(g_("unknown output from dpkg --search: '%s'"), $_);
 	}

@@ -31,7 +31,7 @@ test_progname(void)
 
 	/* Test initially empty progname. */
 	progname = dpkg_get_progname();
-	/* Handle libtool exectuables. */
+	/* Handle libtool executables. */
 	if (strncmp(progname, "lt-", 3) == 0)
 		progname += 3;
 	test_str(progname, ==, "t-progname");
@@ -45,8 +45,7 @@ test_progname(void)
 	test_str(dpkg_get_progname(), ==, "newprogname");
 }
 
-static void
-test(void)
+TEST_ENTRY(test)
 {
 	test_plan(3);
 

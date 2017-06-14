@@ -109,7 +109,7 @@ sub new {
     my $class = ref($this) || $this;
 
     # Object is a scalar reference and not a hash ref to avoid
-    # infinite recursion due to overloading hash-derefencing
+    # infinite recursion due to overloading hash-dereferencing
     my $self = \{
         in_order => [],
         out_order => [],
@@ -183,7 +183,9 @@ sub parse_error {
 Parse a control file from the given filehandle. Exits in case of errors.
 $description is used to describe the filehandle, ideally it's a filename
 or a description of where the data comes from. It's used in error
-messages. Returns true if some fields have been parsed.
+messages. When called multiple times, the parsed fields are accumulated.
+
+Returns true if some fields have been parsed.
 
 =cut
 
@@ -400,9 +402,7 @@ sub apply_substvars {
     my ($self, $substvars, %opts) = @_;
 
     # Add substvars to refer to other fields
-    foreach my $f (keys %$self) {
-        $substvars->set_as_auto("F:$f", $self->{$f});
-    }
+    $substvars->set_field_substvars($self, 'F');
 
     foreach my $f (keys %$self) {
         my $v = $substvars->substvars($self->{$f}, %opts);
@@ -444,7 +444,6 @@ package Dpkg::Control::HashCore::Tie;
 use strict;
 use warnings;
 
-use Dpkg::Checksums;
 use Dpkg::Control::FieldsCore;
 
 use Carp;
@@ -454,7 +453,7 @@ use parent -norequire, qw(Tie::ExtraHash);
 # $self->[0] is the real hash
 # $self->[1] is a reference to the hash contained by the parent object.
 # This reference bypasses the top-level scalar reference of a
-# Dpkg::Control::Hash, hence ensuring that that reference gets DESTROYed
+# Dpkg::Control::Hash, hence ensuring that reference gets DESTROYed
 # properly.
 
 # Dpkg::Control::Hash->new($parent)
@@ -549,10 +548,6 @@ New method: $c->parse_error().
 =head2 Version 1.00 (dpkg 1.17.0)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

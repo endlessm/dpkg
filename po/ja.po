@@ -15,19 +15,42 @@
 # Copyright (C) 1998 Masato Taruishi <taru@debian.or.jp>
 # Copyright (C) 1999-2004 Keita Maehara <maehara@debian.org>
 # Copyright (C) 2004-2015 Kenshi Muto <kmuto@debian.org>
+# Copyright (C) 2016 Takuma Yamada <tyamada@takumayamada.com>
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.18.3\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
-"PO-Revision-Date: 2015-09-22 05:01+0200\n"
-"Last-Translator: Kenshi Muto <kmuto@debian.org>\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
+"PO-Revision-Date: 2016-04-01 16:07+0900\n"
+"Last-Translator: Takuma Yamada <tyamada@takumayamada.com>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Gtranslator 2.91.6\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "アーカイブの状態を取得できませんでした (fstat 失敗)"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "アーカイブ `%.255s' の読み取りに失敗しました"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "`%.255s' を作成できません"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "ファイル '%s' をクローズできません"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -154,8 +177,8 @@ msgstr "ファイルまたはストリームの予期しない終わりです"
 msgid "failed to seek"
 msgstr "シークに失敗しました"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "%s を実行できません (%s)"
@@ -315,11 +338,6 @@ msgstr "updates ディレクトリ `%.255s' を走査できません"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "統合した更新用ファイル %.255s の削除に失敗しました"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "`%.255s' を作成できません"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -430,8 +448,7 @@ msgstr "ディレクトリ '%s' と同期できません"
 msgid "unable to open directory '%s'"
 msgstr "ディレクトリ '%s' をオープンできません"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "ファイル '%s' をオープンできません"
@@ -441,12 +458,6 @@ msgstr "ファイル '%s' をオープンできません"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "ファイル '%s' を同期できません"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "ファイル '%s' をクローズできません"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -465,40 +476,35 @@ msgstr ""
 "'%2$.50s' についての %1$s データベースレコードを '%3$.250s' に書き込めません"
 "でした"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: 復旧不可能な致命的なエラーです。中止します:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "エラー"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: エラーコンテキストの外側です。中止します:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new error context"
 msgstr "新しいエラーコンテキスト用のメモリが不足しています"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: クリーンアップ中にエラーが発生しました:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
+#, fuzzy
+#| msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "%s: エラー復旧中にさらに大量の入れ子のエラーが発生しました!!\n"
 
 #: lib/dpkg/ehandle.c
@@ -511,14 +517,30 @@ msgstr ""
 "多すぎる引数のために、新しいクリーンアップエントリ用のメモリが不足しています"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: エラー: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: 復旧不可能な致命的なエラーです。中止します:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: 内部エラー: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: outside error context, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: エラーコンテキストの外側です。中止します:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error (bug)"
+msgid "internal error"
+msgstr "内部エラー (バグ)"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -608,7 +630,7 @@ msgstr "古い '%s' あるいは '%s' フィールドが使われています"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "'%s' の値に不正な形式を持つ行 '%.*s' があります"
 
 #: lib/dpkg/fields.c
@@ -906,6 +928,12 @@ msgid "invalid integer for --%s: '%.250s'"
 msgstr "--%s に対する不正な整数です: `%.250s'"
 
 #: lib/dpkg/options.c
+#, fuzzy, c-format
+#| msgid "invalid integer for --%s: '%.250s'"
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "--%s に対する不正な整数です: `%.250s'"
+
+#: lib/dpkg/options.c
 #, c-format
 msgid "obsolete option '--%s'"
 msgstr "時代遅れのオプション '--%s'"
@@ -1136,6 +1164,12 @@ msgid "version string has embedded spaces"
 msgstr "バージョン文字列にスペースが埋め込まれています"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is negative"
+msgid "epoch in version is empty"
+msgstr "バージョン中の epoch が負の数値です"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "バージョン中の epoch が数値ではありません"
 
@@ -1150,6 +1184,18 @@ msgstr "バージョン中の epoch が大きすぎます"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "バージョン番号のコロンの後に何もありません"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "バージョン文字が空です"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "バージョン文字が空です"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1194,6 +1240,12 @@ msgstr "閉じブレースがありません"
 msgid "(no description available)"
 msgstr "(説明 (description) がありません)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax"
+msgid "version '%s' has bad syntax: %s"
+msgstr "バージョン '%s' は不正な構文です"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1204,10 +1256,9 @@ msgstr "指定子 '%s%s%s' に不正なパッケージ名があります: %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "指定子 '%s:%s' に不正なアーキテクチャ名があります: %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: 警告: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "警告"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1238,7 +1289,7 @@ msgstr "%s (サブプロセス): %s\n"
 msgid "fork failed"
 msgstr "fork 失敗"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "サブプロセス %s はエラー終了ステータス %d を返しました"
@@ -1267,62 +1318,77 @@ msgstr "サブプロセス %s が wait ステータスコード %d を返して�
 msgid "wait for subprocess %s failed"
 msgstr "サブプロセス %s の待機に失敗しました"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat file '%s'"
+msgid "cannot stat pathname '%s'"
+msgstr "ファイル '%s' の状態を取得できません"
+
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "ディレクトリ `%.255s' を走査できません"
+
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "コントロールディレクトリがディレクトリではありません"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open/create triggers lockfile '%.250s'"
+msgstr "トリガロックファイル `%.250s' をオープンおよび作成できません"
+
+#: lib/dpkg/trigdeferred.c
+msgid "triggers area"
+msgstr "トリガ領域"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open triggers deferred file '%.250s'"
+msgstr "トリガ遅延ファイル `%.250s' をオープンできません"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to stat triggers deferred file '%.250s'"
+msgstr "トリガ遅延ファイル `%.250s' の状態を取得できません"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open/create new triggers deferred file '%.250s'"
+msgstr "新しいトリガ遅延ファイル `%.250s' をオープンおよび作成できません"
+
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr "トリガ遅延ファイル `%.250s' の文字 `%s'%s の位置に文法エラーがあります"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
 msgstr ""
 "トリガ遅延ファイル `%2$.250s' に無効なパッケージ名 `%1$.250s' があります"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "トリガ遅延ファイル `%.250s' が切り詰められました"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr "トリガ遅延ファイル `%.250s' の文字 `%s'%s の位置に文法エラーがあります"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open/create triggers lockfile '%.250s'"
-msgstr "トリガロックファイル `%.250s' をオープンおよび作成できません"
-
-#: lib/dpkg/trigdeferred.l
-msgid "triggers area"
-msgstr "トリガ領域"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open triggers deferred file '%.250s'"
-msgstr "トリガ遅延ファイル `%.250s' をオープンできません"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to stat triggers deferred file '%.250s'"
-msgstr "トリガ遅延ファイル `%.250s' の状態を取得できません"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open/create new triggers deferred file '%.250s'"
-msgstr "新しいトリガ遅延ファイル `%.250s' をオープンおよび作成できません"
-
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "トリガ遅延ファイル `%.250s' の読み取り中にエラーが発生しました"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "新しいトリガ遅延ファイル `%.250s' を書き込めません"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "新しいトリガ遅延ファイル `%.250s' をクローズできません"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "新しいトリガ遅延ファイル `%.250s' をインストールできません"
@@ -1605,11 +1671,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "アーカイブに含まれるオブジェクト `%.255s' が不明な型 0x%x です"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "ファイル '%s' の状態を取得できません"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1804,27 +1865,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive には引数として最低 1 つのパスが必要です"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "dpkg --recursive のための find"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "find のパイプの fdopen に失敗しました"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "find のパイプを読み込み中にエラーが発生しました"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "find のパイプのクローズ中にエラーが発生しました"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "--recursive のための find が、処理できないエラー %i を返しました"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr ""
 "検索しましたが、パッケージ (*.deb にマッチするファイル) が見つかりませんでし"
@@ -1834,6 +1874,18 @@ msgstr ""
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s には引数として最低 1 つのパッケージアーカイブファイルが必要です"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "アーカイブにアクセスできません"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "設定ファイル '%s' がプレーンファイルではありません"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2428,6 +2480,11 @@ msgstr ""
 "パッケージの preinst/postrm スクリプトは --package と --divert を常に指定すべ"
 "きです。\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "ファイル '%s' の状態を取得できません"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2788,10 +2845,52 @@ msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr ""
 "(%2$.250s が要求する) %1$.250s の先行依存 (pre-dependencies) を解決できません"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s は引数に 1 つのパッケージ名をとります"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "package '%s' is not installed"
+msgid "package name '%s' is invalid: %s"
+msgstr "パッケージ '%s' はまだインストールされていません"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s は引数に 1 つのパッケージ名をとります"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "トリガ名に無効な文字が含まれています"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s は引数に 1 つのパッケージ名をとります"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "architecture '%s' is illegal: %s"
+msgid "architecture name '%s' is invalid: %s"
+msgstr "アーキテクチャ '%s' は不正です: %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s は引数をとりません"
+
+#: src/enquiry.c
 #, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "オプション '--%s' は時代遅れです。'--%s' を代わりに使ってください"
+msgid "version '%s' has bad syntax"
+msgstr "バージョン '%s' は不正な構文です"
 
 #: src/enquiry.c
 msgid ""
@@ -2808,11 +2907,6 @@ msgstr "--compare-versions の不正な比較"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr "--%s が時代遅れの比較演算子 '%s' で使われています"
-
-#: src/enquiry.c
-#, c-format
-msgid "version '%s' has bad syntax"
-msgstr "バージョン '%s' は不正な構文です"
 
 #: src/errors.c
 #, c-format
@@ -2931,14 +3025,18 @@ msgstr ""
 "パッケージ '%2$s' のコントロールファイル '%1$s' に最後の改行がありません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value"
-msgstr "コントロールファイル '%s' に値がありません"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr ""
+"パッケージ '%2$s' のコントロールファイル '%1$s' に最後の改行がありません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value separator"
-msgstr "コントロールファイル '%s' に値の区切り子がありません"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"パッケージ '%2$s' のコントロールファイル '%1$s' に最後の改行がありません"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2948,28 +3046,33 @@ msgstr ""
 "す"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot open '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "パッケージ '%2$s' のコントロールファイル '%1$s' をオープンできません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "パッケージ '%2$s' のコントロールファイル '%1$s' の状態を取得できません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+#, fuzzy, c-format
+#| msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "パッケージ '%2$s' のファイル '%1$s' は通常ファイルではありません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot read '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "パッケージ '%2$s' のコントロールファイル '%1$s' を読めません"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot close '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "パッケージ '%2$s' のコントロールファイル '%1$s' をクローズできません"
 
 #: src/help.c
@@ -3075,7 +3178,48 @@ msgid "Debian '%s' package management program version %s.\n"
 msgstr "Debian `%s' パッケージ管理プログラム バージョン %s。\n"
 
 #: src/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Commands:\n"
+#| "  -i|--install       <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  --unpack           <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  -A|--record-avail  <.deb file name> ... | -R|--recursive "
+#| "<directory> ...\n"
+#| "  --configure        <package> ... | -a|--pending\n"
+#| "  --triggers-only    <package> ... | -a|--pending\n"
+#| "  -r|--remove        <package> ... | -a|--pending\n"
+#| "  -P|--purge         <package> ... | -a|--pending\n"
+#| "  -V|--verify <package> ...        Verify the integrity of package(s).\n"
+#| "  --get-selections [<pattern> ...] Get list of selections to stdout.\n"
+#| "  --set-selections                 Set package selections from stdin.\n"
+#| "  --clear-selections               Deselect every non-essential package.\n"
+#| "  --update-avail [<Packages-file>] Replace available packages info.\n"
+#| "  --merge-avail [<Packages-file>]  Merge with info from file.\n"
+#| "  --clear-avail                    Erase existing available info.\n"
+#| "  --forget-old-unavail             Forget uninstalled unavailable pkgs.\n"
+#| "  -s|--status <package> ...        Display package status details.\n"
+#| "  -p|--print-avail <package> ...   Display available version details.\n"
+#| "  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
+#| "  -l|--list [<pattern> ...]        List packages concisely.\n"
+#| "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
+#| "  -C|--audit [<package> ...]       Check for broken package(s).\n"
+#| "  --yet-to-unpack                  Print packages selected for "
+#| "installation.\n"
+#| "  --predep-package                 Print pre-dependencies to unpack.\n"
+#| "  --add-architecture <arch>        Add <arch> to the list of "
+#| "architectures.\n"
+#| "  --remove-architecture <arch>     Remove <arch> from the list of "
+#| "architectures.\n"
+#| "  --print-architecture             Print dpkg architecture.\n"
+#| "  --print-foreign-architectures    Print allowed foreign architectures.\n"
+#| "  --assert-<feature>               Assert support for the specified "
+#| "feature.\n"
+#| "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
+#| "  --force-help                     Show help on forcing.\n"
+#| "  -Dh|--debug=help                 Show help on debugging.\n"
+#| "\n"
 msgid ""
 "Commands:\n"
 "  -i|--install       <.deb file name> ... | -R|--recursive <directory> ...\n"
@@ -3109,6 +3253,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3177,6 +3322,13 @@ msgstr ""
 "アサート可能機能: support-predepends, working-epoch, long-filenames,\n"
 "                  multi-conrep, multi-arch, versioned-provides\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, c-format
@@ -3361,6 +3513,10 @@ msgstr "あるパッケージのディレクトリを別のファイルで上書
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "展開時に安全な I/O 操作を行わない"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr ""
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3597,6 +3753,10 @@ msgstr "%d 行目の行末までに予期しないファイル終端がありま
 msgid "need an action option"
 msgstr "アクションを指定するオプションが必要です"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "サブプロセスで setenv できません"
@@ -3722,6 +3882,11 @@ msgstr " は以下に依存 (depends) します: "
 msgid "; however:\n"
 msgstr " ...しかし:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "%s に一致するパッケージが見つかりません"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3755,11 +3920,6 @@ msgstr "アーキテクチャ"
 #: src/querycmd.c
 msgid "Description"
 msgstr "説明"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "%s に一致するパッケージが見つかりません"
 
 #: src/querycmd.c
 #, c-format
@@ -4148,8 +4308,9 @@ msgid "illegal package name at line %d: %.250s"
 msgstr "%d 行目のパッケージ名は不正です: %.250s"
 
 #: src/select.c
-#, c-format
-msgid "package not in database at line %d: %.250s"
+#, fuzzy, c-format
+#| msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "データベースの %d 行目のパッケージはありません: %.250s"
 
 #: src/select.c
@@ -4162,9 +4323,14 @@ msgid "read error on standard input"
 msgstr "標準入力からの読み取り時にエラーが発生しました"
 
 #: src/select.c
+#, fuzzy
+#| msgid ""
+#| "found unknown packages; this might mean the available database\n"
+#| "is outdated, and needs to be updated through a frontend method"
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "未知のパッケージが見つかりました。利用可能なデータベースが古く\n"
 "なっていてフロントエンドメソッド経由で更新する必要があります。"
@@ -4515,6 +4681,36 @@ msgstr "合格\n"
 msgid "unable to create temporary directory"
 msgstr "一時ディレクトリを作成できません"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"%s が %s を含むことを考慮すると、先行依存の問題があります:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "先行依存問題 - %.250s をインストールしません"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "先行依存の問題を無視しています!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr ""
+"%3$s (%4$s) を削除できるようにするために %1$s (%2$s) の設定削除 "
+"(deconfigure) を行います ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "%s (%s) を設定削除しています ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4582,93 +4778,6 @@ msgstr "新規情報ファイル `%.250s' を `%.250s' としてインストー�
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(%s は完全に置換されているため、消えていることに注意。)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "アーカイブにアクセスできません"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "パッケージ制御情報の展開"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "%s についての情報を %s から登録します。\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "パッケージアーキテクチャ (%s) がシステム (%s) と一致しません"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"%s が %s を含むことを考慮すると、先行依存の問題があります:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "先行依存問題 - %.250s をインストールしません"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "先行依存の問題を無視しています!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "%s を展開する準備をしています ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr ""
-"%3$s (%4$s) を削除できるようにするために %1$s (%2$s) の設定削除 "
-"(deconfigure) を行います ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "%s (%s) を設定削除しています ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "%s (%s) を展開しています...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "%s (%s) で (%s に) 上書き展開しています ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "パッケージファイルシステムアーカイブの抽出"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "dpkg-deb tar 出力の読み取り時にエラーが発生しました"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr ""
-"壊れているファイルシステム上の tar ファイル - パッケージアーカイブが壊れてい"
-"ます"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "dpkg-deb から末尾の余計なゼロを取り除けません: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "古いファイル '%.250s' の状態を取得できないので、削除しません: %s"
 
@@ -4700,6 +4809,59 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "古いファイル '%.250s' を安全に削除できません: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(%s は完全に置換されているため、消えていることに注意。)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "パッケージ制御情報の展開"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "%s についての情報を %s から登録します。\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "パッケージアーキテクチャ (%s) がシステム (%s) と一致しません"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "%s を展開する準備をしています ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "%s (%s) を展開しています...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "%s (%s) で (%s に) 上書き展開しています ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "パッケージファイルシステムアーカイブの抽出"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "dpkg-deb tar 出力の読み取り時にエラーが発生しました"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr ""
+"壊れているファイルシステム上の tar ファイル - パッケージアーカイブが壊れてい"
+"ます"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "dpkg-deb から末尾の余計なゼロを取り除けません: %s"
 
 #: src/update.c
 #, c-format
@@ -4742,18 +4904,17 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "ファイル名 `%.250s' の状態を取得できません"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "tar パイプへの書き込みに失敗しました (%s)"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "コントロールメンバー"
 
 #: dpkg-deb/build.c
 #, c-format
 msgid "newline not allowed in pathname '%s'"
 msgstr "パス名 '%s' に改行は許されません"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "tar パイプへの書き込みに失敗しました (%s)"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4837,6 +4998,12 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "パッケージ名に小文字アルファベット、英数字、`-+.' 以外の文字があります"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture"
+msgid "package architecture is missing or empty"
+msgstr "パッケージアーキテクチャ"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' がユーザ定義の優先度 '%s' を含んでいます"
@@ -4853,14 +5020,18 @@ msgid "unable to check for existence of archive '%.250s'"
 msgstr "アーカイブ `%.250s' の存在を確認できません"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "compressing data member"
 msgid "compressing tar member"
-msgstr "データメンバーを圧縮しています"
+msgstr "tar メンバーを圧縮しています"
 
 #: dpkg-deb/build.c
 msgid "<compress> from tar -cf"
 msgstr "<圧縮> tar -cf からの"
+
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "`%.255s' を作成できません"
 
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
@@ -4876,13 +5047,15 @@ msgid "not checking contents of control area"
 msgstr "コントロールエリアのコンテンツを確認できません"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: `%s' に未知のパッケージを構築しています。\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: `%2$s' にパッケージ `%1$s' を構築しています。\n"
 
 #: dpkg-deb/build.c
@@ -4891,17 +5064,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "一時ファイルの作成に失敗しました (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "コントロールメンバー"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "一時ファイルのアンリンクに失敗しました (%s), %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "コントロールメンバーを圧縮しています"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4927,24 +5092,15 @@ msgstr "'%s' を アーカイブ '%s' にコピーできません: %s"
 msgid "shell command to move files"
 msgstr "ファイルを移動するシェルコマンド"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "%2$.255s 中の %1$s に予期しないファイルの終わりがあります"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "ファイル %2$.255s からの %1$s の読み取り中にエラーが発生しました"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "アーカイブ `%.255s' の読み取りに失敗しました"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "アーカイブの状態を取得できませんでした (fstat 失敗)"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5025,7 +5181,7 @@ msgstr "アーカイブコントロールメンバーサイズ"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "アーカイブは不正なコントロール長 '%s' を含んでいます"
 
 #: dpkg-deb/extract.c
@@ -5176,7 +5332,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     非プレーンファイル          %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(コントロールアーカイブに `control' ファイルがありません!)\n"
 
 #: dpkg-deb/main.c
@@ -5232,7 +5390,35 @@ msgstr ""
 "\n"
 
 #: dpkg-deb/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  -v, --verbose                    Enable verbose output.\n"
+#| "  -D, --debug                      Enable debugging output.\n"
+#| "      --showformat=<format>        Use alternative format for --show.\n"
+#| "      --deb-format=<format>        Select archive format.\n"
+#| "                                     Allowed values: 0.939000, 2.0 "
+#| "(default).\n"
+#| "      --old                        Legacy alias for '--deb-"
+#| "format=0.939000'.\n"
+#| "      --new                        Legacy alias for '--deb-format=2.0'.\n"
+#| "      --nocheck                    Suppress control file check (build "
+#| "bad\n"
+#| "                                     packages).\n"
+#| "      --uniform-compression        Use the compression params on all "
+#| "members.\n"
+#| "  -z#                              Set the compression level when "
+#| "building.\n"
+#| "  -Z<type>                         Set the compression type used when "
+#| "building.\n"
+#| "                                     Allowed types: gzip, xz, bzip2, "
+#| "none.\n"
+#| "  -S<strategy>                     Set the compression strategy when "
+#| "building.\n"
+#| "                                     Allowed values: none; extreme (xz);\n"
+#| "                                     filtered, huffman, rle, fixed "
+#| "(gzip).\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  -v, --verbose                    Enable verbose output.\n"
@@ -5241,9 +5427,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5251,7 +5434,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5325,13 +5508,15 @@ msgid "unknown compression type '%s'!"
 msgstr "`%s' は不明な圧縮形式です!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "'%s' は時代遅れの圧縮形式です。xz を代わりに使用してください"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr ""
 "'%s' は時代遅れの圧縮形式です。xz または gzip を代わりに使用してください"
 
@@ -5366,7 +5551,7 @@ msgstr "ファイル `%.250s' は壊れています - %.250s がありません"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "ファイル `%.250s' は壊れています - %.250s の後の改行がありません"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "%.250s の読み取り中にエラーが発生しました"
@@ -5488,11 +5673,6 @@ msgstr ""
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "ファイル `%.250s' は壊れています - サイズがヘッダのパート番号情報と異なります"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "パートファイル `%.250s' の状態を取得できません (fstat 失敗)"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5665,11 +5845,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "ヘルプを参照するには dpkg-split --help とタイプしてください。"
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "%.250s 内で予期しないファイルの終わりです"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5931,18 +6106,10 @@ msgstr ""
 "  --version                  バージョン番号を表示する\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "エラー"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
 "プログラムの使い方についてのヘルプには、'%s --help' を使用してください。"
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "警告"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6079,16 +6246,13 @@ msgid "unable to flush file '%s'"
 msgstr "ファイル '%s' をフラッシュできません"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "Current 'best' version is '%s'."
+#, c-format
 msgid "  link best version is %s"
-msgstr "現在の '最適' バージョンは '%s' です。"
+msgstr "  最適なリンクのバージョンは '%s' です"
 
 #: utils/update-alternatives.c
-#, fuzzy
-#| msgid "No versions available."
 msgid "  link best version not available"
-msgstr "利用可能なバージョンはありません。"
+msgstr "  最適なリンクのバージョンは利用不能です"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6100,16 +6264,14 @@ msgid "  link currently absent"
 msgstr "  リンクは現在ありません"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  %.250s is %s.\n"
+#, c-format
 msgid "  link %s is %s"
-msgstr "  %.250s は %s です。\n"
+msgstr "  リンク %s は %s です"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  slave %s: %s"
+#, c-format
 msgid "  slave %s is %s"
-msgstr "  スレーブ %s: %s"
+msgstr "  スレーブ %s は %s です"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6418,6 +6580,54 @@ msgstr "%s/%s の自動更新は無効になっています。そのままにし
 #, c-format
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr "自動更新に戻すには、'%s --auto %s' を使ってください"
+
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "オプション '--%s' は時代遅れです。'--%s' を代わりに使ってください"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "コントロールファイル '%s' に値がありません"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "コントロールファイル '%s' に値の区切り子がありません"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "パートファイル `%.250s' の状態を取得できません (fstat 失敗)"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "%.250s 内で予期しないファイルの終わりです"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: エラー: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: 内部エラー: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: 警告: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "トリガ遅延ファイル `%.250s' が切り詰められました"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "dpkg --recursive のための find"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "find のパイプの fdopen に失敗しました"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "find のパイプを読み込み中にエラーが発生しました"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "find のパイプのクローズ中にエラーが発生しました"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "--recursive のための find が、処理できないエラー %i を返しました"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "ファイル名 `%.250s' の状態を取得できません"
+
+#~ msgid "compressing control member"
+#~ msgstr "コントロールメンバーを圧縮しています"
 
 #~ msgid "Call %s."
 #~ msgstr "%s を呼び出します。"

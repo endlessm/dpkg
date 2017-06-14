@@ -8,14 +8,14 @@ WFLAGS := -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 # XXX: Stack Protector Strong is only available in gcc >= 4.9
 cc_version = $(shell $(CC) -dumpversion 2>/dev/null)
 cc_version_lt = $(shell dpkg --compare-versions "$(cc_version)" lt-nl "$(1)" && echo yes)
-hardening_old = DEB_BUILD_MAINT_OPTIONS="hardening=-stackprotectorstrong"
+hardening_old = $(if $(call cc_version_lt,4.9),-stackprotectorstrong)
 
 # Use the in-tree dpkg-buildflags
 dpkg_buildflags = \
-	$(if $(call cc_version_lt,4.9),$(hardening_old)) \
+	DEB_BUILD_MAINT_OPTIONS="hardening=+all,$(hardening_old)" \
 	DEB_CFLAGS_MAINT_APPEND="$(WFLAGS)" \
 	DEB_CXXFLAGS_MAINT_APPEND="$(WFLAGS)" \
-	$(CURDIR)/run-script perl scripts/dpkg-buildflags.pl
+	$(CURDIR)/run-script scripts/dpkg-buildflags.pl
 
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -31,10 +31,17 @@ endif
 
 # Do not enable everything on all platforms.
 ifeq ($(DEB_HOST_ARCH_OS),linux)
-	confflags += --with-selinux
+	confflags += --with-libselinux
 endif
 ifeq (,$(filter maintainer-build,$(DEB_BUILD_OPTIONS)))
 	confflags += --disable-silent-rules
+endif
+
+# Enable parallel test suite
+NUMJOBS = 1
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+  MAKEFLAGS += -j$(NUMJOBS)
 endif
 
 D := $(CURDIR)/debian/tmp
@@ -58,10 +65,12 @@ build-tree/config.status: configure
 		--sysconfdir=/etc \
 		--sbindir=/sbin \
 		--localstatedir=/var \
+		--libexecdir=\$${exec_prefix}/lib \
 		--with-devlibdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
-		--with-zlib \
+		--without-libmd \
+		--with-libz \
 		--with-liblzma \
-		--with-bz2
+		--with-libbz2
 
 # Build the package in build-tree
 build-indep build-arch build: build-tree/config.status
@@ -74,7 +83,8 @@ check: build
 	dh_testdir
 
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	cd build-tree && $(MAKE) VERBOSE=1 check
+	cd build-tree && $(MAKE) VERBOSE=1 TESTSUITEFLAGS=--verbose \
+	                         TEST_PARALLEL=$(NUMJOBS) check
 endif
 
 # Install the package underneath debian/tmp
@@ -85,13 +95,6 @@ install: check
 	dh_installdirs
 
 	cd build-tree && $(MAKE) DESTDIR=$(D) install
-
-ifeq (yes,$(shell dpkg-vendor --derives-from Ubuntu && echo yes))
-	# Ubuntu's «i386» architecture is built for i686 (the Debian default
-	# is i586).
-	sed -ri 's/^(i386[[:space:]]+)[^[:space:]]+/\1i686/' \
-	        $(D)/usr/share/dpkg/cputable
-endif
 
 define dpkg-installmanl10n
 for f in `sed -e 's:\*:*/*:' debian/$(1).manpages`; do \
@@ -121,10 +124,7 @@ binary-arch: install
 	dh_shlibdeps -a
 	dh_gencontrol -a
 	dh_md5sums -a
-	# Make debootstrap life easier on non-Debian based systems by
-	# compressing dpkg.deb with gzip instead of xz.
-	dh_builddeb -pdpkg -- -Zgzip
-	dh_builddeb -a -Ndpkg
+	dh_builddeb -a
 
 # Put together the dpkg-dev package
 binary-indep: install
@@ -138,7 +138,8 @@ binary-indep: install
 	dh_installman -i
 	dh_link -i
 	dh_lintian -i
-	dh_strip -i
+	# The perl modules should not depend on a specific interpreter.
+	dh_perl -i -Nlibdpkg-perl
 	dh_compress -i
 	dh_fixperms -i
 	dh_installdeb -i

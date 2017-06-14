@@ -3,7 +3,7 @@
  * main.c - main program
  *
  * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
- * Copyright © 2006-2015 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006-2016 Guillem Jover <guillem@debian.org>
  * Copyright © 2010 Canonical Ltd.
  *   written by Martin Pitt <martin.pitt@canonical.com>
  *
@@ -111,6 +111,7 @@ usage(const struct cmdinfo *ci, const char *value)
 "  --print-architecture             Print dpkg architecture.\n"
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -124,6 +125,10 @@ usage(const struct cmdinfo *ci, const char *value)
   printf(_(
 "Assertable features: support-predepends, working-epoch, long-filenames,\n"
 "  multi-conrep, multi-arch, versioned-provides.\n"
+"\n"));
+
+  printf(_(
+"Validatable things: pkgname, archname, trigname, version.\n"
 "\n"));
 
   printf(_(
@@ -196,6 +201,7 @@ int fc_conff_ask = 0;
 int fc_unsafe_io = 0;
 int fc_badverify = 0;
 int fc_badversion = 0;
+int fc_script_chrootless = 0;
 
 int errabort = 50;
 static const char *admindir = ADMINDIR;
@@ -248,6 +254,8 @@ static const struct forceinfo {
     '!', N_("Overwrite one package's directory with another's file") },
   { "unsafe-io",           &fc_unsafe_io,
     '!', N_("Do not perform safe I/O operations when unpacking") },
+  { "script-chrootless",   &fc_script_chrootless,
+    '!', N_("Do not chroot into maintainer script environment") },
   { "confnew",             &fc_conff_new,
     '!', N_("Always use the new config files, don't prompt") },
   { "confold",             &fc_conff_old,
@@ -426,36 +434,33 @@ is_invoke_action(enum action action)
   }
 }
 
-struct invoke_hook *pre_invoke_hooks = NULL;
-struct invoke_hook **pre_invoke_hooks_tail = &pre_invoke_hooks;
-struct invoke_hook *post_invoke_hooks = NULL;
-struct invoke_hook **post_invoke_hooks_tail = &post_invoke_hooks;
-struct invoke_hook *status_loggers = NULL;
-struct invoke_hook **status_loggers_tail = &status_loggers;
+struct invoke_list pre_invoke_hooks = { .head = NULL, .tail = &pre_invoke_hooks.head };
+struct invoke_list post_invoke_hooks = { .head = NULL, .tail = &post_invoke_hooks.head };
+struct invoke_list status_loggers = { .head = NULL, .tail = &status_loggers.head };
 
 static void
 set_invoke_hook(const struct cmdinfo *cip, const char *value)
 {
-  struct invoke_hook ***hook_tail = cip->arg_ptr;
+  struct invoke_list *hook_list = cip->arg_ptr;
   struct invoke_hook *hook_new;
 
-  hook_new = nfmalloc(sizeof(struct invoke_hook));
-  hook_new->command = nfstrsave(value);
+  hook_new = m_malloc(sizeof(struct invoke_hook));
+  hook_new->command = m_strdup(value);
   hook_new->next = NULL;
 
   /* Add the new hook at the tail of the list to preserve the order. */
-  **hook_tail = hook_new;
-  *hook_tail = &hook_new->next;
+  *hook_list->tail = hook_new;
+  hook_list->tail = &hook_new->next;
 }
 
 static void
-run_invoke_hooks(const char *action, struct invoke_hook *hook_head)
+run_invoke_hooks(const char *action, struct invoke_list *hook_list)
 {
   struct invoke_hook *hook;
 
   setenv("DPKG_HOOK_ACTION", action, 1);
 
-  for (hook = hook_head; hook; hook = hook->next) {
+  for (hook = hook_list->head; hook; hook = hook->next) {
     int status;
 
     /* XXX: As an optimization, use exec instead if no shell metachar are
@@ -467,6 +472,18 @@ run_invoke_hooks(const char *action, struct invoke_hook *hook_head)
   }
 
   unsetenv("DPKG_HOOK_ACTION");
+}
+
+static void
+free_invoke_hooks(struct invoke_list *hook_list)
+{
+  struct invoke_hook *hook, *hook_next;
+
+  for (hook = hook_list->head; hook; hook = hook_next) {
+    hook_next = hook->next;
+    free(hook->command);
+    free(hook);
+  }
 }
 
 static int
@@ -494,11 +511,11 @@ run_logger(struct invoke_hook *hook, const char *name)
 }
 
 static void
-run_status_loggers(struct invoke_hook *hook_head)
+run_status_loggers(struct invoke_list *hook_list)
 {
   struct invoke_hook *hook;
 
-  for (hook = hook_head; hook; hook = hook->next) {
+  for (hook = hook_list->head; hook; hook = hook->next) {
     int fd;
 
     fd = run_logger(hook, _("status logger"));
@@ -690,20 +707,23 @@ static const struct cmdinfo cmdinfos[]= {
   ACTION( "add-architecture",                0,  act_arch_add,             arch_add        ),
   ACTION( "remove-architecture",             0,  act_arch_remove,          arch_remove     ),
   ACTION( "print-architecture",              0,  act_printarch,            printarch   ),
-  ACTION( "print-installation-architecture", 0,  act_printinstarch,        printinstarch  ),
   ACTION( "print-foreign-architectures",     0,  act_printforeignarches,   print_foreign_arches ),
   ACTION( "predep-package",                  0,  act_predeppackage,        predeppackage   ),
+  ACTION( "validate-pkgname",                0,  act_validate_pkgname,     validate_pkgname ),
+  ACTION( "validate-trigname",               0,  act_validate_trigname,    validate_trigname ),
+  ACTION( "validate-archname",               0,  act_validate_archname,    validate_archname ),
+  ACTION( "validate-version",                0,  act_validate_version,     validate_version ),
   ACTION( "compare-versions",                0,  act_cmpversions,          cmpversions     ),
 /*
   ACTION( "command-fd",                   'c', act_commandfd,   commandfd     ),
 */
 
-  { "pre-invoke",        0,   1, NULL,          NULL,      set_invoke_hook, 0, &pre_invoke_hooks_tail },
-  { "post-invoke",       0,   1, NULL,          NULL,      set_invoke_hook, 0, &post_invoke_hooks_tail },
+  { "pre-invoke",        0,   1, NULL,          NULL,      set_invoke_hook, 0, &pre_invoke_hooks },
+  { "post-invoke",       0,   1, NULL,          NULL,      set_invoke_hook, 0, &post_invoke_hooks },
   { "path-exclude",      0,   1, NULL,          NULL,      set_filter,     0 },
   { "path-include",      0,   1, NULL,          NULL,      set_filter,     1 },
   { "verify-format",     0,   1, NULL,          NULL,      set_verify_format },
-  { "status-logger",     0,   1, NULL,          NULL,      set_invoke_hook, 0, &status_loggers_tail },
+  { "status-logger",     0,   1, NULL,          NULL,      set_invoke_hook, 0, &status_loggers },
   { "status-fd",         0,   1, NULL,          NULL,      set_pipe, 0 },
   { "log",               0,   1, NULL,          &log_file, NULL,    0 },
   { "pending",           'a', 0, &f_pending,    NULL,      NULL,    1 },
@@ -753,7 +773,7 @@ execbackend(const char *const *argv)
   command_add_arg(&cmd, cipaction->arg_ptr);
   command_add_arg(&cmd, str_fmt("--%s", cipaction->olong));
 
-  /* Exlicitely separate arguments from options as any user-supplied
+  /* Explicitly separate arguments from options as any user-supplied
    * separator got stripped by the option parser */
   command_add_arg(&cmd, "--");
   command_add_argl(&cmd, (const char **)argv);
@@ -766,7 +786,7 @@ commandfd(const char *const *argv)
 {
   struct varbuf linevb = VARBUF_INIT;
   const char * pipein;
-  const char **newargs = NULL;
+  const char **newargs = NULL, **endargs;
   char *ptr, *endptr;
   FILE *in;
   long infd;
@@ -851,12 +871,17 @@ commandfd(const char *const *argv)
     for(i=1;i<argc;i++)
       if (newargs[i])
         newargs[i] = m_strdup(newargs[i]);
+    endargs = newargs;
 
     setaction(NULL, NULL);
-    dpkg_options_parse((const char *const **)&newargs, cmdinfos, printforhelp);
+    dpkg_options_parse((const char *const **)&endargs, cmdinfos, printforhelp);
     if (!cipaction) badusage(_("need an action option"));
 
-    ret |= cipaction->action(newargs);
+    filesdbinit();
+
+    ret |= cipaction->action(endargs);
+
+    files_db_reset();
 
     pop_error_context(ehflag_normaltidy);
   }
@@ -872,6 +897,12 @@ int main(int argc, const char *const *argv) {
   dpkg_options_load(DPKG, cmdinfos);
   dpkg_options_parse(&argv, cmdinfos, printforhelp);
 
+  /* When running as root, make sure our primary group is also root, so
+   * that files created by maintainer scripts have correct ownership. */
+  if (!fc_nonroot && getuid() == 0)
+    if (setgid(0) < 0)
+      ohshite(_("cannot set primary group ID to root"));
+
   if (!cipaction) badusage(_("need an action option"));
 
   admindir = dpkg_db_set_dir(admindir);
@@ -879,13 +910,15 @@ int main(int argc, const char *const *argv) {
   /* Always set environment, to avoid possible security risks. */
   if (setenv("DPKG_ADMINDIR", admindir, 1) < 0)
     ohshite(_("unable to setenv for subprocesses"));
+  if (setenv("DPKG_ROOT", instdir, 1) < 0)
+    ohshite(_("unable to setenv for subprocesses"));
 
   if (!f_triggers)
     f_triggers = (cipaction->arg_int == act_triggers && *argv) ? -1 : 1;
 
   if (is_invoke_action(cipaction->arg_int)) {
-    run_invoke_hooks(cipaction->olong, pre_invoke_hooks);
-    run_status_loggers(status_loggers);
+    run_invoke_hooks(cipaction->olong, &pre_invoke_hooks);
+    run_status_loggers(&status_loggers);
   }
 
   filesdbinit();
@@ -893,7 +926,10 @@ int main(int argc, const char *const *argv) {
   ret = cipaction->action(argv);
 
   if (is_invoke_action(cipaction->arg_int))
-    run_invoke_hooks(cipaction->olong, post_invoke_hooks);
+    run_invoke_hooks(cipaction->olong, &post_invoke_hooks);
+
+  free_invoke_hooks(&pre_invoke_hooks);
+  free_invoke_hooks(&post_invoke_hooks);
 
   dpkg_program_done();
 

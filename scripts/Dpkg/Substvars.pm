@@ -19,13 +19,13 @@ package Dpkg::Substvars;
 use strict;
 use warnings;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 use POSIX qw(:errno_h);
-use Carp;
 
 use Dpkg ();
 use Dpkg::Arch qw(get_host_arch);
+use Dpkg::Version;
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
 
@@ -49,7 +49,7 @@ strings.
 use constant {
     SUBSTVAR_ATTR_USED => 1,
     SUBSTVAR_ATTR_AUTO => 2,
-    SUBSTVAR_ATTR_OLD => 4,
+    SUBSTVAR_ATTR_AGED => 4,
 };
 
 =head1 METHODS
@@ -179,7 +179,10 @@ Obsolete function, use mark_as_used() instead.
 
 sub no_warn {
     my ($self, $key) = @_;
-    carp 'obsolete no_warn() function, use mark_as_used() instead';
+
+    warnings::warnif('deprecated',
+                     'obsolete no_warn() function, use mark_as_used() instead');
+
     $self->mark_as_used($key);
 }
 
@@ -192,10 +195,13 @@ Add new substitutions read from $file.
 Add new substitutions read from the filehandle. $desc is used to identify
 the filehandle in error messages.
 
+Returns the number of substitutions that have been parsed with success.
+
 =cut
 
 sub parse {
     my ($self, $fh, $varlistfile) = @_;
+    my $count = 0;
     local $_;
 
     binmode($fh);
@@ -207,7 +213,10 @@ sub parse {
 		  $varlistfile, $.);
 	}
 	$self->set($1, $2);
+        $count++;
     }
+
+    return $count
 }
 
 =item $s->set_version_substvars($sourceversion, $binaryversion)
@@ -229,8 +238,11 @@ sub set_version_substvars {
     # field on the changelog, always fix up the source version.
     $sourceversion =~ s/\+b[0-9]+$//;
 
-    my $upstreamversion = $sourceversion;
-    $upstreamversion =~ s/-[^-]*$//;
+    my $vs = Dpkg::Version->new($sourceversion, check => 1);
+    if (not defined $vs) {
+        error(g_('invalid source version %s'), $sourceversion);
+    }
+    my $upstreamversion = $vs->as_string(omit_revision => 1);
 
     my $attr = SUBSTVAR_ATTR_USED | SUBSTVAR_ATTR_AUTO;
 
@@ -238,8 +250,8 @@ sub set_version_substvars {
     $self->set('source:Version', $sourceversion, $attr);
     $self->set('source:Upstream-Version', $upstreamversion, $attr);
 
-    # XXX: Source-Version is now deprecated, remove in the future.
-    $self->set('Source-Version', $binaryversion, $attr | SUBSTVAR_ATTR_OLD);
+    # XXX: Source-Version is now obsolete, remove in 1.19.x.
+    $self->set('Source-Version', $binaryversion, $attr | SUBSTVAR_ATTR_AGED);
 }
 
 =item $s->set_arch_substvars()
@@ -256,6 +268,23 @@ sub set_arch_substvars {
     my $attr = SUBSTVAR_ATTR_USED | SUBSTVAR_ATTR_AUTO;
 
     $self->set('Arch', get_host_arch(), $attr);
+}
+
+=item $s->set_field_substvars($ctrl, $prefix)
+
+Defines field variables from a Dpkg::Control object, with each variable
+having the form "${$prefix:$field}".
+
+They will never be warned about when unused.
+
+=cut
+
+sub set_field_substvars {
+    my ($self, $ctrl, $prefix) = @_;
+
+    foreach my $field (keys %{$ctrl}) {
+        $self->set_as_auto("$prefix:$field", $ctrl->{$field});
+    }
 }
 
 =item $newstring = $s->substvars($string)
@@ -290,9 +319,9 @@ sub substvars {
             $self->mark_as_used($vn);
             $count++;
 
-            if (not $opts{no_warn} and $self->{attr}{$vn} & SUBSTVAR_ATTR_OLD) {
-                warning($opts{msg_prefix} .
-                        g_('deprecated substitution variable ${%s}'), $vn);
+            if ($self->{attr}{$vn} & SUBSTVAR_ATTR_AGED) {
+                error($opts{msg_prefix} .
+                      g_('obsolete substitution variable ${%s}'), $vn);
             }
         } else {
             warning($opts{msg_prefix} . g_('unknown substitution variable ${%s}'),
@@ -337,10 +366,11 @@ sub set_msg_prefix {
 }
 
 =item $s->filter(remove => $rmfunc)
+
 =item $s->filter(keep => $keepfun)
 
 Filter the substitution variables, either removing or keeping all those
-that return true when &$rmfunc($key) or &keepfunc($key) is called.
+that return true when $rmfunc->($key) or $keepfunc->($key) is called.
 
 =cut
 
@@ -351,7 +381,7 @@ sub filter {
     my $keep = $opts{keep} // sub { 1 };
 
     foreach my $vn (keys %{$self->{vars}}) {
-        $self->delete($vn) if &$remove($vn) or not &$keep($vn);
+        $self->delete($vn) if $remove->($vn) or not $keep->($vn);
     }
 }
 
@@ -389,6 +419,14 @@ sub output {
 
 =head1 CHANGES
 
+=head2 Version 1.05 (dpkg 1.18.11)
+
+Obsolete substvar: Emit an error on Source-Version substvar usage.
+
+New return: $s->parse() now returns the number of parsed substvars.
+
+New method: $s->set_field_substvars().
+
 =head2 Version 1.04 (dpkg 1.18.0)
 
 New method: $s->filter().
@@ -413,10 +451,6 @@ New method: $s->set_as_used().
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

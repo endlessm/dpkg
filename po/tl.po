@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.13\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:53+0200\n"
 "Last-Translator: Eric Pareja <xenos@upm.edu.ph>\n"
 "Language-Team: Tagalog <debian-tl@banwa.upm.edu.ph>\n"
@@ -17,6 +17,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "bigo na i-fstat ang arkibo"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "bigo sa pagbasa ng arkibo `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "hindi malikha ang `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, fuzzy, c-format
+msgid "unable to close file '%s'"
+msgstr "hindi maka-flush sa vsnprintf"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -155,8 +175,8 @@ msgstr "di inaasahang dulo ng talaksan sa %.250s"
 msgid "failed to seek"
 msgstr "bigo na i-exec ang tar"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to execute %s (%s)"
 msgstr "hindi ma-execute ang %s"
@@ -327,11 +347,6 @@ msgstr "hindi ma-scan ang directory ng mga update `%.255s'"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "bigo sa pagtanggal ng naisamang mga talaksang update %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "hindi malikha ang `%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -450,8 +465,7 @@ msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
 msgid "unable to open directory '%s'"
 msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to open file '%s'"
 msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
@@ -461,12 +475,6 @@ msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
 #, fuzzy, c-format
 msgid "unable to sync file '%s'"
 msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, fuzzy, c-format
-msgid "unable to close file '%s'"
-msgstr "hindi maka-flush sa vsnprintf"
 
 #: lib/dpkg/dump.c
 #, fuzzy, c-format
@@ -483,17 +491,16 @@ msgstr "hindi matakda ang pag-buffer sa talaksang kalagayan"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "bigo sa pagsulat ng %s record tungkol `%.50s' sa `%.250s'"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+#, fuzzy
+#| msgid "parse error"
+msgid "error"
+msgstr "error sa pag-parse"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
 
@@ -504,18 +511,19 @@ msgid "out of memory for new error context"
 msgstr "nagkulang ng memory para sa bagong entry ng paglinis"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: error habang naglilinis:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
+#, fuzzy
 #| msgid "dpkg: too many nested errors during error recovery !!\n"
-msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr ""
 "dpkg: lubos na nested error habang sinubukang magrecover mula sa error !!\n"
 
@@ -529,16 +537,17 @@ msgstr ""
 "nagkulang ng memory para sa bagong entry ng paglinis na maraming argumento"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s: error: %s\n"
+msgid "unrecoverable fatal error, aborting"
 msgstr ""
-"%s: error sa pagproseso ng %s (--%s):\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%d: internal error `%s'\n"
+msgid "outside error context, aborting"
+msgstr ""
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+msgid "internal error"
+msgstr "%s: internal gzip error: pagbasa: `%s'"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -639,8 +648,8 @@ msgstr "laos na saklaw ng `Revision' o `Package-Revision' na ginamit"
 
 #: lib/dpkg/fields.c
 #, fuzzy, c-format
-#| msgid "value for `conffiles' has malformatted line `%.*s'"
-msgid "value for '%s' field has malformatted line '%.*s'"
+#| msgid "value for `conffiles' has malformed line `%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "halaga ng `conffiles' ay may maling anyong linya `%.*s'"
 
 #: lib/dpkg/fields.c
@@ -946,6 +955,11 @@ msgstr "di tanggap na integer para sa --%s: `%.250s'"
 
 #: lib/dpkg/options.c
 #, fuzzy, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "di tanggap na integer para sa --%s: `%.250s'"
+
+#: lib/dpkg/options.c
+#, fuzzy, c-format
 msgid "obsolete option '--%s'"
 msgstr "Babala: laos na opsyon `--%s'\n"
 
@@ -1179,6 +1193,12 @@ msgid "version string has embedded spaces"
 msgstr "naglalaman ng mga puwang ang string na bersyon"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is not number"
+msgid "epoch in version is empty"
+msgstr "epoch sa bersyon ay hindi numero"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "epoch sa bersyon ay hindi numero"
 
@@ -1197,6 +1217,18 @@ msgstr "epoch sa bersyon ay hindi numero"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "walang sumunod sa kolon sa bilang ng bersyon"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "walang laman ang string na bersyon"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "walang laman ang string na bersyon"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1247,6 +1279,11 @@ msgstr "kulang na %s"
 msgid "(no description available)"
 msgstr "(walang paglalarawan)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "bersyon ay may maling syntax: %s\n"
+
 #: lib/dpkg/pkg-spec.c
 #, fuzzy, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1257,10 +1294,9 @@ msgstr "bawal na pangalan ng pakete sa linya %d: %.250s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "bawal na pangalan ng pakete sa linya %d: %.250s"
 
-#: lib/dpkg/report.c
-#, fuzzy, c-format
-msgid "%s: warning: %s\n"
-msgstr "error sa pagsulat ng `%s'"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "babala"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1291,7 +1327,7 @@ msgstr "%s (subprocess): %s\n"
 msgid "fork failed"
 msgstr "bigo ang pag-fork"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "nagbalik ang subprocess %s ng error exit status %d"
@@ -1321,62 +1357,74 @@ msgstr "subprocess %s ay bigo na may wait status code %d"
 msgid "wait for subprocess %s failed"
 msgstr "paghintay sa %s ay bigo"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, fuzzy, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "talaksang statoverride `%.250s'"
+msgid "cannot stat pathname '%s'"
+msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "hindi ma-scan ang directory `%.255s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+msgid "treewalk root %s is not a directory"
+msgstr "hindi mabasa ang info directory"
+
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy
 msgid "triggers area"
 msgstr "hindi ma-execute ang %s"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "hindi ma-fstat ang talaksang bahagi `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "hindi mabuksan ang bagong talaksang bodega `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr "bigo sa pagbasa ng %s mula sa %.255s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "bigo sa pagbasa ng %s mula sa %.255s"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "hindi mabuksan ang bagong talaksang bodega `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "hindi mabuksan ang bagong talaksang bodega `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "hindi mailuklok ang bagong bersyon ng `%.255s'"
@@ -1649,11 +1697,6 @@ msgstr "hindi ma-stat ang ibinalik na `%.255s' bago magluklok ng ibang bersyon"
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "naglalaman ang arkibo ng bagay na `%.255s' ng hindi kilalang uri 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, fuzzy, c-format
-msgid "cannot stat file '%s'"
-msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
-
 #: src/archives.c
 #, fuzzy, c-format
 #| msgid "Replacing files in old package %s ...\n"
@@ -1867,28 +1910,6 @@ msgstr ""
 "path"
 
 #: src/archives.c
-#, fuzzy
-msgid "find for dpkg --recursive"
-msgstr "bigo sa pag-exec ng find para sa --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "bigo sa pag-fdopen ng pipe ng find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "error sa pagbasa ng pipe ng find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "error sa pagsara ng pipe ng find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "find para sa --recursive ay nagbalik ng hindi maprosesong error %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "naghanap, ngunit walang nahanap na pakete (talaksang pumares sa *.deb)"
 
@@ -1898,6 +1919,17 @@ msgid "--%s needs at least one package archive file argument"
 msgstr ""
 "--%s ay nangangailangan ng hindi kulang sa isa talaksang arkibong pakete "
 "argumento"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "hindi ma-akses ang arkibo"
+
+#: src/archives.c
+#, fuzzy, c-format
+msgid "archive '%s' is not a regular file"
+msgstr "babala, conffile `%s' ay hindi payak na talaksan\n"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2515,6 +2547,11 @@ msgid ""
 "divert.\n"
 msgstr ""
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, fuzzy, c-format
+msgid "cannot stat file '%s'"
+msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
+
 #: src/divertcmd.c
 #, fuzzy, c-format
 msgid "error checking '%s'"
@@ -2867,10 +2904,56 @@ msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr ""
 "hindi maayos ang pre-dependensiya para sa %.250s (kailangan dahil sa %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, fuzzy, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "Babala: laos na opsyon `--%s'\n"
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr ""
+"--%s ay nangangailangan ng hindi kukulang sa isa na argumentong pangalan ng "
+"pakete"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "Package `%s' is not installed.\n"
+msgid "package name '%s' is invalid: %s"
+msgstr "Di nakaluklok ang paketeng `%s'.\n"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr ""
+"--%s ay nangangailangan ng hindi kukulang sa isa na argumentong pangalan ng "
+"pakete"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "trigger name '%s' is invalid: %s"
+msgstr "saklaw na `%s', imbalido na pangalan ng pakete `%.255s': %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr ""
+"--%s ay nangangailangan ng hindi kukulang sa isa na argumentong pangalan ng "
+"pakete"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr ""
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s ay hindi tumatanggap ng mga argumento"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax"
+msgstr "bersyon ay may maling syntax: %s\n"
 
 #: src/enquiry.c
 msgid ""
@@ -2887,11 +2970,6 @@ msgstr "--compare-versions maling ugnayan"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-msgid "version '%s' has bad syntax"
-msgstr "bersyon ay may maling syntax: %s\n"
 
 #: src/errors.c
 #, fuzzy, c-format
@@ -3040,13 +3118,17 @@ msgstr ""
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "control file '%s' missing value"
-msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr ""
+"talaksan ng listahan ng mga talaksan ng pakete `%.250s' ay naglalaman ng\n"
+"pangalan na blanko"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "control file '%s' missing value separator"
-msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"talaksan ng listahan ng mga talaksan ng pakete `%.250s' ay naglalaman ng\n"
+"pangalan na blanko"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
@@ -3059,19 +3141,19 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to open files list file for package `%.250s'"
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr ""
 "hindi mabuksan ang talaksan ng listahan ng talaksan para sa paketeng `%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr ""
 "hindi mabuksan ang talaksan ng listahan ng talaksan para sa paketeng `%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr ""
 "talaksan ng listahan ng mga talaksan ng pakete `%.250s' ay naglalaman ng\n"
 "pangalan na blanko"
@@ -3079,13 +3161,13 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "cannot read config file dir `%.250s' (from `%.250s')"
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "hindi mabasa ang dir ng talaksang pagkaayos `%.250s' (mula `%.250s')"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "error closing files list file for package `%.250s'"
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr ""
 "error sa pagsara ng talaksang listahan ng mga talaksan ng pakete `%.250s'"
 
@@ -3228,6 +3310,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3345,6 +3428,13 @@ msgstr ""
 msgid ""
 "Assertable features: support-predepends, working-epoch, long-filenames,\n"
 "  multi-conrep, multi-arch, versioned-provides.\n"
+"\n"
+msgstr ""
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
 "\n"
 msgstr ""
 
@@ -3485,6 +3575,10 @@ msgstr ""
 
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
+msgstr ""
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
 msgstr ""
 
 #: src/main.c
@@ -3716,6 +3810,10 @@ msgstr "di inaasahang eof bago matapos ang linya %d"
 msgid "need an action option"
 msgstr "kailangan ng opsyon ng gagawin"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 #, fuzzy
 msgid "unable to setenv for subprocesses"
@@ -3846,6 +3944,12 @@ msgstr " nagdedepende sa "
 msgid "; however:\n"
 msgstr "; gayunpaman:\n"
 
+#: src/querycmd.c src/select.c
+#, fuzzy, c-format
+#| msgid "No packages found matching %s.\n"
+msgid "no packages found matching %s"
+msgstr "Walang paketeng tugma sa %s.\n"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3882,12 +3986,6 @@ msgstr " (pakete: "
 #: src/querycmd.c
 msgid "Description"
 msgstr "Paglalarawan"
-
-#: src/querycmd.c src/select.c
-#, fuzzy, c-format
-#| msgid "No packages found matching %s.\n"
-msgid "no packages found matching %s"
-msgstr "Walang paketeng tugma sa %s.\n"
 
 #: src/querycmd.c
 #, fuzzy, c-format
@@ -4326,7 +4424,7 @@ msgstr "bawal na pangalan ng pakete sa linya %d: %.250s"
 #: src/select.c
 #, fuzzy, c-format
 #| msgid "illegal package name at line %d: %.250s"
-msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "bawal na pangalan ng pakete sa linya %d: %.250s"
 
 #: src/select.c
@@ -4341,7 +4439,8 @@ msgstr "error sa pagbasa ng standard input"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 
 #: src/selinux.c
@@ -4674,6 +4773,39 @@ msgstr "pasado\n"
 msgid "unable to create temporary directory"
 msgstr "bigo na likhain ang temporary directoryname"
 
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid ""
+#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
+#| "%s"
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"dpkg: tungkol sa %s na naglalaman ng %s, problemang pre-dependensiya:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "problemang pre-dependensiya - hindi iluluklok ang %.250s"
+
+#: src/unpack.c
+#, fuzzy
+msgid "ignoring pre-dependency problem!"
+msgstr "dpkg: babala - hindi pinansin ang problemang pre-dependensiya !\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr ""
+"Tinatanggalan ng pagkaayos ang %s, upang maaaring tanggalin ang %s ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Tinatanggal ang %s ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4741,99 +4873,6 @@ msgid "unable to install new info file '%.250s' as '%.250s'"
 msgstr "hindi mailuklok ang bagong talaksang info `%.250s' bilang `%.250s'"
 
 #: src/unpack.c
-#, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Pinupuna ang pagkawala ng %s, na siyang napalitan ng buo.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "hindi ma-akses ang arkibo"
-
-#: src/unpack.c
-#, fuzzy
-msgid "package control information extraction"
-msgstr "haba ng impormasyong ctrl"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Tinala ang info tungkol sa %s mula sa %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "arkitektura ng pakete (%s) ay hindi lapat sa sistema (%s)"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid ""
-#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
-#| "%s"
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"dpkg: tungkol sa %s na naglalaman ng %s, problemang pre-dependensiya:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "problemang pre-dependensiya - hindi iluluklok ang %.250s"
-
-#: src/unpack.c
-#, fuzzy
-msgid "ignoring pre-dependency problem!"
-msgstr "dpkg: babala - hindi pinansin ang problemang pre-dependensiya !\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Preparing to replace %s %s (using %s) ...\n"
-msgid "Preparing to unpack %s ...\n"
-msgstr "Naghahandang palitan ang %s %s (gamit ang %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr ""
-"Tinatanggalan ng pagkaayos ang %s, upang maaaring tanggalin ang %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Tinatanggal ang %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Binubuklat ang %s (mula sa %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Binubuklat ang %s (mula sa %s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr ""
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "error sa pagbasa ng dpkg-deb tar output"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "sirang filesystem tarfile - sira ang arkibong pakete"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "dpkg-deb: zap possible trailing zeros"
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "dpkg-deb: i-zap ang posibleng susunod na mga sero"
-
-#: src/unpack.c
 #, fuzzy, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "dpkg: babala - hindi matanggal ang lumang talaksan `%.250s': %s\n"
@@ -4868,6 +4907,62 @@ msgstr ""
 #, fuzzy, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "dpkg: babala - hindi matanggal ang lumang talaksan `%.250s': %s\n"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Pinupuna ang pagkawala ng %s, na siyang napalitan ng buo.)\n"
+
+#: src/unpack.c
+#, fuzzy
+msgid "package control information extraction"
+msgstr "haba ng impormasyong ctrl"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Tinala ang info tungkol sa %s mula sa %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "arkitektura ng pakete (%s) ay hindi lapat sa sistema (%s)"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Preparing to replace %s %s (using %s) ...\n"
+msgid "Preparing to unpack %s ...\n"
+msgstr "Naghahandang palitan ang %s %s (gamit ang %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Binubuklat ang %s (mula sa %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Binubuklat ang %s (mula sa %s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr ""
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "error sa pagbasa ng dpkg-deb tar output"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "sirang filesystem tarfile - sira ang arkibong pakete"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "dpkg-deb: zap possible trailing zeros"
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "dpkg-deb: i-zap ang posibleng susunod na mga sero"
 
 #: src/update.c
 #, fuzzy, c-format
@@ -4915,20 +5010,20 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
+#| msgid "failed to write filename to tar pipe (data)"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "bigo na isulat ang pangalan ng talaksan sa tar pipe (datos)"
+
+#: dpkg-deb/build.c
+#, fuzzy
+msgid "control member"
+msgstr "ctrlarea"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "newline sa loob ng pangalan ng saklaw `%.*s'"
-
-#: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "failed to write filename to tar pipe (data)"
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "bigo na isulat ang pangalan ng talaksan sa tar pipe (datos)"
 
 #: dpkg-deb/build.c
 #, fuzzy
@@ -5016,6 +5111,11 @@ msgstr ""
 "+.'"
 
 #: dpkg-deb/build.c
+#, fuzzy
+msgid "package architecture is missing or empty"
+msgstr " (pakete: "
+
+#: dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "babala, `%s' ay naglalaman ng halagang user-defined Priority `%s'\n"
@@ -5042,6 +5142,12 @@ msgstr "sa gitna ng mga kasapi"
 msgid "<compress> from tar -cf"
 msgstr ""
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "hindi malikha ang `%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "--%s needs a <directory> argument"
@@ -5058,12 +5164,13 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: binubuo ang paketeng `%s' sa `%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: binubuo ang paketeng `%s' sa `%s'.\n"
 
 #: dpkg-deb/build.c
@@ -5073,20 +5180,10 @@ msgid "failed to make temporary file (%s)"
 msgstr "bigo na likhain ang tmpfile (datos)"
 
 #: dpkg-deb/build.c
-#, fuzzy
-msgid "control member"
-msgstr "ctrlarea"
-
-#: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "failed to unlink tmpfile (data), %s"
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "bigo na i-unlink ang tmpfile (datos), %s"
-
-#: dpkg-deb/build.c
-#, fuzzy
-msgid "compressing control member"
-msgstr "ctrlarea"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
@@ -5113,24 +5210,15 @@ msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
 msgid "shell command to move files"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "di inaasahang dulo ng talaksan sa %s sa %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, fuzzy, c-format
 msgid "error reading %s from file %.255s"
 msgstr "bigo sa pagbasa ng %s mula sa %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "bigo sa pagbasa ng arkibo `%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "bigo na i-fstat ang arkibo"
 
 #: dpkg-deb/extract.c
 #, fuzzy
@@ -5228,7 +5316,7 @@ msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "may maling anyong ctrl len `%s' ang arkibo"
 
 #: dpkg-deb/extract.c
@@ -5397,7 +5485,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     hindi payak na talaksan   %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(walang talaksang `control' sa arkibong control!)\n"
 
 #: dpkg-deb/main.c
@@ -5489,9 +5579,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5499,7 +5586,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5552,14 +5639,15 @@ msgid "unknown compression type '%s'!"
 msgstr "di kilalang uri ng compression `%s'!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
-msgstr ""
+#, fuzzy, c-format
+#| msgid "unknown compression type `%s'!"
+msgid "obsolete compression type '%s'; use xz instead"
+msgstr "di kilalang uri ng compression `%s'!"
 
 #: dpkg-deb/main.c
 #, fuzzy, c-format
 #| msgid "unknown compression type `%s'!"
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "di kilalang uri ng compression `%s'!"
 
 #: dpkg-deb/main.c
@@ -5594,7 +5682,7 @@ msgstr "sira ang talaksang `%.250s' - %.250s ay nawawala"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "sira ang talaksang `%.250s' - may kulang na newline matapos ang %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "error sa pagbasa ng %.250s"
@@ -5724,11 +5812,6 @@ msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "sira ang talaksang `%.250s' - mali ang laki para sa bilang ng bahaging "
 "nabanggit"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "hindi ma-fstat ang talaksang bahagi `%.250s'"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5903,11 +5986,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "dpkg-split --help para sa tulong."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "di inaasahang dulo ng talaksan sa %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -6130,19 +6208,9 @@ msgid ""
 msgstr ""
 
 #: utils/update-alternatives.c
-#, fuzzy
-#| msgid "parse error"
-msgid "error"
-msgstr "error sa pag-parse"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "babala"
 
 #: utils/update-alternatives.c
 #, fuzzy, c-format
@@ -6600,6 +6668,66 @@ msgid "to return to automatic updates use '%s --auto %s'"
 msgstr ""
 
 #, fuzzy
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "Babala: laos na opsyon `--%s'\n"
+
+#, fuzzy
+#~ msgid "control file '%s' missing value"
+#~ msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
+
+#, fuzzy
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "hindi ma-stat ang `%.255s' (sa `%.255s')"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "hindi ma-fstat ang talaksang bahagi `%.250s'"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "di inaasahang dulo ng talaksan sa %.250s"
+
+#, fuzzy
+#~ msgid "%s: error: %s\n"
+#~ msgstr ""
+#~ "%s: error sa pagproseso ng %s (--%s):\n"
+#~ " %s\n"
+
+#, fuzzy
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%d: internal error `%s'\n"
+
+#, fuzzy
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "error sa pagsulat ng `%s'"
+
+#, fuzzy
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "talaksang statoverride `%.250s'"
+
+#, fuzzy
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "bigo sa pag-exec ng find para sa --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "bigo sa pag-fdopen ng pipe ng find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "error sa pagbasa ng pipe ng find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "error sa pagsara ng pipe ng find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "find para sa --recursive ay nagbalik ng hindi maprosesong error %i"
+
+#, fuzzy
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "hindi mabuksan ang pinagmulan na talaksang `%.250s'"
+
+#, fuzzy
+#~ msgid "compressing control member"
+#~ msgstr "ctrlarea"
+
+#, fuzzy
 #~ msgid "syntax error: invalid uid in statoverride file"
 #~ msgstr "bigo sa pagbukas ng talaksang statoverride"
 
@@ -6638,11 +6766,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "babala, `%s' ay naglalaman ng user-defined na saklaw `%s'\n"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s ay hindi tumatanggap ng mga argumento"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "hindi mabuksan ang bahaging `control'"
@@ -6689,10 +6812,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Binubuklat ang papalit sa %.250s ...\n"
-
-#, fuzzy
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "di tanggap na integer para sa --%s: `%.250s'"
 
 #, fuzzy
 #~ msgid "--%s needs at two arguments"

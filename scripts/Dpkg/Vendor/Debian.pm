@@ -1,5 +1,5 @@
 # Copyright © 2009-2011 Raphaël Hertzog <hertzog@debian.org>
-# Copyright © 2009, 2011-2015 Guillem Jover <guillem@debian.org>
+# Copyright © 2009, 2011-2017 Guillem Jover <guillem@debian.org>
 #
 # Hardening build flags handling derived from work of:
 # Copyright © 2009-2011 Kees Cook <kees@debian.org>
@@ -25,11 +25,12 @@ use warnings;
 
 our $VERSION = '0.01';
 
+use Dpkg;
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Control::Types;
 use Dpkg::BuildOptions;
-use Dpkg::Arch qw(get_host_arch debarch_to_debtriplet);
+use Dpkg::Arch qw(get_host_arch debarch_to_debtuple);
 
 use parent qw(Dpkg::Vendor::Default);
 
@@ -41,17 +42,24 @@ Dpkg::Vendor::Debian - Debian vendor object
 
 =head1 DESCRIPTION
 
-This vendor object customize the behaviour of dpkg scripts
-for Debian specific actions.
+This vendor object customizes the behaviour of dpkg scripts for Debian
+specific behavior and policies.
 
 =cut
 
 sub run_hook {
     my ($self, $hook, @params) = @_;
 
-    if ($hook eq 'keyrings') {
+    if ($hook eq 'package-keyrings') {
         return ('/usr/share/keyrings/debian-keyring.gpg',
                 '/usr/share/keyrings/debian-maintainers.gpg');
+    } elsif ($hook eq 'keyrings') {
+        warnings::warnif('deprecated', 'deprecated keyrings vendor hook');
+        return $self->run_hook('package-keyrings', @params);
+    } elsif ($hook eq 'archive-keyrings') {
+        return ('/usr/share/keyrings/debian-archive-keyring.gpg');
+    } elsif ($hook eq 'archive-keyrings-historic') {
+        return ('/usr/share/keyrings/debian-archive-removed-keys.gpg');
     } elsif ($hook eq 'builtin-build-depends') {
         return qw(build-essential:native);
     } elsif ($hook eq 'builtin-build-conflicts') {
@@ -76,42 +84,21 @@ sub run_hook {
 	$self->_add_reproducible_flags(@params);
 	$self->_add_sanitize_flags(@params);
 	$self->_add_hardening_flags(@params);
+    } elsif ($hook eq 'builtin-system-build-paths') {
+        return qw(/build/);
     } else {
         return $self->SUPER::run_hook($hook, @params);
-    }
-}
-
-sub _parse_build_options {
-    my ($self, $variable, $area, $use_feature) = @_;
-
-    # Adjust features based on user or maintainer's desires.
-    my $opts = Dpkg::BuildOptions->new(envvar => $variable);
-    foreach my $feature (split(/,/, $opts->get($area) // '')) {
-	$feature = lc($feature);
-	if ($feature =~ s/^([+-])//) {
-	    my $value = ($1 eq '+') ? 1 : 0;
-	    if ($feature eq 'all') {
-		$use_feature->{$_} = $value foreach keys %{$use_feature};
-	    } else {
-		if (exists $use_feature->{$feature}) {
-		    $use_feature->{$feature} = $value;
-		} else {
-		    warning(g_('unknown %s feature in %s variable: %s'),
-		            $area, $variable, $feature);
-		}
-	    }
-	} else {
-	    warning(g_('incorrect value in %s option of %s variable: %s'),
-	            $area, $variable, $feature);
-	}
     }
 }
 
 sub _parse_feature_area {
     my ($self, $area, $use_feature) = @_;
 
-    $self->_parse_build_options('DEB_BUILD_OPTIONS', $area, $use_feature);
-    $self->_parse_build_options('DEB_BUILD_MAINT_OPTIONS', $area, $use_feature);
+    # Adjust features based on user or maintainer's desires.
+    my $opts = Dpkg::BuildOptions->new(envvar => 'DEB_BUILD_OPTIONS');
+    $opts->parse_features($area, $use_feature);
+    $opts = Dpkg::BuildOptions->new(envvar => 'DEB_BUILD_MAINT_OPTIONS');
+    $opts->parse_features($area, $use_feature);
 }
 
 sub _add_qa_flags {
@@ -158,14 +145,43 @@ sub _add_reproducible_flags {
     # Default feature states.
     my %use_feature = (
         timeless => 1,
+        fixdebugpath => 1,
     );
+
+    my $build_path;
 
     # Adjust features based on user or maintainer's desires.
     $self->_parse_feature_area('reproducible', \%use_feature);
 
+    # Mask features that might have an unsafe usage.
+    if ($use_feature{fixdebugpath}) {
+        require Cwd;
+
+        $build_path = $ENV{DEB_BUILD_PATH} || Cwd::cwd();
+
+        # If we have any unsafe character in the path, disable the flag,
+        # so that we do not need to worry about escaping the characters
+        # on output.
+        if ($build_path =~ m/[^-+:.0-9a-zA-Z~\/_]/) {
+            $use_feature{fixdebugpath} = 0;
+        }
+    }
+
     # Warn when the __TIME__, __DATE__ and __TIMESTAMP__ macros are used.
     if ($use_feature{timeless}) {
        $flags->append('CPPFLAGS', '-Wdate-time');
+    }
+
+    # Avoid storing the build path in the debug symbols.
+    if ($use_feature{fixdebugpath}) {
+        my $map = '-fdebug-prefix-map=' . $build_path . '=.';
+        $flags->append('CFLAGS', $map);
+        $flags->append('CXXFLAGS', $map);
+        $flags->append('OBJCFLAGS', $map);
+        $flags->append('OBJCXXFLAGS', $map);
+        $flags->append('FFLAGS', $map);
+        $flags->append('FCFLAGS', $map);
+        $flags->append('GCJFLAGS', $map);
     }
 
     # Store the feature usage.
@@ -233,16 +249,18 @@ sub _add_sanitize_flags {
 sub _add_hardening_flags {
     my ($self, $flags) = @_;
     my $arch = get_host_arch();
-    my ($abi, $os, $cpu) = debarch_to_debtriplet($arch);
+    my ($abi, $libc, $os, $cpu) = debarch_to_debtuple($arch);
 
-    unless (defined $abi and defined $os and defined $cpu) {
+    unless (defined $abi and defined $libc and defined $os and defined $cpu) {
         warning(g_("unknown host architecture '%s'"), $arch);
         ($abi, $os, $cpu) = ('', '', '');
     }
 
     # Default feature states.
     my %use_feature = (
-	pie => 0,
+	# XXX: This is set to undef so that we can cope with the brokenness
+	# of gcc managing this feature builtin.
+	pie => undef,
 	stackprotector => 1,
 	stackprotectorstrong => 1,
 	fortify => 1,
@@ -250,20 +268,33 @@ sub _add_hardening_flags {
 	relro => 1,
 	bindnow => 0,
     );
+    my %builtin_feature = (
+        pie => 1,
+    );
+
+    my %builtin_pie_arch = map { $_ => 1 } qw(
+        amd64 arm64 armel armhf i386 kfreebsd-amd64 kfreebsd-i386
+        mips mipsel mips64el ppc64el s390x sparc sparc64
+    );
+
+    # Mask builtin features that are not enabled by default in the compiler.
+    if (not exists $builtin_pie_arch{$arch}) {
+        $builtin_feature{pie} = 0;
+    }
 
     # Adjust features based on user or maintainer's desires.
     $self->_parse_feature_area('hardening', \%use_feature);
 
     # Mask features that are not available on certain architectures.
-    if ($os !~ /^(?:linux|knetbsd|hurd)$/ or
+    if ($os !~ /^(?:linux|kfreebsd|knetbsd|hurd)$/ or
 	$cpu =~ /^(?:hppa|avr32)$/) {
-	# Disabled on non-linux/knetbsd/hurd (see #430455 and #586215).
+	# Disabled on non-(linux/kfreebsd/knetbsd/hurd).
 	# Disabled on hppa, avr32
 	#  (#574716).
 	$use_feature{pie} = 0;
     }
-    if ($cpu =~ /^(?:ia64|alpha|hppa)$/ or $arch eq 'arm') {
-	# Stack protector disabled on ia64, alpha, hppa.
+    if ($cpu =~ /^(?:ia64|alpha|hppa|nios2)$/ or $arch eq 'arm') {
+	# Stack protector disabled on ia64, alpha, hppa, nios2.
 	#   "warning: -fstack-protector not supported for this target"
 	# Stack protector disabled on arm (ok on armel).
 	#   compiler supports it incorrectly (leads to SEGV)
@@ -292,8 +323,9 @@ sub _add_hardening_flags {
     }
 
     # PIE
-    if ($use_feature{pie}) {
-	my $flag = '-fPIE';
+    if (defined $use_feature{pie} and $use_feature{pie} and
+        not $builtin_feature{pie}) {
+	my $flag = "-specs=$Dpkg::DATADIR/pie-compile.specs";
 	$flags->append('CFLAGS', $flag);
 	$flags->append('OBJCFLAGS',  $flag);
 	$flags->append('OBJCXXFLAGS', $flag);
@@ -301,7 +333,18 @@ sub _add_hardening_flags {
 	$flags->append('FCFLAGS', $flag);
 	$flags->append('CXXFLAGS', $flag);
 	$flags->append('GCJFLAGS', $flag);
-	$flags->append('LDFLAGS', '-fPIE -pie');
+	$flags->append('LDFLAGS', "-specs=$Dpkg::DATADIR/pie-link.specs");
+    } elsif (defined $use_feature{pie} and not $use_feature{pie} and
+             $builtin_feature{pie}) {
+	my $flag = "-specs=$Dpkg::DATADIR/no-pie-compile.specs";
+	$flags->append('CFLAGS', $flag);
+	$flags->append('OBJCFLAGS',  $flag);
+	$flags->append('OBJCXXFLAGS', $flag);
+	$flags->append('FFLAGS', $flag);
+	$flags->append('FCFLAGS', $flag);
+	$flags->append('CXXFLAGS', $flag);
+	$flags->append('GCJFLAGS', $flag);
+	$flags->append('LDFLAGS', "-specs=$Dpkg::DATADIR/no-pie-link.specs");
     }
 
     # Stack protector
@@ -347,6 +390,11 @@ sub _add_hardening_flags {
     # Bindnow
     if ($use_feature{bindnow}) {
 	$flags->append('LDFLAGS', '-Wl,-z,now');
+    }
+
+    # Set used features to their builtin setting if unset.
+    foreach my $feature (keys %builtin_feature) {
+	$use_feature{$feature} //= $builtin_feature{$feature};
     }
 
     # Store the feature usage.

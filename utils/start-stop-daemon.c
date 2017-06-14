@@ -25,25 +25,32 @@
 
 #include <dpkg/macros.h>
 
-#if defined(linux)
-#  define OSLinux
+#if defined(__linux__)
+#  define OS_Linux
 #elif defined(__GNU__)
-#  define OSHurd
-#elif defined(__sun)
-#  define OSsunos
-#elif defined(OPENBSD) || defined(__OpenBSD__)
-#  define OSOpenBSD
-#elif defined(hpux)
-#  define OShpux
+#  define OS_Hurd
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-#  define OSFreeBSD
+#  define OS_FreeBSD
 #elif defined(__NetBSD__)
-#  define OSNetBSD
+#  define OS_NetBSD
+#elif defined(__OpenBSD__)
+#  define OS_OpenBSD
 #elif defined(__DragonFly__)
-#  define OSDragonFlyBSD
+#  define OS_DragonFlyBSD
+#elif defined(__APPLE__) && defined(__MACH__)
+#  define OS_Darwin
+#elif defined(__sun)
+#  define OS_Solaris
+#elif defined(_AIX)
+#  define OS_AIX
+#elif defined(__hpux)
+#  define OS_HPUX
 #else
 #  error Unknown architecture - cannot build start-stop-daemon
 #endif
+
+/* NetBSD needs this to expose struct proc. */
+#define _KMEMUSER 1
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -53,6 +60,9 @@
 #endif
 #ifdef HAVE_SYS_SYSCTL_H
 #include <sys/sysctl.h>
+#endif
+#ifdef HAVE_SYS_PROCFS_H
+#include <sys/procfs.h>
 #endif
 #ifdef HAVE_SYS_PROC_H
 #include <sys/proc.h>
@@ -98,21 +108,25 @@
 #include <err.h>
 #endif
 
-#if defined(OSHurd)
+#if defined(OS_Hurd)
 #include <hurd.h>
 #include <ps.h>
 #endif
 
+#if defined(OS_Darwin)
+#include <libproc.h>
+#endif
+
 #ifdef HAVE_KVM_H
 #include <kvm.h>
-#if defined(OSFreeBSD)
+#if defined(OS_FreeBSD)
 #define KVM_MEMFILE "/dev/null"
 #else
 #define KVM_MEMFILE NULL
 #endif
 #endif
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING > 0
 #include <sched.h>
 #else
 #define SCHED_OTHER -1
@@ -120,20 +134,23 @@
 #define SCHED_RR -1
 #endif
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 /* This comes from TASK_COMM_LEN defined in Linux' include/linux/sched.h. */
 #define PROCESS_NAME_SIZE 15
-#elif defined(OSsunos)
+#elif defined(OS_Solaris)
 #define PROCESS_NAME_SIZE 15
-#elif defined(OSDarwin)
+#elif defined(OS_Darwin)
 #define PROCESS_NAME_SIZE 16
-#elif defined(OSNetBSD)
+#elif defined(OS_AIX)
+/* This comes from PRFNSZ defined in AIX's <sys/procfs.h>. */
 #define PROCESS_NAME_SIZE 16
-#elif defined(OSOpenBSD)
+#elif defined(OS_NetBSD)
 #define PROCESS_NAME_SIZE 16
-#elif defined(OSFreeBSD)
+#elif defined(OS_OpenBSD)
+#define PROCESS_NAME_SIZE 16
+#elif defined(OS_FreeBSD)
 #define PROCESS_NAME_SIZE 19
-#elif defined(OSDragonFlyBSD)
+#elif defined(OS_DragonFlyBSD)
 /* On DragonFlyBSD MAXCOMLEN expands to 16. */
 #define PROCESS_NAME_SIZE MAXCOMLEN
 #endif
@@ -200,13 +217,13 @@ static char *startas = NULL;
 static pid_t match_pid = -1;
 static pid_t match_ppid = -1;
 static const char *pidfile = NULL;
-static char what_stop[1024];
+static char *what_stop = NULL;
 static const char *progname = "";
 static int nicelevel = 0;
 static int umask_value = -1;
 
 static struct stat exec_stat;
-#if defined(OSHurd)
+#if defined(OS_Hurd)
 static struct proc_stat_list *procset = NULL;
 #endif
 
@@ -420,10 +437,10 @@ wait_for_child(pid_t pid)
 		fatal("error waiting for child");
 
 	if (WIFEXITED(status)) {
-		int err = WEXITSTATUS(status);
+		int ret = WEXITSTATUS(status);
 
-		if (err != 0)
-			fatal("child returned error exit status %d", err);
+		if (ret != 0)
+			fatal("child returned error exit status %d", ret);
 	} else if (WIFSIGNALED(status)) {
 		int signo = WTERMSIG(status);
 
@@ -545,61 +562,75 @@ static void
 usage(void)
 {
 	printf(
-"Usage: start-stop-daemon [<option> ...] <command>\n"
-"\n"
+"Usage: start-stop-daemon [<option>...] <command>\n"
+"\n");
+
+	printf(
 "Commands:\n"
-"  -S|--start -- <argument> ...  start a program and pass <arguments> to it\n"
-"  -K|--stop                     stop a program\n"
-"  -T|--status                   get the program status\n"
-"  -H|--help                     print help information\n"
-"  -V|--version                  print version\n"
-"\n"
+"  -S, --start -- <argument>...  start a program and pass <arguments> to it\n"
+"  -K, --stop                    stop a program\n"
+"  -T, --status                  get the program status\n"
+"  -H, --help                    print help information\n"
+"  -V, --version                 print version\n"
+"\n");
+
+	printf(
 "Matching options (at least one is required):\n"
-"     --pid <pid>                pid to check\n"
-"     --ppid <ppid>              parent pid to check\n"
-"  -p|--pidfile <pid-file>       pid file to check\n"
-"  -x|--exec <executable>        program to start/check if it is running\n"
-"  -n|--name <process-name>      process name to check\n"
-"  -u|--user <username|uid>      process owner to check\n"
-"\n"
+"      --pid <pid>               pid to check\n"
+"      --ppid <ppid>             parent pid to check\n"
+"  -p, --pidfile <pid-file>      pid file to check\n"
+"  -x, --exec <executable>       program to start/check if it is running\n"
+"  -n, --name <process-name>     process name to check\n"
+"  -u, --user <username|uid>     process owner to check\n"
+"\n");
+
+	printf(
 "Options:\n"
-"  -g|--group <group|gid>        run process as this group\n"
-"  -c|--chuid <name|uid[:group|gid]>\n"
+"  -g, --group <group|gid>       run process as this group\n"
+"  -c, --chuid <name|uid[:group|gid]>\n"
 "                                change to this user/group before starting\n"
 "                                  process\n"
-"  -s|--signal <signal>          signal to send (default TERM)\n"
-"  -a|--startas <pathname>       program to start (default is <executable>)\n"
-"  -r|--chroot <directory>       chroot to <directory> before starting\n"
-"  -d|--chdir <directory>        change to <directory> (default is /)\n"
-"  -N|--nicelevel <incr>         add incr to the process' nice level\n"
-"  -P|--procsched <policy[:prio]>\n"
+"  -s, --signal <signal>         signal to send (default TERM)\n"
+"  -a, --startas <pathname>      program to start (default is <executable>)\n"
+"  -r, --chroot <directory>      chroot to <directory> before starting\n"
+"  -d, --chdir <directory>       change to <directory> (default is /)\n"
+"  -N, --nicelevel <incr>        add incr to the process' nice level\n"
+"  -P, --procsched <policy[:prio]>\n"
 "                                use <policy> with <prio> for the kernel\n"
 "                                  process scheduler (default prio is 0)\n"
-"  -I|--iosched <class[:prio]>   use <class> with <prio> to set the IO\n"
+"  -I, --iosched <class[:prio]>  use <class> with <prio> to set the IO\n"
 "                                  scheduler (default prio is 4)\n"
-"  -k|--umask <mask>             change the umask to <mask> before starting\n"
-"  -b|--background               force the process to detach\n"
-"  -C|--no-close                 do not close any file descriptor\n"
-"  -m|--make-pidfile             create the pidfile before starting\n"
-"    |--remove-pidfile           delete the pidfile after stopping\n"
-"  -R|--retry <schedule>         check whether processes die, and retry\n"
-"  -t|--test                     test mode, don't do anything\n"
-"  -o|--oknodo                   exit status 0 (not 1) if nothing done\n"
-"  -q|--quiet                    be more quiet\n"
-"  -v|--verbose                  be more verbose\n"
-"\n"
+"  -k, --umask <mask>            change the umask to <mask> before starting\n"
+"  -b, --background              force the process to detach\n"
+"  -C, --no-close                do not close any file descriptor\n"
+"  -m, --make-pidfile            create the pidfile before starting\n"
+"      --remove-pidfile          delete the pidfile after stopping\n"
+"  -R, --retry <schedule>        check whether processes die, and retry\n"
+"  -t, --test                    test mode, don't do anything\n"
+"  -o, --oknodo                  exit status 0 (not 1) if nothing done\n"
+"  -q, --quiet                   be more quiet\n"
+"  -v, --verbose                 be more verbose\n"
+"\n");
+
+	printf(
 "Retry <schedule> is <item>|/<item>/... where <item> is one of\n"
 " -<signal-num>|[-]<signal-name>  send that signal\n"
 " <timeout>                       wait that many seconds\n"
 " forever                         repeat remainder forever\n"
 "or <schedule> may be just <timeout>, meaning <signal>/<timeout>/KILL/<timeout>\n"
-"\n"
+"\n");
+
+	printf(
 "The process scheduler <policy> can be one of:\n"
 "  other, fifo or rr\n"
-"\n"
+"\n");
+
+	printf(
 "The IO scheduler <class> can be one of:\n"
 "  real-time, best-effort or idle\n"
-"\n"
+"\n");
+
+	printf(
 "Exit status:\n"
 "  0 = done\n"
 "  1 = nothing done (=> 0 if --oknodo)\n"
@@ -717,7 +748,7 @@ parse_umask(const char *string, int *value_r)
 static void
 validate_proc_schedule(void)
 {
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING > 0
 	int prio_min, prio_max;
 
 	prio_min = sched_get_priority_min(proc_sched->policy);
@@ -800,7 +831,7 @@ parse_io_schedule(const char *string)
 static void
 set_proc_schedule(struct res_schedule *sched)
 {
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING > 0
 	struct sched_param param;
 
 	param.sched_priority = sched->priority;
@@ -1215,7 +1246,7 @@ setup_options(void)
 	}
 }
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 static const char *
 proc_status_field(pid_t pid, const char *field)
 {
@@ -1247,9 +1278,25 @@ proc_status_field(pid_t pid, const char *field)
 
 	return value;
 }
-#endif
+#elif defined(OS_AIX)
+static bool
+proc_get_psinfo(pid_t pid, struct psinfo *psinfo)
+{
+	char filename[64];
+	FILE *fp;
 
-#if defined(OSHurd)
+	sprintf(filename, "/proc/%d/psinfo", pid);
+	fp = fopen(filename, "r");
+	if (!fp)
+		return false;
+	if (fread(psinfo, sizeof(*psinfo), 1, fp) == 0)
+		return false;
+	if (ferror(fp))
+		return false;
+
+	return true;
+}
+#elif defined(OS_Hurd)
 static void
 init_procset(void)
 {
@@ -1312,7 +1359,11 @@ ssd_kvm_get_procs(kvm_t *kd, int op, int arg, int *count)
 		count = &lcount;
 	*count = 0;
 
+#if defined(OS_OpenBSD)
+	kp = kvm_getprocs(kd, op, arg, sizeof(*kp), count);
+#else
 	kp = kvm_getprocs(kd, op, arg, count);
+#endif
 	if (kp == NULL && errno != ESRCH)
 		errx(1, "%s", kvm_geterr(kd));
 
@@ -1320,7 +1371,7 @@ ssd_kvm_get_procs(kvm_t *kd, int op, int arg, int *count)
 }
 #endif
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 static bool
 pid_is_exec(pid_t pid, const struct stat *esb)
 {
@@ -1352,7 +1403,21 @@ pid_is_exec(pid_t pid, const struct stat *esb)
 
 	return (sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino);
 }
-#elif defined(OSHurd)
+#elif defined(OS_AIX)
+static bool
+pid_is_exec(pid_t pid, const struct stat *esb)
+{
+	struct stat sb;
+	char filename[64];
+
+	sprintf(filename, "/proc/%d/object/a.out", pid);
+
+	if (stat(filename, &sb) != 0)
+		return false;
+
+	return sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino;
+}
+#elif defined(OS_Hurd)
 static bool
 pid_is_exec(pid_t pid, const struct stat *esb)
 {
@@ -1364,14 +1429,41 @@ pid_is_exec(pid_t pid, const struct stat *esb)
 	if (ps == NULL)
 		return false;
 
+	/* On old Hurd systems we have to use the argv[0] value, because
+	 * there is nothing better. */
 	filename = proc_stat_args(ps);
+#ifdef PSTAT_EXE
+	/* On new Hurd systems we can use the correct value, as long
+	 * as it's not NULL nor empty, as it was the case on the first
+	 * implementation. */
+	if (proc_stat_set_flags(ps, PSTAT_EXE) == 0 &&
+	    proc_stat_flags(ps) & PSTAT_EXE &&
+	    proc_stat_exe(ps) != NULL &&
+	    proc_stat_exe(ps)[0] != '\0')
+		filename = proc_stat_exe(ps);
+#endif
 
 	if (stat(filename, &sb) != 0)
 		return false;
 
 	return (sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino);
 }
-#elif defined(OShpux)
+#elif defined(OS_Darwin)
+static bool
+pid_is_exec(pid_t pid, const struct stat *esb)
+{
+	struct stat sb;
+	char pathname[_POSIX_PATH_MAX];
+
+	if (proc_pidpath(pid, pathname, sizeof(pathname)) < 0)
+		return false;
+
+	if (stat(pathname, &sb) != 0)
+		return false;
+
+	return (sb.st_dev == esb->st_dev && sb.st_ino == esb->st_ino);
+}
+#elif defined(OS_HPUX)
 static bool
 pid_is_exec(pid_t pid, const struct stat *esb)
 {
@@ -1382,22 +1474,22 @@ pid_is_exec(pid_t pid, const struct stat *esb)
 	return ((dev_t)pst.pst_text.psf_fsid.psfs_id == esb->st_dev &&
 	        (ino_t)pst.pst_text.psf_fileid == esb->st_ino);
 }
-#elif defined(OSFreeBSD)
+#elif defined(OS_FreeBSD)
 static bool
 pid_is_exec(pid_t pid, const struct stat *esb)
 {
 	struct stat sb;
-	int error, name[4];
+	int error, mib[4];
 	size_t len;
 	char pathname[PATH_MAX];
 
-	name[0] = CTL_KERN;
-	name[1] = KERN_PROC;
-	name[2] = KERN_PROC_PATHNAME;
-	name[3] = pid;
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PATHNAME;
+	mib[3] = pid;
 	len = sizeof(pathname);
 
-	error = sysctl(name, 4, pathname, &len, NULL, 0);
+	error = sysctl(mib, 4, pathname, &len, NULL, 0);
 	if (error != 0 && errno != ESRCH)
 		return false;
 	if (len == 0)
@@ -1460,7 +1552,7 @@ cleanup:
 }
 #endif
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 static bool
 pid_is_child(pid_t pid, pid_t ppid)
 {
@@ -1478,7 +1570,7 @@ pid_is_child(pid_t pid, pid_t ppid)
 
 	return proc_ppid == ppid;
 }
-#elif defined(OSHurd)
+#elif defined(OS_Hurd)
 static bool
 pid_is_child(pid_t pid, pid_t ppid)
 {
@@ -1493,7 +1585,29 @@ pid_is_child(pid_t pid, pid_t ppid)
 
 	return pi->ppid == ppid;
 }
-#elif defined(OShpux)
+#elif defined(OS_Darwin)
+static bool
+pid_is_child(pid_t pid, pid_t ppid)
+{
+	struct proc_bsdinfo info;
+
+	if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, sizeof(info)) < 0)
+		return false;
+
+	return (pid_t)info.pbi_ppid == ppid;
+}
+#elif defined(OS_AIX)
+static bool
+pid_is_child(pid_t pid, pid_t ppid)
+{
+	struct psinfo psi;
+
+	if (!proc_get_psinfo(pid, &psi))
+		return false;
+
+	return (pid_t)psi.pr_ppid == ppid;
+}
+#elif defined(OS_HPUX)
 static bool
 pid_is_child(pid_t pid, pid_t ppid)
 {
@@ -1503,6 +1617,28 @@ pid_is_child(pid_t pid, pid_t ppid)
 		return false;
 
 	return pst.pst_ppid == ppid;
+}
+#elif defined(OS_FreeBSD)
+static bool
+pid_is_child(pid_t pid, pid_t ppid)
+{
+	struct kinfo_proc kp;
+	int rc, mib[4];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PID;
+	mib[3] = pid;
+	len = sizeof(kp);
+
+	rc = sysctl(mib, 4, &kp, &len, NULL, 0);
+	if (rc != 0 && errno != ESRCH)
+		return false;
+	if (len == 0 || len != sizeof(kp))
+		return false;
+
+	return kp.ki_ppid == ppid;
 }
 #elif defined(HAVE_KVM_H)
 static bool
@@ -1518,11 +1654,11 @@ pid_is_child(pid_t pid, pid_t ppid)
 	if (kp == NULL)
 		goto cleanup;
 
-#if defined(OSFreeBSD)
+#if defined(OS_FreeBSD)
 	proc_ppid = kp->ki_ppid;
-#elif defined(OSOpenBSD)
+#elif defined(OS_OpenBSD)
 	proc_ppid = kp->p_ppid;
-#elif defined(OSDragonFlyBSD)
+#elif defined(OS_DragonFlyBSD)
 	proc_ppid = kp->kp_ppid;
 #else
 	proc_ppid = kp->kp_proc.p_ppid;
@@ -1537,7 +1673,7 @@ cleanup:
 }
 #endif
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 static bool
 pid_is_user(pid_t pid, uid_t uid)
 {
@@ -1549,7 +1685,7 @@ pid_is_user(pid_t pid, uid_t uid)
 		return false;
 	return (sb.st_uid == uid);
 }
-#elif defined(OSHurd)
+#elif defined(OS_Hurd)
 static bool
 pid_is_user(pid_t pid, uid_t uid)
 {
@@ -1558,7 +1694,29 @@ pid_is_user(pid_t pid, uid_t uid)
 	ps = get_proc_stat(pid, PSTAT_OWNER_UID);
 	return ps && (uid_t)proc_stat_owner_uid(ps) == uid;
 }
-#elif defined(OShpux)
+#elif defined(OS_Darwin)
+static bool
+pid_is_user(pid_t pid, uid_t uid)
+{
+	struct proc_bsdinfo info;
+
+	if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, sizeof(info)) < 0)
+		return false;
+
+	return info.pbi_ruid == uid;
+}
+#elif defined(OS_AIX)
+static bool
+pid_is_user(pid_t pid, uid_t uid)
+{
+	struct psinfo psi;
+
+	if (!proc_get_psinfo(pid, &psi))
+		return false;
+
+	return psi.pr_uid == uid;
+}
+#elif defined(OS_HPUX)
 static bool
 pid_is_user(pid_t pid, uid_t uid)
 {
@@ -1567,6 +1725,28 @@ pid_is_user(pid_t pid, uid_t uid)
 	if (pstat_getproc(&pst, sizeof(pst), (size_t)0, (int)pid) < 0)
 		return false;
 	return ((uid_t)pst.pst_uid == uid);
+}
+#elif defined(OS_FreeBSD)
+static bool
+pid_is_user(pid_t pid, uid_t uid)
+{
+	struct kinfo_proc kp;
+	int rc, mib[4];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PID;
+	mib[3] = pid;
+	len = sizeof(kp);
+
+	rc = sysctl(mib, 4, &kp, &len, NULL, 0);
+	if (rc != 0 && errno != ESRCH)
+		return false;
+	if (len == 0 || len != sizeof(kp))
+		return false;
+
+	return kp.ki_ruid == uid;
 }
 #elif defined(HAVE_KVM_H)
 static bool
@@ -1582,12 +1762,14 @@ pid_is_user(pid_t pid, uid_t uid)
 	if (kp == NULL)
 		goto cleanup;
 
-#if defined(OSFreeBSD)
+#if defined(OS_FreeBSD)
 	proc_uid = kp->ki_ruid;
-#elif defined(OSOpenBSD)
+#elif defined(OS_OpenBSD)
 	proc_uid = kp->p_ruid;
-#elif defined(OSDragonFlyBSD)
+#elif defined(OS_DragonFlyBSD)
 	proc_uid = kp->kp_ruid;
+#elif defined(OS_NetBSD)
+	proc_uid = kp->kp_eproc.e_pcred.p_ruid;
 #else
 	if (kp->kp_proc.p_cred)
 		kvm_read(kd, (u_long)&(kp->kp_proc.p_cred->p_ruid),
@@ -1605,7 +1787,7 @@ cleanup:
 }
 #endif
 
-#if defined(OSLinux)
+#if defined(OS_Linux)
 static bool
 pid_is_cmd(pid_t pid, const char *name)
 {
@@ -1617,7 +1799,7 @@ pid_is_cmd(pid_t pid, const char *name)
 
 	return strcmp(comm, name) == 0;
 }
-#elif defined(OSHurd)
+#elif defined(OS_Hurd)
 static bool
 pid_is_cmd(pid_t pid, const char *name)
 {
@@ -1648,7 +1830,18 @@ pid_is_cmd(pid_t pid, const char *name)
 
 	return false;
 }
-#elif defined(OShpux)
+#elif defined(OS_AIX)
+static bool
+pid_is_cmd(pid_t pid, const char *name)
+{
+	struct psinfo psi;
+
+	if (!proc_get_psinfo(pid, &psi))
+		return false;
+
+	return strcmp(psi.pr_fname, name) == 0;
+}
+#elif defined(OS_HPUX)
 static bool
 pid_is_cmd(pid_t pid, const char *name)
 {
@@ -1657,6 +1850,39 @@ pid_is_cmd(pid_t pid, const char *name)
 	if (pstat_getproc(&pst, sizeof(pst), (size_t)0, (int)pid) < 0)
 		return false;
 	return (strcmp(pst.pst_ucomm, name) == 0);
+}
+#elif defined(OS_Darwin)
+static bool
+pid_is_cmd(pid_t pid, const char *name)
+{
+	char pathname[_POSIX_PATH_MAX];
+
+	if (proc_pidpath(pid, pathname, sizeof(pathname)) < 0)
+		return false;
+
+	return strcmp(pathname, name) == 0;
+}
+#elif defined(OS_FreeBSD)
+static bool
+pid_is_cmd(pid_t pid, const char *name)
+{
+	struct kinfo_proc kp;
+	int rc, mib[4];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PID;
+	mib[3] = pid;
+	len = sizeof(kp);
+
+	rc = sysctl(mib, 4, &kp, &len, NULL, 0);
+	if (rc != 0 && errno != ESRCH)
+		return false;
+	if (len == 0 || len != sizeof(kp))
+		return false;
+
+	return strcmp(kp.ki_comm, name) == 0;
 }
 #elif defined(HAVE_KVM_H)
 static bool
@@ -1672,11 +1898,11 @@ pid_is_cmd(pid_t pid, const char *name)
 	if (kp == NULL)
 		goto cleanup;
 
-#if defined(OSFreeBSD)
+#if defined(OS_FreeBSD)
 	process_name = kp->ki_comm;
-#elif defined(OSOpenBSD)
+#elif defined(OS_OpenBSD)
 	process_name = kp->p_comm;
-#elif defined(OSDragonFlyBSD)
+#elif defined(OS_DragonFlyBSD)
 	process_name = kp->kp_comm;
 #else
 	process_name = kp->kp_proc.p_comm;
@@ -1691,13 +1917,13 @@ cleanup:
 }
 #endif
 
-#if defined(OSHurd)
+#if defined(OS_Hurd)
 static bool
 pid_is_running(pid_t pid)
 {
 	return get_proc_stat(pid, 0) != NULL;
 }
-#else /* !OSHurd */
+#else /* !OS_Hurd */
 static bool
 pid_is_running(pid_t pid)
 {
@@ -1758,7 +1984,7 @@ do_pidfile(const char *name)
 		fatal("unable to open pidfile %s", name);
 }
 
-#if defined(OSLinux) || defined (OSsunos)
+#if defined(OS_Linux) || defined(OS_Solaris) || defined(OS_AIX)
 static enum status_code
 do_procinit(void)
 {
@@ -1790,11 +2016,11 @@ do_procinit(void)
 
 	return prog_status;
 }
-#elif defined(OSHurd)
+#elif defined(OS_Hurd)
 static int
 check_proc_stat(struct proc_stat *ps)
 {
-	pid_check(ps->pid);
+	pid_check(proc_stat_pid(ps));
 	return 0;
 }
 
@@ -1811,7 +2037,40 @@ do_procinit(void)
 	else
 		return STATUS_DEAD;
 }
-#elif defined(OShpux)
+#elif defined(OS_Darwin)
+static enum status_code
+do_procinit(void)
+{
+	pid_t *pid_buf;
+	int i, npids, pid_bufsize;
+	enum status_code prog_status = STATUS_DEAD;
+
+	npids = proc_listallpids(NULL, 0);
+	if (npids == 0)
+		return STATUS_UNKNOWN;
+
+	/* Try to avoid sudden changes in number of PIDs. */
+	npids += 4096;
+	pid_bufsize = sizeof(pid_t) * npids;
+	pid_buf = xmalloc(pid_bufsize);
+
+	npids = proc_listallpids(pid_buf, pid_bufsize);
+	if (npids == 0)
+		return STATUS_UNKNOWN;
+
+	for (i = 0; i < npids; i++) {
+		enum status_code pid_status;
+
+		pid_status = pid_check(pid_buf[i]);
+		if (pid_status < prog_status)
+			prog_status = pid_status;
+	}
+
+	free(pid_buf);
+
+	return prog_status;
+}
+#elif defined(OS_HPUX)
 static enum status_code
 do_procinit(void)
 {
@@ -1833,6 +2092,46 @@ do_procinit(void)
 
 	return prog_status;
 }
+#elif defined(OS_FreeBSD)
+static enum status_code
+do_procinit(void)
+{
+	struct kinfo_proc *kp;
+	int rc, mib[3];
+	size_t len = 0;
+	int nentries, i;
+	enum status_code prog_status = STATUS_DEAD;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PROC;
+
+	rc = sysctl(mib, 3, NULL, &len, NULL, 0);
+	if (rc != 0 && errno != ESRCH)
+		return STATUS_UNKNOWN;
+	if (len == 0)
+		return STATUS_UNKNOWN;
+
+	kp = xmalloc(len);
+	rc = sysctl(mib, 3, kp, &len, NULL, 0);
+	if (rc != 0 && errno != ESRCH)
+		return STATUS_UNKNOWN;
+	if (len == 0)
+		return STATUS_UNKNOWN;
+	nentries = len / sizeof(*kp);
+
+	for (i = 0; i < nentries; i++) {
+		enum status_code pid_status;
+
+		pid_status = pid_check(kp[i].ki_pid);
+		if (pid_status < prog_status)
+			prog_status = pid_status;
+	}
+
+	free(kp);
+
+	return prog_status;
+}
 #elif defined(HAVE_KVM_H)
 static enum status_code
 do_procinit(void)
@@ -1849,11 +2148,11 @@ do_procinit(void)
 		enum status_code pid_status;
 		pid_t pid;
 
-#if defined(OSFreeBSD)
+#if defined(OS_FreeBSD)
 		pid = kp[i].ki_pid;
-#elif defined(OSOpenBSD)
+#elif defined(OS_OpenBSD)
 		pid = kp[i].p_pid;
-#elif defined(OSDragonFlyBSD)
+#elif defined(OS_DragonFlyBSD)
 		pid = kp[i].kp_pid;
 #else
 		pid = kp[i].kp_proc.p_pid;
@@ -1883,7 +2182,7 @@ do_findprocs(void)
 		return do_procinit();
 }
 
-static void
+static int
 do_start(int argc, char **argv)
 {
 	int devnull_fd = -1;
@@ -1895,7 +2194,7 @@ do_start(int argc, char **argv)
 	if (found) {
 		if (quietmode <= 0)
 			printf("%s already running.\n", execname ? execname : "process");
-		exit(exitnodo);
+		return exitnodo;
 	}
 	if (testmode && quietmode <= 0) {
 		printf("Would start %s ", startas);
@@ -1921,7 +2220,7 @@ do_start(int argc, char **argv)
 		printf(".\n");
 	}
 	if (testmode)
-		exit(0);
+		return 0;
 	if (quietmode < 0)
 		printf("Starting %s...\n", startas);
 	*--argv = startas;
@@ -2042,11 +2341,18 @@ do_stop_summary(int retry_nr)
 	printf(".\n");
 }
 
-static void
-set_what_stop(const char *str)
+static void DPKG_ATTR_PRINTF(1)
+set_what_stop(const char *format, ...)
 {
-	strncpy(what_stop, str, sizeof(what_stop));
-	what_stop[sizeof(what_stop) - 1] = '\0';
+	va_list arglist;
+	int rc;
+
+	va_start(arglist, format);
+	rc = vasprintf(&what_stop, format, arglist);
+	va_end(arglist);
+
+	if (rc < 0)
+		fatal("cannot allocate formatted string");
 }
 
 /*
@@ -2145,17 +2451,17 @@ run_stop_schedule(void)
 	}
 
 	if (cmdname)
-		set_what_stop(cmdname);
+		set_what_stop("%s", cmdname);
 	else if (execname)
-		set_what_stop(execname);
+		set_what_stop("%s", execname);
 	else if (pidfile)
-		sprintf(what_stop, "process in pidfile '%.200s'", pidfile);
+		set_what_stop("process in pidfile '%s'", pidfile);
 	else if (match_pid > 0)
-		sprintf(what_stop, "process with pid %d", match_pid);
+		set_what_stop("process with pid %d", match_pid);
 	else if (match_ppid > 0)
-		sprintf(what_stop, "process(es) with parent pid %d", match_ppid);
+		set_what_stop("process(es) with parent pid %d", match_ppid);
 	else if (userspec)
-		sprintf(what_stop, "process(es) owned by '%.200s'", userspec);
+		set_what_stop("process(es) owned by '%s'", userspec);
 	else
 		fatal("internal error, no match option, please report");
 
@@ -2218,19 +2524,11 @@ main(int argc, char **argv)
 	argv += optind;
 
 	if (action == ACTION_START)
-		do_start(argc, argv);
-
-	if (action == ACTION_STOP) {
-		int i = run_stop_schedule();
-		exit(i);
-	}
-
-	if (action == ACTION_STATUS) {
-		enum status_code prog_status;
-
-		prog_status = do_findprocs();
-		exit(prog_status);
-	}
+		return do_start(argc, argv);
+	else if (action == ACTION_STOP)
+		return run_stop_schedule();
+	else if (action == ACTION_STATUS)
+		return do_findprocs();
 
 	return 0;
 }

@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:48+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
@@ -31,6 +31,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "kunne ikke køre 'fstat' på arkivet"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "kunne ikke læse arkivet '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "kunne ikke oprette '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "kan ikke lukke filen '%s'"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -157,8 +177,8 @@ msgstr "uventet filafslutning eller strøm"
 msgid "failed to seek"
 msgstr "kunne ikke seek"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "kunne ikke køre %s (%s)"
@@ -320,11 +340,6 @@ msgstr "kan ikke gennemsøge opdateringskataloget '%.255s'"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "kunne ikke slette indlemmet opdateringsfil %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "kunne ikke oprette '%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -435,8 +450,7 @@ msgstr "kan ikke synkronisere mappe '%s'"
 msgid "unable to open directory '%s'"
 msgstr "kan ikke åbne mappe '%s'"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "kan ikke åbne filen '%s'"
@@ -446,12 +460,6 @@ msgstr "kan ikke åbne filen '%s'"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "kan ikke synkronisere filen '%s'"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "kan ikke lukke filen '%s'"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -468,40 +476,35 @@ msgstr "kunne ikke aktivere mellemlagring for %s-databasefil"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "kunne ikke skrive %s-indgang om '%.50s' til '%.250s'"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: uløselig fatal fejl - afbryder:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "fejl"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: omkringliggende fejlkontekst - afbryder:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new error context"
 msgstr "løb tør for hukommelse til ny fejlkontekst"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: fejl under oprydning:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
+#, fuzzy
+#| msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "%s: for mange sammenflettede fejl under fejlopretning!!\n"
 
 #: lib/dpkg/ehandle.c
@@ -513,14 +516,30 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "løb tør for hukommelse til ny oprydningsindgang med mange argumenter"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: fejl: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: uløselig fatal fejl - afbryder:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: intern fejl: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: outside error context, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: omkringliggende fejlkontekst - afbryder:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error (bug)"
+msgid "internal error"
+msgstr "intern fejl (fejl)"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -608,7 +627,7 @@ msgstr "forældet '%s'- eller '%s'-felt blev brugt"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "værdien for '%s'-feltet har en linje med ugyldigt format '%.*s'"
 
 #: lib/dpkg/fields.c
@@ -904,6 +923,12 @@ msgstr "ugyldigt heltal for --%s: '%.250s'"
 
 #: lib/dpkg/options.c
 #, fuzzy, c-format
+#| msgid "invalid integer for --%s: '%.250s'"
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "ugyldigt heltal for --%s: '%.250s'"
+
+#: lib/dpkg/options.c
+#, fuzzy, c-format
 #| msgid "obsolete option '--%s'\n"
 msgid "obsolete option '--%s'"
 msgstr "forældet tilvalg '--%s'\n"
@@ -1137,6 +1162,12 @@ msgid "version string has embedded spaces"
 msgstr "versionsstreng indeholder mellemrum"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is negative"
+msgid "epoch in version is empty"
+msgstr "epoke i version er negativ"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "epoke i version er ikke et tal"
 
@@ -1151,6 +1182,18 @@ msgstr "epoke i version er for stor"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "intet efter kolon i versionsnummer"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "versionsstreng er tom"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "versionsstreng er tom"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1195,6 +1238,12 @@ msgstr "manglende slutkantparentes"
 msgid "(no description available)"
 msgstr "(ingen tilgængelig beskrivelse)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax: %s"
+msgstr "versionen '%s' har en ugyldig syntaks: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1205,10 +1254,9 @@ msgstr "ugyldigt pakkenavn i specifikation udløser '%s%s%s': %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "ugyldigt arkitekturnavn i specifikation '%s:%s': %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: advarsel: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "advarsel"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1239,7 +1287,7 @@ msgstr "%s (underproces): %s\n"
 msgid "fork failed"
 msgstr "processpaltning mislykkedes"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "underproces %s returnerede afslutningsstatus %d"
@@ -1268,62 +1316,77 @@ msgstr "underproces %s mislykkedes med ventestatuskode %d"
 msgid "wait for subprocess %s failed"
 msgstr "afventning af underprocessen %s mislykkedes"
 
-# ???
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr "ugyldigt pakkenavn '%.250s' i udløserudsættelsesfilen '%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat file '%s'"
+msgid "cannot stat pathname '%s'"
+msgstr "kan ikke tilgå filen '%s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "afkortede udløsere i udsat fil '%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "kunne ikke gennemsøge kataloget '%.255s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr "syntaksfejl i udløserudsættelsesfilen '%.250s' ved tegn '%s'%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "kontrolkatalog er ikke et katalog"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "kan ikke åbne/oprette låsefilen '%.250s' til udløsere"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 msgid "triggers area"
 msgstr "udløserområde"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "kan ikke åbne udløserudsættelsesfilen '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "kan ikke tilgå udløserudsættelsesfilen '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "kan ikke åbne/oprette ny udløserudsættelsesfil '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr "syntaksfejl i udløserudsættelsesfilen '%.250s' ved tegn '%s'%s"
+
+# ???
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr "ugyldigt pakkenavn '%.250s' i udløserudsættelsesfilen '%.250s'"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "fejl ved læsning af udløserudsættelsesfilen '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "kan ikke skrive ny udløserudsættelsesfil '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "kan ikke lukke ny udløserudsættelsesfil '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "kan ikke installere ny udløserudsættelsesfil '%.250s'"
@@ -1606,11 +1669,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "arkivet indeholdt objektet '%.255s' med ukendt type 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "kan ikke tilgå filen '%s'"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1803,27 +1861,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive kræver mindst ét stiargument"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "find for dpkg --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "kunne ikke køre fdopen på datakanalen for find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "fejl ved læsning af datakanal for find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "fejl ved lukning af datakanal for find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "find for --recursive returnerede uforudset fejl %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "søgte, men fandt ingen pakker (filer, der matcher *.deb)"
 
@@ -1831,6 +1868,18 @@ msgstr "søgte, men fandt ingen pakker (filer, der matcher *.deb)"
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s kræver mindst én pakkearkivfil som argument"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "kan ikke tilgå arkivet"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "konfigurationsfil '%s' er ikke en almindelig fil"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2414,6 +2463,11 @@ msgstr ""
 "Pakkepræinstallations- eller -postinstallationsscripter skal altid angive \n"
 "--package og --divert.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "kan ikke tilgå filen '%s'"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2773,10 +2827,53 @@ msgstr ""
 "kan ikke tilfredsstille forhåndsafhængigheder for %.250s (ønsket grundet "
 "%.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
-#, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "forældet tilvalg '--%s'; brug venligst '--%s' i stedet"
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s tager et pakkenavn som parameter"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "package '%s' is not installed"
+msgid "package name '%s' is invalid: %s"
+msgstr "pakken '%s' er ikke installeret"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s tager et pakkenavn som parameter"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "udløsernavn indeholder ugyldigt tegn"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s tager et pakkenavn som parameter"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "architecture '%s' is illegal: %s"
+msgid "architecture name '%s' is invalid: %s"
+msgstr "arkitektur '%s' er ulovlig: %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s tager ingen parametre"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax"
+msgstr "versionen '%s' har en ugyldig syntaks: %s"
 
 #: src/enquiry.c
 msgid ""
@@ -2792,12 +2889,6 @@ msgstr "--compare-versions ugyldig relation"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-#| msgid "version '%s' has bad syntax: %s"
-msgid "version '%s' has bad syntax"
-msgstr "versionen '%s' har en ugyldig syntaks: %s"
 
 #: src/errors.c
 #, c-format
@@ -2914,14 +3005,16 @@ msgid "control file '%s' for package '%s' is missing final newline"
 msgstr "kontrolfil '%s' for pakke '%s' mangler afsluttende linjeskift"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value"
-msgstr "kontrolfilen '%s' mangler en værdi"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "kontrolfil '%s' for pakke '%s' mangler afsluttende linjeskift"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value separator"
-msgstr "kontrolfilen '%s' mangler en værdiseparator"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "kontrolfil '%s' for pakke '%s' mangler afsluttende linjeskift"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2929,28 +3022,33 @@ msgid "control file '%s' for package '%s' contains empty filename"
 msgstr "kontrolfilen '%s' for pakke '%s' indeholder et tomt filnavn"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot open '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "kan ikke åbne kontrolfilen '%s' for pakke '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "kan ikke stat (køre) '%s' fillistefil for pakken '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+#, fuzzy, c-format
+#| msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "'%s'-filen for pakke '%s' er ikke en normal fil"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot read '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "kan ikke læse kontrolfilen '%s' for pakke '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot close '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "kan ikke lukke kontrolfilen '%s' for pakke '%s'"
 
 #: src/help.c
@@ -3126,6 +3224,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3197,6 +3296,13 @@ msgstr ""
 "|\n"
 "  --assert-multi-arch | --assert-versioned-provides..\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3385,6 +3491,10 @@ msgstr "Overskriv en pakkes mappe med en andens fil"
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "Udfør ikke sikre I/O-handlinger under udpakning"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr ""
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3621,6 +3731,10 @@ msgstr "uventet slut-på-fil før afslutningen af linje %d"
 msgid "need an action option"
 msgstr "kræver et handlingstilvalg"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "kan ikke setenv for underprocesser"
@@ -3743,6 +3857,11 @@ msgstr " afhænger af "
 msgid "; however:\n"
 msgstr "; men:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "ingen pakker fundet der matcher %s"
+
 # Satans!  Det her er overskriften i en tabel på formen nedenfor.
 #
 # Der er umuligt plads til at skrive det hele inden for 80 kolonner (bl.a. fordi 'hold' hedder 'tilbagehold'), så jeg har indrykket to ekstra linjer blandt overskrifterne.  Dette ødelægger det "pile-agtige" arrangement af bindestreger og skråstreger til venstre, på nær den (forhåbentlig) snedige detalje at "Err?"-linjen er indrykket en ekstra gang, så "tegningen" burde komme ud sammenhængende.  -Ask
@@ -3801,11 +3920,6 @@ msgstr "Arkitektur"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Beskrivelse"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "ingen pakker fundet der matcher %s"
 
 #: src/querycmd.c
 #, c-format
@@ -4195,8 +4309,9 @@ msgid "illegal package name at line %d: %.250s"
 msgstr "ugyldigt pakkenavn på linje %d: %.250s"
 
 #: src/select.c
-#, c-format
-msgid "package not in database at line %d: %.250s"
+#, fuzzy, c-format
+#| msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "pakke ikke i database på linje %d: %.250s"
 
 #: src/select.c
@@ -4209,9 +4324,14 @@ msgid "read error on standard input"
 msgstr "læsefejl fra standard-inddata"
 
 #: src/select.c
+#, fuzzy
+#| msgid ""
+#| "found unknown packages; this might mean the available database\n"
+#| "is outdated, and needs to be updated through a frontend method"
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "fandt ukendte pakker; dette kan betyde at den tilgængelige database\n"
 "er forældet, og skal opdateres via en brugerflademetode"
@@ -4563,6 +4683,34 @@ msgstr "godkendt\n"
 msgid "unable to create temporary directory"
 msgstr "kan ikke oprette midlertidigt katalog"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"vedrørende %s, der indeholder %s, forhåndsafhængighedsproblem:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "forhåndsafhængighedsproblem - installerer ikke %.250s"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "ignorerer forhåndsafhængighedsproblem!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Afkonfigurerer %s (%s), så %s (%s) kan afinstalleres ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Afkonfigurerer %s (%s) ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4630,90 +4778,6 @@ msgstr "kunne ikke installere ny informationsfil '%.250s' som '%.250s'"
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr ""
-"(Bemærker forsvindingen af %s, der er blevet fuldstændigt erstattet.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "kan ikke tilgå arkivet"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "udtræk af pakkekontrolinformation"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Gemte information om %s fra %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "pakkearkitekturen (%s) passer ikke til systemet (%s)"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"vedrørende %s, der indeholder %s, forhåndsafhængighedsproblem:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "forhåndsafhængighedsproblem - installerer ikke %.250s"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "ignorerer forhåndsafhængighedsproblem!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Gør klar til at udpakke %s ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Afkonfigurerer %s (%s), så %s (%s) kan afinstalleres ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Afkonfigurerer %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Udpakker %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Udpakker %s (%s) over (%s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "arkivudtrækning for pakkefilsystem"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "fejl ved læsning af dpkg-deb's tar-uddata"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "ødelagt filsystem-tarfil - ødelagt pakkearkiv"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "kan ikke zappe mulige afsluttende nuller fra dpkg-deb: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "kunne ikke tilgå den gamle fil '%.250s', så den slettes ikke: %s"
 
@@ -4747,6 +4811,58 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "kan ikke på sikker vis fjerne den gamle fil '%.250s': %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr ""
+"(Bemærker forsvindingen af %s, der er blevet fuldstændigt erstattet.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "udtræk af pakkekontrolinformation"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Gemte information om %s fra %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "pakkearkitekturen (%s) passer ikke til systemet (%s)"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Gør klar til at udpakke %s ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Udpakker %s (%s) ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Udpakker %s (%s) over (%s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "arkivudtrækning for pakkefilsystem"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "fejl ved læsning af dpkg-deb's tar-uddata"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "ødelagt filsystem-tarfil - ødelagt pakkearkiv"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "kan ikke zappe mulige afsluttende nuller fra dpkg-deb: %s"
 
 #: src/update.c
 #, c-format
@@ -4787,19 +4903,18 @@ msgstr "forældet tilvalg '--%s'; utilgængelige pakker ryddes automatisk"
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "kan ikke tilgå filen '%.250s'"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "kunne ikke skrive filnavn til tar-datakanal (%s)"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "kontrolmedlem"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "linjeskift i feltnavn '%.*s'"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "kunne ikke skrive filnavn til tar-datakanal (%s)"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4882,6 +4997,12 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "pakkenavnet har tegn, der hverken er små bogstaver, tal eller '-+.'"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture"
+msgid "package architecture is missing or empty"
+msgstr "pakkearkitektur"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' indeholder brugerangivet prioritetsværdi '%s'"
@@ -4909,6 +5030,12 @@ msgstr "komprimerer datamedlem"
 msgid "<compress> from tar -cf"
 msgstr "<komprimér> fra tar -cf"
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "kunne ikke oprette '%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -4923,13 +5050,15 @@ msgid "not checking contents of control area"
 msgstr "kontrollerer ikke indhold af kontrolområde"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: opbygger en ukendt pakke i '%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: opbygger pakken '%s' i '%s'.\n"
 
 #: dpkg-deb/build.c
@@ -4938,17 +5067,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "kunne ikke oprette midlertidig fil (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "kontrolmedlem"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "kunne ikke slette lænke til midlertidig fil (%s), %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "komprimerer kontrolmedlem"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4974,24 +5095,15 @@ msgstr "kan ikke kopiere '%s' til arkiv '%s': %s"
 msgid "shell command to move files"
 msgstr "skalkommando til at flytte filer"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "uventet slut-på-fil i %s i %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "kunne ikke læse %s fra filen %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "kunne ikke læse arkivet '%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "kunne ikke køre 'fstat' på arkivet"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5064,7 +5176,7 @@ msgstr "medlemstørrelse for arkivkontrol"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "arkivet har forkert udformet størrelse for kontrolmedlem '%s'"
 
 #: dpkg-deb/extract.c
@@ -5214,7 +5326,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     ikke almindelig fil       %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(ingen 'control'-fil i kontrolarkivet!)\n"
 
 #: dpkg-deb/main.c
@@ -5268,7 +5382,35 @@ msgstr ""
 "\n"
 
 #: dpkg-deb/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  -v, --verbose                    Enable verbose output.\n"
+#| "  -D, --debug                      Enable debugging output.\n"
+#| "      --showformat=<format>        Use alternative format for --show.\n"
+#| "      --deb-format=<format>        Select archive format.\n"
+#| "                                     Allowed values: 0.939000, 2.0 "
+#| "(default).\n"
+#| "      --old                        Legacy alias for '--deb-"
+#| "format=0.939000'.\n"
+#| "      --new                        Legacy alias for '--deb-format=2.0'.\n"
+#| "      --nocheck                    Suppress control file check (build "
+#| "bad\n"
+#| "                                     packages).\n"
+#| "      --uniform-compression        Use the compression params on all "
+#| "members.\n"
+#| "  -z#                              Set the compression level when "
+#| "building.\n"
+#| "  -Z<type>                         Set the compression type used when "
+#| "building.\n"
+#| "                                     Allowed types: gzip, xz, bzip2, "
+#| "none.\n"
+#| "  -S<strategy>                     Set the compression strategy when "
+#| "building.\n"
+#| "                                     Allowed values: none; extreme (xz);\n"
+#| "                                     filtered, huffman, rle, fixed "
+#| "(gzip).\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  -v, --verbose                    Enable verbose output.\n"
@@ -5277,9 +5419,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5287,7 +5426,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5363,13 +5502,15 @@ msgid "unknown compression type '%s'!"
 msgstr "ukendt komprimeringstype '%s'!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "forældet komprimeringstype '%s'; brug xz i stedet for"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "forældet komprimeringstype '%s'; brug xz eller gzip i stedet for"
 
 #: dpkg-deb/main.c
@@ -5402,7 +5543,7 @@ msgstr "filen '%.250s' er ødelagt - %.250s mangler"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "filen '%.250s' er ødelagt - manglende linjeskift efter %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "fejl ved læsning af %.250s"
@@ -5516,11 +5657,6 @@ msgstr ""
 #, c-format
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr "filen '%.250s' er ødelagt - størrelsen er forkert for nævnt delnummer"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "kunne ikke køre 'fstat' på delfil '%.250s'"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5695,11 +5831,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Skriv \"dpkg-split --help\" for hjælp."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "uventet filafslutning i %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5958,17 +6089,9 @@ msgstr ""
 "  --version                vis versionen.\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "fejl"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr "Brug '%s --help for programhjælp"
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "advarsel"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6436,6 +6559,54 @@ msgstr "automatiske opdateringer af %s/%s er deaktiveret, lader den være"
 #, c-format
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr "for at gå tilbage til automatiske opdateringer så brug '%s --auto %s'"
+
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "forældet tilvalg '--%s'; brug venligst '--%s' i stedet"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "kontrolfilen '%s' mangler en værdi"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "kontrolfilen '%s' mangler en værdiseparator"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "kunne ikke køre 'fstat' på delfil '%.250s'"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "uventet filafslutning i %.250s"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: fejl: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: intern fejl: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: advarsel: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "afkortede udløsere i udsat fil '%.250s'"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "find for dpkg --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "kunne ikke køre fdopen på datakanalen for find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "fejl ved læsning af datakanal for find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "fejl ved lukning af datakanal for find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "find for --recursive returnerede uforudset fejl %i"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "kan ikke tilgå filen '%.250s'"
+
+#~ msgid "compressing control member"
+#~ msgstr "komprimerer kontrolmedlem"
 
 #~ msgid "Call %s."
 #~ msgstr "Kald %s."

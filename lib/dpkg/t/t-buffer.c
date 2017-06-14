@@ -62,7 +62,7 @@ test_fdio_hash(void)
 	test_pass(fd_md5(fd, hash, -1, NULL) >= 0);
 	test_str(hash, ==, ref_hash_empty);
 
-	test_pass(write(fd, str_test, strlen(str_test)) == strlen(str_test));
+	test_pass(write(fd, str_test, strlen(str_test)) == (ssize_t)strlen(str_test));
 	test_pass(lseek(fd, 0, SEEK_SET) == 0);
 
 	test_pass(fd_md5(fd, hash, -1, NULL) >= 0);
@@ -71,8 +71,7 @@ test_fdio_hash(void)
 	test_pass(unlink(test_file) == 0);
 }
 
-static void
-test(void)
+TEST_ENTRY(test)
 {
 	test_plan(10);
 

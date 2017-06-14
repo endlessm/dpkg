@@ -108,7 +108,7 @@ static const struct table_t screenparttable[]= {
   {"pkgstatesel",	selstatesel	},
   {"listhead",		colheads	},
   {"query",		query		},
-  {"info",		info		},
+  {"info",		info_body	},
   {"infodesc",		info_head	},
   {"infofoot",		whatinfo	},
   {"helpscreen",	helpscreen	},
@@ -127,7 +127,7 @@ struct colordata color[]= {
   {COLOR_WHITE,        COLOR_BLACK,    A_REVERSE | A_BOLD	}, // selstatesel
   {COLOR_WHITE,        COLOR_BLUE,     0			}, // colheads
   {COLOR_WHITE,        COLOR_RED,      0			}, // query
-  {COLOR_WHITE,        COLOR_BLACK,    0			}, // info
+  {COLOR_WHITE,        COLOR_BLACK,    0			}, // info_body
   {COLOR_WHITE,        COLOR_BLACK,    A_BOLD			}, // info_head
   {COLOR_WHITE,        COLOR_BLUE,     0			}, // whatinfo
   {COLOR_WHITE,        COLOR_BLACK,    0			}, // help
@@ -354,21 +354,6 @@ void cursesoff() {
   cursesareon = false;
 }
 
-extern void *
-operator new(size_t size) DPKG_ATTR_THROW(std::bad_alloc)
-{
-  void *p;
-  p= m_malloc(size);
-  assert(p);
-  return p;
-}
-
-extern void
-operator delete(void *p) DPKG_ATTR_NOEXCEPT
-{
-  free(p);
-}
-
 urqresult urq_list(void) {
   modstatdb_open((modstatdb_rw)(msdbrw_writeifposs |
                                 msdbrw_available_readonly));
@@ -381,16 +366,17 @@ urqresult urq_list(void) {
   delete l;
 
   modstatdb_shutdown();
-  pkg_db_reset();
+
   return urqr_normal;
 }
 
 static void
 dme(int i, int so)
 {
-  char buf[120];
   const menuentry *me= &menuentries[i];
-  sprintf(buf," %c %d. %-11.11s %-80.80s ",
+
+  varbuf buf;
+  buf.fmt(" %c %d. %-11.11s %-80.80s ",
           so ? '*' : ' ', i,
           gettext(me->option),
           gettext(me->menuent));
@@ -399,24 +385,24 @@ dme(int i, int so)
   getmaxyx(stdscr,y,x);
 
   attrset(so ? A_REVERSE : A_NORMAL);
-  mvaddnstr(i+2,0, buf,x-1);
+  mvaddnstr(i + 2, 0, buf.string(), x - 1);
   attrset(A_NORMAL);
 }
 
 static int
 refreshmenu(void)
 {
-  char buf[2048];
-
   curseson(); cbreak(); noecho(); nonl(); keypad(stdscr,TRUE);
 
   int x, y DPKG_ATTR_UNUSED;
   getmaxyx(stdscr,y,x);
 
+  varbuf buf;
+  buf.fmt(gettext(programdesc), DSELECT, PACKAGE_RELEASE);
+
   clear();
   attrset(A_BOLD);
-  sprintf(buf, gettext(programdesc), DSELECT, PACKAGE_RELEASE);
-  mvaddnstr(0,0,buf,x-1);
+  mvaddnstr(0, 0, buf.string(), x - 1);
 
   attrset(A_NORMAL);
   const struct menuentry *mep; int i;

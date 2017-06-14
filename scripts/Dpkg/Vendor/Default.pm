@@ -39,9 +39,9 @@ not be identified (see Dpkg::Vendor documentation).
 
 It provides some hooks that are called by various dpkg-* tools.
 If you need a new hook, please file a bug against dpkg-dev and explain
-your need. Note that the hook API has no guaranty to be stable over an
-extended period. If you run an important distribution that makes use
-of vendor hooks, you'd better submit them for integration so that
+your need. Note that the hook API has no guarantee to be stable over an
+extended period of time. If you run an important distribution that makes
+use of vendor hooks, you'd better submit them for integration so that
 we avoid breaking your code.
 
 =head1 METHODS
@@ -75,23 +75,37 @@ supported hooks are:
 The first parameter is a Dpkg::Source::Package object. The hook is called
 just before the execution of $srcpkg->build().
 
-=item keyrings ()
+=item package-keyrings ()
 
 The hook is called when dpkg-source is checking a signature on a source
-package. It takes no parameters, but returns a (possibly empty) list of
+package (since dpkg 1.18.11). It takes no parameters, but returns a
+(possibly empty) list of vendor-specific keyrings.
+
+=item archive-keyrings ()
+
+The hook is called when there is a need to check signatures on artifacts
+from repositories, for example by a download method (since dpkg 1.18.11).
+It takes no parameters, but returns a (possibly empty) list of
 vendor-specific keyrings.
+
+=item archive-keyrings-historic ()
+
+The hook is called when there is a need to check signatures on artifacts
+from historic repositories, for example by a download method
+(since dpkg 1.18.11). It takes no parameters, but returns a (possibly empty)
+list of vendor-specific keyrings.
 
 =item builtin-build-depends ()
 
 The hook is called when dpkg-checkbuilddeps is initializing the source
 package build dependencies (since dpkg 1.18.2). It takes no parameters,
-but returns a (possibly empty) list of vendor-specific Build-Depends.
+but returns a (possibly empty) list of vendor-specific B<Build-Depends>.
 
 =item builtin-build-conflicts ()
 
 The hook is called when dpkg-checkbuilddeps is initializing the source
 package build conflicts (since dpkg 1.18.2). It takes no parameters,
-but returns a (possibly empty) list of vendor-specific Build-Conflicts.
+but returns a (possibly empty) list of vendor-specific B<Build-Conflicts>.
 
 =item register-custom-fields ()
 
@@ -116,6 +130,16 @@ The hook is called in Dpkg::BuildFlags to allow the vendor to override
 the default values set for the various build flags. $flags is a
 Dpkg::BuildFlags object.
 
+=item builtin-system-build-paths ()
+
+The hook is called by dpkg-genbuildinfo to determine if the current path
+should be recorded in the B<Build-Path> field (since dpkg 1.18.11). It takes
+no parameters, but returns a (possibly empty) list of root paths considered
+acceptable. As an example, if the list contains "/build/", a Build-Path
+field will be created if the current directory is "/build/dpkg-1.18.0". If
+the list contains "/", the path will always be recorded. If the list is
+empty, the current path will never be recorded.
+
 =back
 
 =cut
@@ -126,6 +150,13 @@ sub run_hook {
     if ($hook eq 'before-source-build') {
         my $srcpkg = shift @params;
     } elsif ($hook eq 'keyrings') {
+        warnings::warnif('deprecated', 'obsolete keyrings vendor hook');
+        return ();
+    } elsif ($hook eq 'package-keyrings') {
+        return ();
+    } elsif ($hook eq 'archive-keyrings') {
+        return ();
+    } elsif ($hook eq 'archive-keyrings-historic') {
         return ();
     } elsif ($hook eq 'register-custom-fields') {
         return ();
@@ -139,6 +170,8 @@ sub run_hook {
 	my ($textref, $ch_info) = @params;
     } elsif ($hook eq 'update-buildflags') {
 	my $flags = shift @params;
+    } elsif ($hook eq 'builtin-system-build-paths') {
+        return ();
     }
 
     # Default return value for unknown/unimplemented hooks

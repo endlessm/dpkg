@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:49+0200\n"
 "Last-Translator: Felipe Castro <fefcas@gmail.com>\n"
 "Language-Team: Esperanto <debian-l10n-esperanto@lists.debian.org>\n"
@@ -17,6 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Generator: Poedit 1.6.10\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "malsukceso dum apliko de fstat al arkivo"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "malsukceso dum lego de la arkivo '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "ne eblas krei '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "ne eblas fermi dosieron '%s'"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -141,8 +161,8 @@ msgstr "neatendita fino de dosiero aŭ fluo"
 msgid "failed to seek"
 msgstr "malsukcesis uzi 'seek'"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "ne eblas lanĉi %s (%s)"
@@ -304,11 +324,6 @@ msgstr "ne eblas skani la ĝisdatigan dosierujon '%.255s'"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "malsukcesis forigi enkorpigitan ĝisdatigan dosieron %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "ne eblas krei '%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -419,8 +434,7 @@ msgstr "ne eblas sinkronigi la dosierujon '%s'"
 msgid "unable to open directory '%s'"
 msgstr "ne eblas malfermi la dosierujon '%s'"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "ne eblas malfermi la dosieron '%s'"
@@ -430,12 +444,6 @@ msgstr "ne eblas malfermi la dosieron '%s'"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "ne eblas sinkronigi dosieron '%s'"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "ne eblas fermi dosieron '%s'"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -452,40 +460,35 @@ msgstr "ne eblas ŝalti bufradon por datumbaza dosiero %s"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "malsukcesis skribi datumbazan registron %s je '%.50s' al '%.250s'"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: nerestarigebla gravega eraro, ni ĉesas:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "eraro"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: ekstera erar-kunteksto, ni ĉesas:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new error context"
 msgstr "mankas memoro por nova erar-kunteksto"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: eraro dum purigado de ĉio:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
+#, fuzzy
+#| msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "%s: tro multaj ingitaj eraroj dum riparado de eraroj!!\n"
 
 #: lib/dpkg/ehandle.c
@@ -497,14 +500,30 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "mankas memoro por nova puriga enigaĵo kun multaj argumentoj"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: eraro: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: nerestarigebla gravega eraro, ni ĉesas:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: interna eraro: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: outside error context, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: ekstera erar-kunteksto, ni ĉesas:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error (bug)"
+msgid "internal error"
+msgstr "interna eraro (miso)"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -593,7 +612,7 @@ msgstr "malaktuala kampo '%s' aŭ '%s' estis uzata"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "valoro por la kampo '%s' havas misformitan linion '%.*s'"
 
 #: lib/dpkg/fields.c
@@ -886,6 +905,11 @@ msgid "invalid integer for --%s: '%.250s'"
 msgstr "malvalida entjero por --%s: '%.250s'"
 
 #: lib/dpkg/options.c
+#, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "malvalida entjero por -%c: '%.250s'"
+
+#: lib/dpkg/options.c
 #, fuzzy, c-format
 #| msgid "obsolete option '--%s'\n"
 msgid "obsolete option '--%s'"
@@ -1117,6 +1141,12 @@ msgid "version string has embedded spaces"
 msgstr "versi-ĉeno havas enigitajn spacojn"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is negative"
+msgid "epoch in version is empty"
+msgstr "epoko en versio estas negativa"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "epoko en versio ne estas numero"
 
@@ -1131,6 +1161,18 @@ msgstr "epoko en versio estas tro granda"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "nenio post dupunkto en versi-numero"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "versi-ĉeno estas malplena"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "versi-ĉeno estas malplena"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1175,6 +1217,12 @@ msgstr "mankas ferma kuniga krampo"
 msgid "(no description available)"
 msgstr "(neniu priskribo disponeblas)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax: %s"
+msgstr "versio '%s' havas malĝustan sintakson: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1185,10 +1233,9 @@ msgstr "malvalida pak-nomo en specifilo '%s%s%s': %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "malvalida arkitektur-nomo en specifilo '%s:%s': %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: averto: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "averto"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1219,7 +1266,7 @@ msgstr "%s (subprocezo): %s\n"
 msgid "fork failed"
 msgstr "disbranĉigo malsukcesis"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "subprocezo %s liveris eraran elir-staton %d"
@@ -1248,64 +1295,79 @@ msgstr "la subprocezo %s malsukcesis kun atenda stato-kodo %d"
 msgid "wait for subprocess %s failed"
 msgstr "atendo je subprocezo %s malsukcesis"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-"malvalida paknomo '%.250s' en ekigiloj prokrastigis la dosieron '%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat file '%s'"
+msgid "cannot stat pathname '%s'"
+msgstr "ne eblas 'stat' la dosieron '%s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "mistranĉitaj ekigiloj prokrastigis la dosieron '%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "ne povas skani la dosierujon '%.255s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"sintaks-eraro en ekigiloj prokrastigis la dosieron '%.250s' ĉe signo '%s'%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "reg-dosierujo ne estas dosierujo"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "ne eblas malfermi/krei ŝlos-dosieron de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 msgid "triggers area"
 msgstr "areo de ekigiloj"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "ne eblas malfermi dosieron prokrastitan de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "ne eblas legi staton de dosiero prokrastita de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr ""
 "ne eblas malfermi/krei novan dosieron prokrastitan de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"sintaks-eraro en ekigiloj prokrastigis la dosieron '%.250s' ĉe signo '%s'%s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+"malvalida paknomo '%.250s' en ekigiloj prokrastigis la dosieron '%.250s'"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "eraro dum lego de dosiero prokrastita de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "ne eblas skribi novan dosieron prokrastitan de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "ne eblas fermi novan dosieron prokrastitan de ekigiloj '%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "ne eblas instali novan dosieron prokrastitan de ekigiloj '%.250s'"
@@ -1588,11 +1650,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "arkivo enhavis objekton '%.255s' el nekonata tipo 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "ne eblas 'stat' la dosieron '%s'"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1784,27 +1841,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive bezonas minimume unu voj-parametro"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "'find' por dpkg --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "malsukceso por uzi 'fdopen' je dukto de 'find'"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "eraro dum legado de dukto de 'find'"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "eraro dum fermo de dukto de 'find'"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "'find' por --recursive liveris netraktitan eraron %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "ni serĉis, sed trovis neniun pakon (dosierojn kongruantajn al *.deb)"
 
@@ -1812,6 +1848,18 @@ msgstr "ni serĉis, sed trovis neniun pakon (dosierojn kongruantajn al *.deb)"
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s bezonas minimume unu pakan arkivan dosieran argumenton"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "ne povas atingi arkivon"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "conffile '%s' ne estas ordinara dosiero"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2395,6 +2443,11 @@ msgstr ""
 "Dum forigado, --package aŭ --local kaj --divert devas kongrui se indikite.\n"
 "Skriptoj preint/postrm de la pako devos ĉiam indiki --package kaj --divert.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "ne eblas 'stat' la dosieron '%s'"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2749,10 +2802,53 @@ msgstr ""
 msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr "ni ne sukcesas solvi antaŭdependecojn por %.250s (postulata de %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
-#, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "malaktuala elekteblo '--%s'; bonvolu uzi '--%s' anstataŭe"
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s prenas unu argumenton de pak-nomo"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "package '%s' is not installed"
+msgid "package name '%s' is invalid: %s"
+msgstr "la pako '%s' ne estas instalita"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s prenas unu argumenton de pak-nomo"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "ekigilo-nomo enhavas malvalidan signon"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s prenas unu argumenton de pak-nomo"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "architecture '%s' is illegal: %s"
+msgid "architecture name '%s' is invalid: %s"
+msgstr "arkitekturo '%s' malvalidas: %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one argument"
+msgid "--%s takes one <version> argument"
+msgstr "--%s postulas unu argumenton"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax"
+msgstr "versio '%s' havas malĝustan sintakson: %s"
 
 #: src/enquiry.c
 msgid ""
@@ -2768,12 +2864,6 @@ msgstr "malĝusta rilato por --compare-versions"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-#| msgid "version '%s' has bad syntax: %s"
-msgid "version '%s' has bad syntax"
-msgstr "versio '%s' havas malĝustan sintakson: %s"
 
 #: src/errors.c
 #, c-format
@@ -2891,14 +2981,16 @@ msgid "control file '%s' for package '%s' is missing final newline"
 msgstr "reg-dosiero '%s' por la pako '%s' malhavas lastan linifinaĵon"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value"
-msgstr "la reg-dosiero '%s' malhavas valoron"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "reg-dosiero '%s' por la pako '%s' malhavas lastan linifinaĵon"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value separator"
-msgstr "la reg-dosiero '%s' malhavas valor-apartigilon"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "reg-dosiero '%s' por la pako '%s' malhavas lastan linifinaĵon"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2906,28 +2998,33 @@ msgid "control file '%s' for package '%s' contains empty filename"
 msgstr "reg-dosiero '%s' por la pako '%s' enhavas malplenan dosiernomon"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot open '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "ne eblas malfermi reg-dosieron '%s' por la pako '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "ne eblas legi staton de reg-dosiero '%s' por la pako '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+#, fuzzy, c-format
+#| msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "la dosiero '%s' por la pako '%s' ne estas ordinara dosiero"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot read '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "ne eblas legi la reg-dosieron '%s' por la pako '%s'"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot close '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "ne eblas fermi la reg-dosieron '%s' por la pako '%s'"
 
 #: src/help.c
@@ -3104,6 +3201,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3177,6 +3275,13 @@ msgstr ""
 "|\n"
 "  --assert-multi-arch | --assert-versioned-provides.\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3363,6 +3468,10 @@ msgstr "Anstataŭigi pak-dosierujon per tiu de alia dosiero"
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "Ne realigi sekurajn en/eligajn operaciojn dum malpakado"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr ""
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3600,6 +3709,10 @@ msgstr "ne atendita dosierfino antaŭ ol fino de linio %d"
 msgid "need an action option"
 msgstr "bezonas agan elekteblon"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "ne eblas uzi 'setenv' por subprocezoj"
@@ -3723,6 +3836,11 @@ msgstr " dependas je "
 msgid "; however:\n"
 msgstr "; tamen:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "neniu pako kongruanta al %s estis trovata"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3756,11 +3874,6 @@ msgstr "Arkitekturo"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Priskribo"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "neniu pako kongruanta al %s estis trovata"
 
 #: src/querycmd.c
 #, c-format
@@ -4150,8 +4263,9 @@ msgid "illegal package name at line %d: %.250s"
 msgstr "malvalida pak-nomo ĉe linio %d: %.250s"
 
 #: src/select.c
-#, c-format
-msgid "package not in database at line %d: %.250s"
+#, fuzzy, c-format
+#| msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "pako for de datumbazo ĉe la linio %d: %.250s"
 
 #: src/select.c
@@ -4164,9 +4278,14 @@ msgid "read error on standard input"
 msgstr "leg-eraro en la norma enigo"
 
 #: src/select.c
+#, fuzzy
+#| msgid ""
+#| "found unknown packages; this might mean the available database\n"
+#| "is outdated, and needs to be updated through a frontend method"
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "ni trovis nekonatajn pakojn; tio povas signifi ke la disponebla datumbazo\n"
 "ne estas ĝisdata, kaj bezonas ĝisdatigon per fasadprograma metodo"
@@ -4520,6 +4639,34 @@ msgstr "pasis\n"
 msgid "unable to create temporary directory"
 msgstr "malsukceso dum kreo de provizora dosierujo"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"pri %s, kiu enhavas %s, antaŭdependeca problemo:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "antaŭdependeca problemo - ni ne instalos %.250s"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "preteratento de dependeca problemo!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Malakomodado de %s (%s), por ebligi forigon de %s (%s) ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Malakomodado de %s (%s) ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4584,89 +4731,6 @@ msgstr "ne eblas instali novan inform-dosieron '%.250s' kiel '%.250s'"
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Ni rimarkas malaperon de %s, kiu estas entute anstataŭita.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "ne povas atingi arkivon"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "eltirado de informo pri reg-informaro"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Registrita informo pri %s el %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "la pak-arkitekturo (%s) ne kongruas al la sistemo (%s)"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"pri %s, kiu enhavas %s, antaŭdependeca problemo:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "antaŭdependeca problemo - ni ne instalos %.250s"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "preteratento de dependeca problemo!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Preparado por anstataŭigi %s ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Malakomodado de %s (%s), por ebligi forigon de %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Malakomodado de %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Elpakado de %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Elpakado de %s (%s) sur (%s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "eltirado de paka dosiersistema arkivo"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "eraro dum legado de eligo de dpkg-deb tar"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "misrompita dosiersistema tar-dosiero - misrompita pak-arkivo"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "ne eblas forigi eblajn vostajn nulojn el dpkg-deb: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
 "ne eblis legi la staton de la malnova dosiero '%.250s', do ni forigas ĝin: %s"
@@ -4701,6 +4765,57 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "ne eblas sekure forigi la malnovan dosieron '%.250s': %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Ni rimarkas malaperon de %s, kiu estas entute anstataŭita.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "eltirado de informo pri reg-informaro"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Registrita informo pri %s el %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "la pak-arkitekturo (%s) ne kongruas al la sistemo (%s)"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Preparado por anstataŭigi %s ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Elpakado de %s (%s) ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Elpakado de %s (%s) sur (%s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "eltirado de paka dosiersistema arkivo"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "eraro dum legado de eligo de dpkg-deb tar"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "misrompita dosiersistema tar-dosiero - misrompita pak-arkivo"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "ne eblas forigi eblajn vostajn nulojn el dpkg-deb: %s"
 
 #: src/update.c
 #, c-format
@@ -4742,19 +4857,18 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "ne eblas 'stat' dosier-nomon '%.250s'"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "malsukceso dum skribo de dosiernomo al dukto de tar (%s)"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "regada membro"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "lini-fina signo en kampo nomo '%.*s'"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "malsukceso dum skribo de dosiernomo al dukto de tar (%s)"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4836,6 +4950,12 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "pak-nomo havas signojn kiuj ne estas minusklaj alfanumeroj aŭ '-+.'"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture"
+msgid "package architecture is missing or empty"
+msgstr "pak-arkitekturo"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' enhavas tiun valoron Priority difinitan de uzanto: '%s'"
@@ -4862,6 +4982,12 @@ msgstr "kompaktigo de datumara membro"
 msgid "<compress> from tar -cf"
 msgstr "<kompakti> el tar -cf"
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "ne eblas krei '%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -4877,13 +5003,15 @@ msgid "not checking contents of control area"
 msgstr "ni ne kontrolas la enhavon de regada areo"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: ni konstruas nekonatan pakon en '%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: konstruado de la pako '%s' en '%s'.\n"
 
 #: dpkg-deb/build.c
@@ -4892,17 +5020,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "malsukceso dum kreo de provizora dosiero (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "regada membro"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "malsukceso dum forligo de provizora dosiero (%s), %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "kompaktigo de regada membro"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4928,24 +5048,15 @@ msgstr "ne eblas kopii '%s' al la arkivo '%s': %s"
 msgid "shell command to move files"
 msgstr "ŝela komando por movi dosierojn"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "neatendita dosierfino en %s en %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "eraro dum legado de %s el la dosiero %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "malsukceso dum lego de la arkivo '%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "malsukceso dum apliko de fstat al arkivo"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5020,7 +5131,7 @@ msgstr "grando de arkiv-regada membro"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "la arkivo havas misformitan grandon de regada membro '%s'"
 
 #: dpkg-deb/extract.c
@@ -5170,7 +5281,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     ne estas ordinara dosiero          %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(neniu dosiero 'control' en regada arkivo!)\n"
 
 #: dpkg-deb/main.c
@@ -5225,7 +5338,35 @@ msgstr ""
 "\n"
 
 #: dpkg-deb/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  -v, --verbose                    Enable verbose output.\n"
+#| "  -D, --debug                      Enable debugging output.\n"
+#| "      --showformat=<format>        Use alternative format for --show.\n"
+#| "      --deb-format=<format>        Select archive format.\n"
+#| "                                     Allowed values: 0.939000, 2.0 "
+#| "(default).\n"
+#| "      --old                        Legacy alias for '--deb-"
+#| "format=0.939000'.\n"
+#| "      --new                        Legacy alias for '--deb-format=2.0'.\n"
+#| "      --nocheck                    Suppress control file check (build "
+#| "bad\n"
+#| "                                     packages).\n"
+#| "      --uniform-compression        Use the compression params on all "
+#| "members.\n"
+#| "  -z#                              Set the compression level when "
+#| "building.\n"
+#| "  -Z<type>                         Set the compression type used when "
+#| "building.\n"
+#| "                                     Allowed types: gzip, xz, bzip2, "
+#| "none.\n"
+#| "  -S<strategy>                     Set the compression strategy when "
+#| "building.\n"
+#| "                                     Allowed values: none; extreme (xz);\n"
+#| "                                     filtered, huffman, rle, fixed "
+#| "(gzip).\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  -v, --verbose                    Enable verbose output.\n"
@@ -5234,9 +5375,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5244,7 +5382,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5320,13 +5458,15 @@ msgid "unknown compression type '%s'!"
 msgstr "nekonata densig-tipo '%s'!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "malrekomendinda densig-tipo '%s'; uzu xz anstataŭe"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "malrekomendinda densig-tipo '%s'; uzu xz aŭ gzip anstataŭe"
 
 #: dpkg-deb/main.c
@@ -5359,7 +5499,7 @@ msgstr "la dosiero '%.250s' fuŝas - %.250s mankas"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "la dosiero '%.250s' fuŝas - mankas novlinion post %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "eraro dum legado de %.250s"
@@ -5475,11 +5615,6 @@ msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "la dosiero '%.250s' fuŝas - grandeco estas malkorekta por limigita part-"
 "numero"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "ne eblas legi staton de la part-dosiero '%.250s'"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5653,11 +5788,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Tajpu dpkg-split --help por helpo."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "neatendita dosierfino en %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5920,17 +6050,9 @@ msgstr ""
 "  --version                montri la version.\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "eraro"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr "Uzu '%s --help' por havi informon pri uzo de la programo."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "averto"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6399,6 +6521,54 @@ msgstr "aŭtomataj ĝisdatigoj de %s/%s estas malaktivitaj; ni lasas ĝin sola"
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr "por retroiri al aŭtomataj ĝisdatigoj, uzu '%s --auto %s'"
 
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "malaktuala elekteblo '--%s'; bonvolu uzi '--%s' anstataŭe"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "la reg-dosiero '%s' malhavas valoron"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "la reg-dosiero '%s' malhavas valor-apartigilon"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "ne eblas legi staton de la part-dosiero '%.250s'"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "neatendita dosierfino en %.250s"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: eraro: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: interna eraro: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: averto: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "mistranĉitaj ekigiloj prokrastigis la dosieron '%.250s'"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "'find' por dpkg --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "malsukceso por uzi 'fdopen' je dukto de 'find'"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "eraro dum legado de dukto de 'find'"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "eraro dum fermo de dukto de 'find'"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "'find' por --recursive liveris netraktitan eraron %i"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "ne eblas 'stat' dosier-nomon '%.250s'"
+
+#~ msgid "compressing control member"
+#~ msgstr "kompaktigo de regada membro"
+
 #~ msgid "Call %s."
 #~ msgstr "Voki %s."
 
@@ -6437,9 +6607,6 @@ msgstr "por retroiri al aŭtomataj ĝisdatigoj, uzu '%s --auto %s'"
 
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "'%s' enhavas kampon '%s' difinitan de uzanto"
-
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s postulas unu argumenton"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "ne eblis malfermi la elementon 'control'"
@@ -6483,9 +6650,6 @@ msgstr "por retroiri al aŭtomataj ĝisdatigoj, uzu '%s --auto %s'"
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Elpakado de anstataŭanto %.250s ...\n"
-
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "malvalida entjero por -%c: '%.250s'"
 
 #~ msgid "priority is out of range: %s clamped to %ld"
 #~ msgstr "prioritato estas for de intervalo: %s limigita al %ld"

@@ -163,9 +163,6 @@ test_version_parse(void)
 	test_pass(parseversion(&a, "0:0", NULL) == 0);
 	test_pass(dpkg_version_compare(&a, &b) == 0);
 
-	test_pass(parseversion(&a, "0:0-", NULL) == 0);
-	test_pass(dpkg_version_compare(&a, &b) == 0);
-
 	b = DPKG_VERSION_OBJECT(0, "0", "0");
 	test_pass(parseversion(&a, "0:0-0", NULL) == 0);
 	test_pass(dpkg_version_compare(&a, &b) == 0);
@@ -239,6 +236,14 @@ test_version_parse(void)
 	test_fail(parseversion(&a, "0:", &err) == 0);
 	test_error(err);
 
+	/* Test empty epoch in version. */
+	test_fail(parseversion(&a, ":1.0", &err) == 0);
+	test_error(err);
+
+	/* Test empty revision in version. */
+	test_fail(parseversion(&a, "1.0-", &err) == 0);
+	test_error(err);
+
 	/* Test version with embedded spaces. */
 	test_fail(parseversion(&a, "0:0 0-1", &err) == 0);
 	test_error(err);
@@ -255,6 +260,12 @@ test_version_parse(void)
 	test_fail(parseversion(&a, "a:0-0", &err) == 0);
 	test_error(err);
 	test_fail(parseversion(&a, "A:0-0", &err) == 0);
+	test_error(err);
+
+	/* Test invalid empty upstream version. */
+	test_fail(parseversion(&a, "-0", &err) == 0);
+	test_error(err);
+	test_fail(parseversion(&a, "0:-0", &err) == 0);
 	test_error(err);
 
 	/* Test upstream version not starting with a digit */
@@ -285,10 +296,9 @@ test_version_parse(void)
 	/* FIXME: Complete. */
 }
 
-static void
-test(void)
+TEST_ENTRY(test)
 {
-	test_plan(190);
+	test_plan(196);
 
 	test_version_blank();
 	test_version_is_informative();

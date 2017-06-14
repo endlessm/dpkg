@@ -1,11 +1,18 @@
+# Generated man pages
+*.1
+*.5
+*.8
+# Translated man pages
 de
 es
 fr
 hu
 it
 ja
+nl
 pl
 pt_BR
 ru
 sv
+zh_CN
 man.stamp

@@ -1,5 +1,75 @@
-Dpkg C coding style 2012-05-24
-===================
+Dpkg troff coding style 2016-01-29
+=======================
+
+General
+~~~~~~~
+
+Dashes that are relevant when copy & pasted need to be escaped (e.g. those
+present in program, file, argument and field names).
+
+New sentences inside a paragraph should start on a new line, so that we
+do not need to reflow the text when adding new content.
+
+Every new feature, option or behavior change needs to be documented with
+the version introducing the change.
+
+
+Dpkg M4sh/Autoconf coding style 1016-09-05
+===============================
+
+General
+~~~~~~~
+
+All dpkg specific macros need to be prefixed with «DPKG_». Complex checks
+should be defined as new macros under m4/dpkg-<name>.m4, and those used
+in configure.ac which should look pretty simple.
+
+Quoting and indentation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Code and arguments that wrap into the next line are indented by two spaces.
+
+In principle all macro argument should always be quoted. Which gives brings
+one of the biggest readability issues with M4sh/Autoconf code, the amount of
+consecutive quotes and parenthesis pairs, which can make it very hard to
+notice if they are unbalanced. To avoid this we use a style that tries to
+avoid more than two consecutive blocks of «])».
+
+We can either use a style resembling very simple function calls, when the
+arguments are as well very simple, such as:
+
+  AC_DEFINE_UNQUOTED([SOME_VARIABLE],
+    [SOME_CONCOCTED_WAY_TO_GET_A_VALUE],
+    [Some descriptive text here])
+
+  AS_CASE([condition],
+    [case-a], [do-a],
+    [case-b], [do-b])
+
+Or one resembling curly-braced C-style blocks, such as this:
+
+  AS_IF([condition], [
+    DO_SOMETHING([here])
+  ], [
+    DO_OTHERWISE([there])
+  ])
+
+Except for AC_ARG_WITH, AC_ARG_ENABLE and AM_CONDITIONAL which need their
+second argument quoted tightly surrounding the code, like this:
+
+  AC_ARG_ENABLE([feature],
+    [AS_HELP_STRING([--disable-feature], [Disable feature])],
+    [], [enable_feature="yes"])
+
+  AM_CONDITIONAL([HAVE_SOME_FEATURE],
+    [test "x$ac_cv_have_some_feature" = "xyes" && \
+     test "x$ac_cv_have_some_feature" = "xyes"])
+
+or the output will get messed up.
+
+
+Dpkg C/C++ coding style 2016-01-29
+=======================
 
 C language extensions
 ~~~~~~~~~~~~~~~~~~~~~
@@ -16,6 +86,16 @@ The code base assumes C89 plus the following C99 extensions:
 
 Those are checked at build time, and it will abort in case a needed extension
 is not supported.
+
+C++ language extensions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The code base assumes C++03 plus the following C++11 extension:
+
+ * Null pointer keyword (nullptr).
+
+This is checked at build time, and it will use compatibility code in case the
+needed extension is not supported.
 
 General
 ~~~~~~~
@@ -207,35 +287,37 @@ see what operation is being done:
 		foo();
 
 
-Dpkg Perl coding style 2015-05-20
+Dpkg Perl coding style 2016-01-29
 ======================
 
 General
 ~~~~~~~
 
 In general you should follow the conventions listed in perlstyle(1).
-All the code should run with the “use strict” and “use warnings” pragmas.
+All the code should run with the “use strict” and “use warnings” pragmas,
+and pass «DPKG_DEVEL_MODE=1 make check».
 
 Code documentation
 ~~~~~~~~~~~~~~~~~~
 
 Public modules should be documented with POD (see perlpod(1)). Private
 code doesn't have to use POD, simple comment lines (starting with "#") are
-enough. Public scripts are documented in their corresponding manual pages.
+enough, but if they use POD they need to note the fact that the module is
+private in the CHANGES section and specify a version «0.xx». Public scripts
+are documented in their corresponding manual pages.
 
 Indentation, alignment and spacing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Lines should be 80 chars max. The indentation level is 4 characters, and
-indentation is done with hard tabs (which should be considered to take 8
-spaces width) and spaces.
+indentation is done with soft tabs (no hard tabs) and spaces.
 
 if ($foo) {
     if ($bar) {
-	print "Hello\n";
-	unless ($baz) {
-	    print "Who are you?\n";
-	}
+        print "Hello\n";
+        unless ($baz) {
+            print "Who are you?\n";
+        }
     }
 }
 

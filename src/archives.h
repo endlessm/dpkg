@@ -29,7 +29,8 @@
 struct tarcontext {
   int backendpipe;
   struct pkginfo *pkg;
-  struct fileinlist **newfilesp;
+  /** A queue of filenamenode that have been extracted anew. */
+  struct filenamenode_queue *newfiles_queue;
   /** Are all “Multi-arch: same” instances about to be in sync? */
   bool pkgset_getting_in_sync;
 };
@@ -73,6 +74,10 @@ int tarobject(void *ctx, struct tar_entry *ti);
 int tarfileread(void *ud, char *buf, int len);
 void tar_deferred_extract(struct fileinlist *files, struct pkginfo *pkg);
 
+struct fileinlist *
+tar_filenamenode_queue_push(struct filenamenode_queue *queue,
+                            struct filenamenode *namenode);
+
 bool filesavespackage(struct fileinlist *, struct pkginfo *,
                       struct pkginfo *pkgbeinginstalled);
 
@@ -80,9 +85,6 @@ void check_conflict(struct dependency *dep, struct pkginfo *pkg,
                     const char *pfilename);
 void check_breaks(struct dependency *dep, struct pkginfo *pkg,
                   const char *pfilename);
-
-struct fileinlist *addfiletolist(struct tarcontext *tc,
-				 struct filenamenode *namenode);
 
 extern int cleanup_pkg_failed, cleanup_conflictor_failed;
 

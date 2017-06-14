@@ -29,7 +29,7 @@ use Dpkg::Compression::Process;
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 
-use parent qw(FileHandle Tie::Handle);
+use parent qw(IO::File Tie::Handle);
 
 # Useful reference to understand some kludges required to
 # have the object behave like a filehandle
@@ -44,6 +44,8 @@ Dpkg::Compression::FileHandle - object dealing transparently with file compressi
 =head1 SYNOPSIS
 
     use Dpkg::Compression::FileHandle;
+
+    my ($fh, @lines);
 
     $fh = Dpkg::Compression::FileHandle->new(filename => 'sample.gz');
     print $fh "Something\n";
@@ -60,17 +62,17 @@ Dpkg::Compression::FileHandle - object dealing transparently with file compressi
     $fh->close();
 
     $fh = Dpkg::Compression::FileHandle->new(filename => 'sample.gz');
-    my @lines = <$fh>;
+    @lines = <$fh>;
     close $fh;
 
     $fh = Dpkg::Compression::FileHandle->new();
     open($fh, '<', 'sample.bz2');
-    my @lines = <$fh>;
+    @lines = <$fh>;
     close $fh;
 
     $fh = Dpkg::Compression::FileHandle->new();
     $fh->open('sample.xz', 'r');
-    my @lines = $fh->getlines();
+    @lines = $fh->getlines();
     $fh->close();
 
 =head1 DESCRIPTION
@@ -101,7 +103,7 @@ and you can't seek on a pipe.
 
 =head1 FileHandle METHODS
 
-The object inherits from FileHandle so all methods that work on this
+The object inherits from IO::File so all methods that work on this
 object should work for Dpkg::Compression::FileHandle too. There
 may be exceptions though.
 
@@ -124,7 +126,7 @@ obviously incompatible with automatic detection of the compression method.
 sub new {
     my ($this, %args) = @_;
     my $class = ref($this) || $this;
-    my $self = FileHandle->new();
+    my $self = IO::File->new();
     # Tying is required to overload the open functions and to auto-open
     # the file on first read/write operation
     tie *$self, $class, $self;
@@ -169,9 +171,9 @@ sub ensure_open {
 	delete $opts{to_file};
 
 	if ($mode eq 'w') {
-	    $self->open_for_write(%opts);
+	    $self->_open_for_write(%opts);
 	} elsif ($mode eq 'r') {
-	    $self->open_for_read(%opts);
+	    $self->_open_for_read(%opts);
 	} else {
 	    croak "invalid mode in ensure_open: $mode";
 	}
@@ -211,9 +213,9 @@ sub OPEN {
 	my ($mode, $filename) = @_;
 	$self->set_filename($filename);
 	if ($mode eq '>') {
-	    $self->open_for_write();
+	    $self->_open_for_write();
 	} elsif ($mode eq '<') {
-	    $self->open_for_read();
+	    $self->_open_for_read();
 	} else {
 	    croak 'Dpkg::Compression::FileHandle does not support ' .
 	          "open() mode $mode";
@@ -233,7 +235,7 @@ sub CLOSE {
     } else {
 	$ret = 0;
     }
-    $self->cleanup();
+    $self->_cleanup();
     return $ret;
 }
 
@@ -388,7 +390,7 @@ sub get_filehandle {
 
 ## INTERNAL METHODS
 
-sub open_for_write {
+sub _open_for_write {
     my ($self, %opts) = @_;
     my $filehandle;
 
@@ -406,7 +408,7 @@ sub open_for_write {
     *$self->{file} = $filehandle;
 }
 
-sub open_for_read {
+sub _open_for_read {
     my ($self, %opts) = @_;
     my $filehandle;
 
@@ -425,7 +427,7 @@ sub open_for_read {
     *$self->{file} = $filehandle;
 }
 
-sub cleanup {
+sub _cleanup {
     my $self = shift;
     my $cmdline = *$self->{compressor}{cmdline} // '';
     *$self->{compressor}->wait_end_process(nocheck => *$self->{allow_sigpipe});
@@ -465,10 +467,6 @@ New argument: $fh->ensure_open() accepts an %opts argument.
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>
 
 =cut
 1;

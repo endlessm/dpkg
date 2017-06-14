@@ -32,6 +32,8 @@
 #if HAVE_LOCALE_H
 #include <locale.h>
 #endif
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -63,14 +65,17 @@ static int opt_loadavail = 0;
 
 static int getwidth(void) {
   int fd;
-  int res;
+  long res;
   struct winsize ws;
   const char *columns;
+  char *endptr;
 
   columns = getenv("COLUMNS");
   if (columns) {
-    res = atoi(columns);
-    if (res > 0)
+    errno = 0;
+    res = strtol(columns, &endptr, 10);
+    if (errno == 0 && columns != endptr && *endptr == '\0' &&
+        res > 0 && res < INT_MAX)
       return res;
   }
 
@@ -88,6 +93,55 @@ static int getwidth(void) {
 
     return res;
   }
+}
+
+static int
+pkg_array_match_patterns(struct pkg_array *array,
+                         pkg_array_visitor_func *pkg_visitor, void *pkg_data,
+                         const char *const *argv)
+{
+  int argc, i, ip, *found;
+  int rc = 0;
+  struct pkg_spec *ps;
+
+  for (argc = 0; argv[argc]; argc++);
+  found = m_calloc(argc, sizeof(int));
+
+  ps = m_malloc(sizeof(*ps) * argc);
+  for (ip = 0; ip < argc; ip++) {
+    pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
+    pkg_spec_parse(&ps[ip], argv[ip]);
+  }
+
+  for (i = 0; i < array->n_pkgs; i++) {
+    struct pkginfo *pkg;
+    bool pkg_found = false;
+
+    pkg = array->pkgs[i];
+    for (ip = 0; ip < argc; ip++) {
+      if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
+        pkg_found = true;
+        found[ip]++;
+      }
+    }
+    if (!pkg_found)
+      array->pkgs[i] = NULL;
+  }
+
+  pkg_array_foreach(array, pkg_visitor, pkg_data);
+
+  for (ip = 0; ip < argc; ip++) {
+    if (!found[ip]) {
+      notice(_("no packages found matching %s"), argv[ip]);
+      rc++;
+    }
+    pkg_spec_destroy(&ps[ip]);
+  }
+
+  free(ps);
+  free(found);
+
+  return rc;
 }
 
 struct list_format {
@@ -250,7 +304,7 @@ listpackages(const char *const *argv)
   struct pkg_array array;
   struct pkginfo *pkg;
   int i;
-  int failures = 0;
+  int rc = 0;
   struct list_format fmt;
 
   if (!opt_loadavail)
@@ -272,44 +326,7 @@ listpackages(const char *const *argv)
 
     pkg_array_foreach(&array, pkg_array_list_item, &fmt);
   } else {
-    int argc, ip, *found;
-    struct pkg_spec *ps;
-
-    for (argc = 0; argv[argc]; argc++);
-    found = m_calloc(argc, sizeof(int));
-
-    ps = m_malloc(sizeof(*ps) * argc);
-    for (ip = 0; ip < argc; ip++) {
-      pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
-      pkg_spec_parse(&ps[ip], argv[ip]);
-    }
-
-    for (i = 0; i < array.n_pkgs; i++) {
-      bool pkg_found = false;
-
-      pkg = array.pkgs[i];
-      for (ip = 0; ip < argc; ip++) {
-        if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
-          pkg_found = true;
-          found[ip]++;
-        }
-      }
-      if (!pkg_found)
-        array.pkgs[i] = NULL;
-    }
-
-    pkg_array_foreach(&array, pkg_array_list_item, &fmt);
-
-    for (ip = 0; ip < argc; ip++) {
-      if (!found[ip]) {
-        notice(_("no packages found matching %s"), argv[ip]);
-        failures++;
-      }
-      pkg_spec_destroy(&ps[ip]);
-    }
-
-    free(ps);
-    free(found);
+    rc = pkg_array_match_patterns(&array, pkg_array_list_item, &fmt, argv);
   }
 
   m_output(stdout, _("<standard output>"));
@@ -318,7 +335,7 @@ listpackages(const char *const *argv)
   pkg_array_destroy(&array);
   modstatdb_shutdown();
 
-  return failures;
+  return rc;
 }
 
 static int searchoutput(struct filenamenode *namenode) {
@@ -535,14 +552,14 @@ showpackages(const char *const *argv)
   struct pkginfo *pkg;
   struct pkg_format_node *fmt;
   int i;
-  int failures = 0;
+  int rc = 0;
 
   fmt = pkg_format_parse(showformat, &err);
   if (!fmt) {
     notice(_("error in show format: %s"), err.str);
     dpkg_error_destroy(&err);
-    failures++;
-    return failures;
+    rc++;
+    return rc;
   }
 
   if (!opt_loadavail)
@@ -561,44 +578,7 @@ showpackages(const char *const *argv)
       pkg_format_show(fmt, pkg, &pkg->installed);
     }
   } else {
-    int argc, ip, *found;
-    struct pkg_spec *ps;
-
-    for (argc = 0; argv[argc]; argc++);
-    found = m_calloc(argc, sizeof(int));
-
-    ps = m_malloc(sizeof(*ps) * argc);
-    for (ip = 0; ip < argc; ip++) {
-      pkg_spec_init(&ps[ip], PKG_SPEC_PATTERNS | PKG_SPEC_ARCH_WILDCARD);
-      pkg_spec_parse(&ps[ip], argv[ip]);
-    }
-
-    for (i = 0; i < array.n_pkgs; i++) {
-      bool pkg_found = false;
-
-      pkg = array.pkgs[i];
-      for (ip = 0; ip < argc; ip++) {
-        if (pkg_spec_match_pkg(&ps[ip], pkg, &pkg->installed)) {
-          pkg_found = true;
-          found[ip]++;
-        }
-      }
-      if (!pkg_found)
-        array.pkgs[i] = NULL;
-    }
-
-    pkg_array_foreach(&array, pkg_array_show_item, fmt);
-
-    for (ip = 0; ip < argc; ip++) {
-      if (!found[ip]) {
-        notice(_("no packages found matching %s"), argv[ip]);
-        failures++;
-      }
-      pkg_spec_destroy(&ps[ip]);
-    }
-
-    free(ps);
-    free(found);
+    rc = pkg_array_match_patterns(&array, pkg_array_show_item, fmt, argv);
   }
 
   m_output(stdout, _("<standard output>"));
@@ -608,7 +588,7 @@ showpackages(const char *const *argv)
   pkg_format_free(fmt);
   modstatdb_shutdown();
 
-  return failures;
+  return rc;
 }
 
 static bool

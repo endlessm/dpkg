@@ -282,7 +282,8 @@ sub spawn {
 	} elsif ($opts{from_handle}) {
 	    open(STDIN, '<&', $opts{from_handle})
 		or syserr(g_('reopen stdin'));
-	    close($opts{from_handle}); # has been duped, can be closed
+	    # has been duped, can be closed
+	    push @{$opts{close_in_child}}, $opts{from_handle};
 	}
 	# Redirect STDOUT if needed
 	if ($opts{to_file}) {
@@ -291,7 +292,8 @@ sub spawn {
 	} elsif ($opts{to_handle}) {
 	    open(STDOUT, '>&', $opts{to_handle})
 		or syserr(g_('reopen stdout'));
-	    close($opts{to_handle}); # has been duped, can be closed
+	    # has been duped, can be closed
+	    push @{$opts{close_in_child}}, $opts{to_handle};
 	}
 	# Redirect STDERR if needed
 	if ($opts{error_to_file}) {
@@ -300,7 +302,8 @@ sub spawn {
 	} elsif ($opts{error_to_handle}) {
 	    open(STDERR, '>&', $opts{error_to_handle})
 	        or syserr(g_('reopen stdout'));
-	    close($opts{error_to_handle}); # has been duped, can be closed
+	    # has been duped, can be closed
+	    push @{$opts{close_in_child}}, $opts{error_to_handle};
 	}
 	# Close some inherited filehandles
 	close($_) foreach (@{$opts{close_in_child}});
@@ -359,7 +362,7 @@ Defaults to "child process".
 =item nocheck
 
 If true do not check the return status of the child (and thus
-do not fail it it has been killed or if it exited with a
+do not fail it has been killed or if it exited with a
 non-zero return code).
 
 =item timeout
@@ -412,11 +415,6 @@ New options: spawn() now accepts 'sig' and 'delete_sig'.
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHORS
-
-Written by Raphaël Hertzog <hertzog@debian.org> and
-Frank Lichtenheld <djpig@debian.org>.
 
 =head1 SEE ALSO
 

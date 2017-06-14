@@ -31,7 +31,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 #include <selinux/selinux.h>
 #endif
 
@@ -98,12 +98,20 @@ static const char *
 maintscript_pre_exec(struct command *cmd)
 {
 	const char *admindir = dpkg_db_get_dir();
-	size_t instdirl = strlen(instdir);
+	const char *changedir;
+	size_t instdirlen = strlen(instdir);
 
-	if (*instdir) {
-		if (strncmp(admindir, instdir, instdirl) != 0)
+	if (instdirlen > 0 && fc_script_chrootless)
+		changedir = instdir;
+	else
+		changedir = "/";
+
+	if (instdirlen > 0 && !fc_script_chrootless) {
+		if (strncmp(admindir, instdir, instdirlen) != 0)
 			ohshit(_("admindir must be inside instdir for dpkg to work properly"));
-		if (setenv("DPKG_ADMINDIR", admindir + instdirl, 1) < 0)
+		if (setenv("DPKG_ADMINDIR", admindir + instdirlen, 1) < 0)
+			ohshite(_("unable to setenv for subprocesses"));
+		if (setenv("DPKG_ROOT", "", 1) < 0)
 			ohshite(_("unable to setenv for subprocesses"));
 
 		if (chroot(instdir))
@@ -111,8 +119,8 @@ maintscript_pre_exec(struct command *cmd)
 	}
 	/* Switch to a known good directory to give the maintainer script
 	 * a saner environment, also needed after the chroot(). */
-	if (chdir("/"))
-		ohshite(_("failed to chdir to '%.255s'"), "/");
+	if (chdir(changedir))
+		ohshite(_("failed to chdir to '%.255s'"), changedir);
 	if (debug_has_flag(dbg_scripts)) {
 		struct varbuf args = VARBUF_INIT;
 		const char **argv = cmd->argv;
@@ -126,11 +134,11 @@ maintscript_pre_exec(struct command *cmd)
 		      args.buf);
 		varbuf_destroy(&args);
 	}
-	if (!instdirl)
+	if (instdirlen == 0 || fc_script_chrootless)
 		return cmd->filename;
 
-	assert(strlen(cmd->filename) >= instdirl);
-	return cmd->filename + instdirl;
+	assert(strlen(cmd->filename) >= instdirlen);
+	return cmd->filename + instdirlen;
 }
 
 /**
@@ -145,7 +153,7 @@ maintscript_set_exec_context(struct command *cmd, const char *fallback)
 {
 	int rc = 0;
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 	rc = setexecfilecon(cmd->filename, fallback);
 #endif
 
@@ -348,6 +356,7 @@ maintscript_fallback(struct pkginfo *pkg,
 	command_init(&cmd, cidir, buf);
 	command_add_args(&cmd, scriptname, iffallback,
 	                 versiondescribe(&pkg->installed.version, vdew_nonambig),
+	                 versiondescribe(&pkg->available.version, vdew_nonambig),
 	                 NULL);
 
 	if (stat(cidir, &stab)) {

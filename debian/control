@@ -7,23 +7,71 @@ Origin: debian
 Bugs: debbugs://bugs.debian.org
 Homepage: https://wiki.debian.org/Teams/Dpkg
 Vcs-Browser: https://anonscm.debian.org/cgit/dpkg/dpkg.git
-Vcs-Git: git://anonscm.debian.org/dpkg/dpkg.git
-Standards-Version: 3.9.6
-Build-Depends: dpkg-dev (>= 1.17.14), debhelper (>= 9.20141010),
- pkg-config, flex,
- gettext (>= 0.19), po4a (>= 0.41),
- zlib1g-dev, libbz2-dev, liblzma-dev,
- libselinux1-dev (>= 1.28-4) [linux-any],
- libkvm-dev [kfreebsd-any],
+Vcs-Git: https://anonscm.debian.org/git/dpkg/dpkg.git
+Standards-Version: 3.9.8
+Build-Depends:
+# Needed for build profile usage below.
+ dpkg-dev (>= 1.17.14),
+ debhelper (>= 9.20141010),
+ pkg-config,
+# Needed for --add-location.
+ gettext (>= 0.19),
+# Needed for --porefs.
+ po4a (>= 0.43),
+ zlib1g-dev,
+ libbz2-dev,
+ liblzma-dev,
+ libselinux1-dev [linux-any],
  libncursesw5-dev,
- libio-string-perl <!nocheck>
+ libio-string-perl <!nocheck>,
+
+Package: dpkg
+Architecture: any
+Multi-Arch: foreign
+Essential: yes
+Pre-Depends:
+ ${shlibs:Depends},
+Depends:
+ ${misc:Depends},
+# Needed for --clamp-mtime in dpkg-deb -b.
+ tar (>= 1.28-1),
+Suggests:
+ apt,
+ debsig-verify,
+Replaces:
+ manpages-it (<< 2.80-4),
+Breaks:
+# Due to removal of dpkg-divert compat symlink.
+ amule (<< 2.3.1+git1a369e47-3),
+# Due to removal of dpkg-statoverride compat symlink.
+ acidbase (<= 1.4.5-4),
+ beep (<< 1.3-4),
+ im (<< 1:151-4),
+ netselect (<< 0.3.ds1-27),
+ pconsole (<< 1.0-12),
+ phpgacl (<< 3.3.7-7.3),
+ pure-ftpd (<< 1.0.43-1),
+ systemtap (<< 2.8-1),
+ terminatorx (<< 4.0.1-1),
+ xvt (<= 2.1-20.1),
+# Due to renaming of triplettable to tupletable.
+ libdpkg-perl (<< 1.18.11),
+Description: Debian package management system
+ This package provides the low-level infrastructure for handling the
+ installation and removal of Debian software packages.
+ .
+ For Debian package development tools, install dpkg-dev.
 
 Package: libdpkg-dev
 Section: libdevel
 Priority: optional
 Architecture: any
 Multi-Arch: same
-Depends: zlib1g-dev, liblzma-dev, libbz2-dev, ${misc:Depends}
+Depends:
+ ${misc:Depends},
+ zlib1g-dev,
+ liblzma-dev,
+ libbz2-dev,
 Description: Debian package management static library
  This package provides the header files and static library necessary to
  develop software using libdpkg, the same library used internally by dpkg.
@@ -31,33 +79,38 @@ Description: Debian package management static library
  Note though, that the API is to be considered volatile, and might change
  at any time, use at your own risk.
 
-Package: dpkg
-Architecture: any
-Multi-Arch: foreign
-Essential: yes
-Pre-Depends: ${shlibs:Depends}, tar (>= 1.23)
-Depends: ${misc:Depends}
-Breaks: dpkg-dev (<< 1.15.8), libdpkg-perl (<< 1.15.8)
-Suggests: apt
-Replaces: manpages-it (<< 2.80-4)
-Description: Debian package management system
- This package provides the low-level infrastructure for handling the
- installation and removal of Debian software packages.
- .
- For Debian package development tools, install dpkg-dev.
-
 Package: dpkg-dev
 Section: utils
 Priority: optional
 Architecture: all
 Multi-Arch: foreign
-Depends: libdpkg-perl (= ${source:Version}), bzip2, xz-utils,
- patch (>= 2.7), make, binutils, base-files (>= 5.0.0), ${misc:Depends}
-Recommends: gcc | c-compiler, build-essential, fakeroot,
- gnupg | gnupg2, gpgv | gpgv2, libalgorithm-merge-perl
-Suggests: debian-keyring
-Breaks: dpkg-cross (<< 2.0.0), devscripts (<< 2.14.10)
-Replaces: manpages-it (<< 2.80-4)
+Depends:
+ ${misc:Depends},
+ ${perl:Depends},
+ libdpkg-perl (= ${source:Version}),
+# Needed for --clamp-mtime.
+ tar (>= 1.28-1),
+ bzip2,
+ xz-utils,
+# Needed for git-style diff support.
+ patch (>= 2.7),
+ make,
+ binutils,
+Recommends:
+ build-essential,
+ gcc | c-compiler,
+ fakeroot,
+ gnupg | gnupg2,
+ gpgv | gpgv2,
+# Used by dpkg-mergechangelogs.
+ libalgorithm-merge-perl,
+Suggests:
+ debian-keyring,
+Breaks:
+# Due to new dpkg-architecture 1.17.17 strictness.
+ devscripts (<< 2.14.10),
+Replaces:
+ manpages-it (<< 2.80-4),
 Description: Debian package development tools
  This package provides the development tools (including dpkg-source)
  required to unpack, build and upload Debian source packages.
@@ -70,12 +123,31 @@ Section: perl
 Priority: optional
 Architecture: all
 Multi-Arch: foreign
-Depends: dpkg (>= 1.16.3), perl, ${misc:Depends}
-Recommends: libfile-fcntllock-perl, bzip2, xz-utils
-Suggests: debian-keyring, gnupg | gnupg2, gpgv | gpgv2,
- gcc | c-compiler, binutils, patch
-Breaks: dpkg-dev (<< 1.15.6), patch (<< 2.7)
-Replaces: dpkg (<< 1.15.8), dpkg-dev (<< 1.15.6)
+Depends:
+ ${misc:Depends},
+# XXX: This needs to be perl:any, but that breaks debootstrap in jessie
+# (the current stable), it could be fixed once and iff stretch is stable
+# and contains a fixed debootstrap.
+ perl,
+# Needed for arch tuples.
+ dpkg (>= 1.18.11),
+Recommends:
+# Used by Dpkg::File.
+ libfile-fcntllock-perl,
+# Used by Dpkg::Gettext.
+ liblocale-gettext-perl,
+ bzip2,
+ xz-utils,
+Suggests:
+ debian-keyring,
+ gnupg | gnupg2,
+ gpgv | gpgv2,
+ gcc | c-compiler,
+ binutils,
+ patch,
+Breaks:
+# Needed for git-style diffs.
+ patch (<< 2.7),
 Description: Dpkg perl modules
  This package provides the perl modules used by the scripts
  in dpkg-dev. They cover a wide range of functionality. Among them
@@ -83,6 +155,7 @@ Description: Dpkg perl modules
  .
   - Dpkg: core variables
   - Dpkg::Arch: architecture handling functions
+  - Dpkg::Build::Info: build information functions
   - Dpkg::BuildFlags: set, modify and query compilation build flags
   - Dpkg::BuildOptions: parse and manipulate DEB_BUILD_OPTIONS
   - Dpkg::BuildProfile: parse and manipulate build profiles
@@ -100,6 +173,7 @@ Description: Dpkg perl modules
   - Dpkg::Control::Fields: manage (list of known) control fields
   - Dpkg::Control::Hash: parse and manipulate a block of RFC822-like fields
   - Dpkg::Control::Info: parse files like debian/control
+  - Dpkg::Control::Tests: parse files like debian/tests/control
   - Dpkg::Deps: parse and manipulate dependencies
   - Dpkg::Exit: push, pop and run exit handlers
   - Dpkg::Gettext: wrapper around Locale::gettext
@@ -120,10 +194,13 @@ Package: dselect
 Priority: optional
 Architecture: any
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, dpkg (>= 1.13.1), ${misc:Depends}
-Suggests: perl
-Conflicts: dpkg-ftp, dpkg-multicd
-Replaces: dpkg-ftp, dpkg-multicd, manpages-it (<< 2.80-4)
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Suggests:
+ perl,
+Replaces:
+ manpages-it (<< 2.80-4),
 Description: Debian package management front-end
  dselect is a high-level interface for managing the installation and
  removal of Debian software packages.

@@ -41,11 +41,11 @@ static const char *printforhelp;
 void
 badusage(const char *fmt, ...)
 {
-  char buf[1024];
+  char *buf = NULL;
   va_list args;
 
   va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, args);
+  m_vasprintf(&buf, fmt, args);
   va_end(args);
 
   ohshit("%s\n\n%s", buf, gettext(printforhelp));
@@ -54,11 +54,11 @@ badusage(const char *fmt, ...)
 static void DPKG_ATTR_NORET DPKG_ATTR_PRINTF(3)
 config_error(const char *file_name, int line_num, const char *fmt, ...)
 {
-  char buf[1024];
+  char *buf = NULL;
   va_list args;
 
   va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, args);
+  m_vasprintf(&buf, fmt, args);
   va_end(args);
 
   ohshit(_("configuration error: %s:%d: %s"), file_name, line_num, buf);
@@ -287,8 +287,12 @@ dpkg_options_parse_arg_int(const struct cmdinfo *cmd, const char *str)
 
   errno = 0;
   value = strtol(str, &end, 0);
-  if (str == end || *end || value < 0 || value > INT_MAX || errno != 0)
-    badusage(_("invalid integer for --%s: '%.250s'"), cmd->olong, str);
+  if (str == end || *end || value < 0 || value > INT_MAX || errno != 0) {
+    if (cmd->olong)
+      badusage(_("invalid integer for --%s: '%.250s'"), cmd->olong, str);
+    else
+      badusage(_("invalid integer for -%c: '%.250s'"), cmd->oshort, str);
+  }
 
   return value;
 }
@@ -311,7 +315,7 @@ option_short(int c)
 void
 setaction(const struct cmdinfo *cip, const char *value)
 {
-  if (cipaction)
+  if (cipaction && cip)
     badusage(_("conflicting actions -%c (--%s) and -%c (--%s)"),
              option_short(cip->oshort), cip->olong,
              option_short(cipaction->oshort), cipaction->olong);

@@ -34,10 +34,12 @@ package Dpkg::Changelog;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
+
+use Carp;
 
 use Dpkg::Gettext;
-use Dpkg::ErrorHandling qw(:DEFAULT report);
+use Dpkg::ErrorHandling qw(:DEFAULT report REPORT_WARN);
 use Dpkg::Control;
 use Dpkg::Control::Changelog;
 use Dpkg::Control::Fields;
@@ -166,9 +168,9 @@ sub get_parse_errors {
 	my $res = '';
 	foreach my $e (@{$self->{parse_errors}}) {
 	    if ($e->[3]) {
-		$res .= report(g_('warning'), g_("%s(l%s): %s\nLINE: %s"), @$e);
+		$res .= report(REPORT_WARN, g_("%s(l%s): %s\nLINE: %s"), @$e);
 	    } else {
-		$res .= report(g_('warning'), g_('%s(l%s): %s'), @$e);
+		$res .= report(REPORT_WARN, g_('%s(l%s): %s'), @$e);
 	    }
 	}
 	return $res;
@@ -246,8 +248,10 @@ sub __sanity_check_range {
     # Handle non-existing versions
     my (%versions, @versions);
     foreach my $entry (@{$data}) {
-        $versions{$entry->get_version()->as_string()} = 1;
-        push @versions, $entry->get_version()->as_string();
+        my $version = $entry->get_version();
+        next unless defined $version;
+        $versions{$version->as_string()} = 1;
+        push @versions, $version->as_string();
     }
     if ((defined($r->{since}) and not exists $versions{$r->{since}})) {
         warning(g_("'%s' option specifies non-existing version"), 'since');
@@ -471,52 +475,6 @@ sub output {
     return $str;
 }
 
-=item $control = $c->dpkg($range)
-
-Returns a Dpkg::Control::Changelog object representing the entries selected
-by the optional range specifier (see L<"RANGE SELECTION"> for details).
-Returns undef in no entries are matched.
-
-The following fields are contained in the object:
-
-=over 4
-
-=item Source
-
-package name (in the first entry)
-
-=item Version
-
-packages' version (from first entry)
-
-=item Distribution
-
-target distribution (from first entry)
-
-=item Urgency
-
-urgency (highest of all printed entries)
-
-=item Maintainer
-
-person that created the (first) entry
-
-=item Date
-
-date of the (first) entry
-
-=item Closes
-
-bugs closed by the entry/entries, sorted by bug number
-
-=item Changes
-
-content of the the entry/entries
-
-=back
-
-=cut
-
 our ( @URGENCIES, %URGENCIES );
 BEGIN {
     @URGENCIES = qw(low medium high critical emergency);
@@ -524,7 +482,7 @@ BEGIN {
     %URGENCIES = map { $_ => $i++ } @URGENCIES;
 }
 
-sub dpkg {
+sub _format_dpkg {
     my ($self, $range) = @_;
 
     my @data = $self->get_range($range) or return;
@@ -537,6 +495,7 @@ sub dpkg {
     $f->{Distribution} = join(' ', $src->get_distributions());
     $f->{Maintainer} = $src->get_maintainer() // '';
     $f->{Date} = $src->get_timestamp() // '';
+    $f->{Timestamp} = $src->get_timepiece && $src->get_timepiece->epoch // '';
     $f->{Changes} = $src->get_dpkg_changes();
 
     # handle optional fields
@@ -578,21 +537,11 @@ sub dpkg {
     return $f;
 }
 
-=item @controls = $c->rfc822($range)
-
-Returns a Dpkg::Index containing Dpkg::Control::Changelog objects where
-each object represents one entry in the changelog that is part of the
-range requested (see L<"RANGE SELECTION"> for details). For the format of
-such an object see the description of the L<"dpkg"> method (while ignoring
-the remarks about which values are taken from the first entry).
-
-=cut
-
-sub rfc822 {
+sub _format_rfc822 {
     my ($self, $range) = @_;
 
     my @data = $self->get_range($range) or return;
-    my $index = Dpkg::Index->new(type => CTRL_CHANGELOG);
+    my @ctrl;
 
     foreach my $entry (@data) {
 	my $f = Dpkg::Control::Changelog->new();
@@ -602,6 +551,7 @@ sub rfc822 {
 	$f->{Distribution} = join(' ', $entry->get_distributions());
 	$f->{Maintainer} = $entry->get_maintainer() // '';
 	$f->{Date} = $entry->get_timestamp() // '';
+	$f->{Timestamp} = $entry->get_timepiece && $entry->get_timepiece->epoch // '';
 	$f->{Changes} = $entry->get_dpkg_changes();
 
 	# handle optional fields
@@ -612,9 +562,129 @@ sub rfc822 {
 
         run_vendor_hook('post-process-changelog-entry', $f);
 
-	$index->add($f);
+        push @ctrl, $f;
     }
-    return $index;
+
+    return @ctrl;
+}
+
+=item $control = $c->format_range($format, $range)
+
+Formats the changelog into Dpkg::Control::Changelog objects representing the
+entries selected by the optional range specifier (see L<"RANGE SELECTION">
+for details). In scalar context returns a Dpkg::Index object containing the
+selected entries, in list context returns an array of Dpkg::Control::Changelog
+objects.
+
+With format B<dpkg> the returned Dpkg::Control::Changelog object is coalesced
+from the entries in the changelog that are part of the range requested,
+with the fields described below, but considering that "selected entry"
+means the first entry of the selected range.
+
+With format B<rfc822> each returned Dpkg::Control::Changelog objects
+represents one entry in the changelog that is part of the range requested,
+with the fields described below, but considering that "selected entry"
+means for each entry.
+
+The different formats return undef if no entries are matched. The following
+fields are contained in the object(s) returned:
+
+=over 4
+
+=item Source
+
+package name (selected entry)
+
+=item Version
+
+packages' version (selected entry)
+
+=item Distribution
+
+target distribution (selected entry)
+
+=item Urgency
+
+urgency (highest of all entries in range)
+
+=item Maintainer
+
+person that created the (selected) entry
+
+=item Date
+
+date of the (selected) entry
+
+=item Timestamp
+
+date of the (selected) entry as a timestamp in seconds since the epoch
+
+=item Closes
+
+bugs closed by the (selected) entry/entries, sorted by bug number
+
+=item Changes
+
+content of the (selected) entry/entries
+
+=back
+
+=cut
+
+sub format_range {
+    my ($self, $format, $range) = @_;
+
+    my @ctrl;
+
+    if ($format eq 'dpkg') {
+        @ctrl = $self->_format_dpkg($range);
+    } elsif ($format eq 'rfc822') {
+        @ctrl = $self->_format_rfc822($range);
+    } else {
+        croak "unknown changelog output format $format";
+    }
+
+    if (wantarray) {
+        return @ctrl;
+    } else {
+        my $index = Dpkg::Index->new(type => CTRL_CHANGELOG);
+
+        foreach my $f (@ctrl) {
+            $index->add($f);
+        }
+
+        return $index;
+    }
+}
+
+=item $control = $c->dpkg($range)
+
+This is a deprecated alias for $c->format_range('dpkg', $range).
+
+=cut
+
+sub dpkg {
+    my ($self, $range) = @_;
+
+    warnings::warnif('deprecated',
+                     'deprecated method, please use format_range("dpkg", $range) instead');
+
+    return $self->format_range('dpkg', $range);
+}
+
+=item @controls = $c->rfc822($range)
+
+This is a deprecated alias for C<scalar c->format_range('rfc822', $range)>.
+
+=cut
+
+sub rfc822 {
+    my ($self, $range) = @_;
+
+    warnings::warnif('deprecated',
+                     'deprecated method, please use format_range("rfc822", $range) instead');
+
+    return scalar $self->format_range('rfc822', $range);
 }
 
 =back
@@ -696,14 +766,17 @@ with only one of the options specified.
 
 =head1 CHANGES
 
+=head2 Version 1.01 (dpkg 1.18.8)
+
+New method: $c->format_range().
+
+Deprecated methods: $c->dpkg(), $c->rfc822().
+
+New field Timestamp in output formats.
+
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Frank Lichtenheld, E<lt>frank@lichtenheld.deE<gt>
-Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
 
 =cut
 1;

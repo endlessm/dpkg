@@ -1,9 +1,13 @@
+c-tarextract
+c-treewalk
+c-trigdeferred
 t-ar
 t-arch
 t-buffer
 t-c-ctype
 t-command
 t-deb-version
+t-ehandle
 t-error
 t-macros
 t-mod-db
@@ -14,10 +18,10 @@ t-pkg-queue
 t-progname
 t-string
 t-subproc
-t-tar/
-t-tarextract
+t-tar
 t-test
 t-test-skip
 t-trigger
 t-varbuf
 t-version
+t.tmp

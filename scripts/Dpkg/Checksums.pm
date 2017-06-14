@@ -20,7 +20,7 @@ package Dpkg::Checksums;
 use strict;
 use warnings;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 our @EXPORT = qw(
     checksums_is_supported
     checksums_get_list
@@ -28,7 +28,6 @@ our @EXPORT = qw(
 );
 
 use Exporter qw(import);
-use Carp;
 use Digest;
 
 use Dpkg::Gettext;
@@ -56,14 +55,17 @@ my $CHECKSUMS = {
     md5 => {
 	name => 'MD5',
 	regex => qr/[0-9a-f]{32}/,
+	strong => 0,
     },
     sha1 => {
 	name => 'SHA-1',
 	regex => qr/[0-9a-f]{40}/,
+	strong => 0,
     },
     sha256 => {
 	name => 'SHA-256',
 	regex => qr/[0-9a-f]{64}/,
+	strong => 1,
     },
 };
 
@@ -95,14 +97,19 @@ sub checksums_is_supported($) {
 Returns the requested property of the checksum algorithm. Returns undef if
 either the property or the checksum algorithm doesn't exist. Valid
 properties currently include "name" (returns the name of the digest
-algorithm) and "regex" for the regular expression describing the common
-string representation of the checksum.
+algorithm), "regex" for the regular expression describing the common
+string representation of the checksum, and "strong" for a boolean describing
+whether the checksum algorithm is considered cryptographically strong.
 
 =cut
 
 sub checksums_get_property($$) {
     my ($alg, $property) = @_;
-    carp 'obsolete checksums program property' if $property eq 'program';
+
+    if ($property eq 'program') {
+        warnings::warnif('deprecated', 'obsolete checksums program property');
+    }
+
     return unless checksums_is_supported($alg);
     return $CHECKSUMS->{lc($alg)}{$property};
 }
@@ -148,9 +155,9 @@ sub reset {
 
 =item $ck->add_from_file($filename, %opts)
 
-Add checksums information for the file $filename. The file must exists
-for the call to succeed. If you don't want the given filename to appear
-when you later export the checksums you might want to set the "key"
+Add or verify checksums information for the file $filename. The file must
+exists for the call to succeed. If you don't want the given filename to
+appear when you later export the checksums you might want to set the "key"
 option with the public name that you want to use. Also if you don't want
 to generate all the checksums, you can pass an array reference of the
 wanted checksums in the "checksums" option.
@@ -335,6 +342,23 @@ sub get_size {
     return $self->{size}{$file};
 }
 
+=item $bool = $ck->has_strong_checksums($file)
+
+Return a boolean on whether the file has a strong checksum.
+
+=cut
+
+sub has_strong_checksums {
+    my ($self, $file) = @_;
+
+    foreach my $alg (checksums_get_list()) {
+        return 1 if defined $self->get_checksum($file, $alg) and
+                    checksums_get_property($alg, 'strong');
+    }
+
+    return 0;
+}
+
 =item $ck->export_to_string($alg, %opts)
 
 Return a multi-line string containing the checksums of type $alg. The
@@ -376,9 +400,15 @@ sub export_to_control {
 
 =head1 CHANGES
 
+=head2 Version 1.03 (dpkg 1.18.5)
+
+New property: Add new 'strong' property.
+
+New member: $ck->has_strong_checksums().
+
 =head2 Version 1.02 (dpkg 1.18.0)
 
-Obsolete property: Getting the 'program' checksum property will carp() and
+Obsolete property: Getting the 'program' checksum property will warn and
 return undef, the Digest module is used internally now.
 
 New property: Add new 'name' property with the name of the Digest algorithm
@@ -394,10 +424,6 @@ $ck->add_from_control().
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

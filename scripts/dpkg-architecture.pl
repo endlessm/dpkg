@@ -26,11 +26,7 @@ use Dpkg ();
 use Dpkg::Gettext;
 use Dpkg::Getopt;
 use Dpkg::ErrorHandling;
-use Dpkg::Arch qw(get_raw_build_arch get_raw_host_arch get_host_gnu_type
-                  debarch_to_cpuattrs
-                  get_valid_arches debarch_eq debarch_is debarch_to_debtriplet
-                  debarch_to_gnutriplet gnutriplet_to_debarch
-                  debarch_to_multiarch);
+use Dpkg::Arch qw(:getters :mappers debarch_eq debarch_is);
 
 textdomain('dpkg-dev');
 
@@ -123,6 +119,8 @@ use constant DEB_ALL => DEB_BUILD | DEB_HOST | DEB_TARGET |
 
 my %arch_vars = (
     DEB_BUILD_ARCH => DEB_BUILD,
+    DEB_BUILD_ARCH_ABI => DEB_BUILD | DEB_ARCH_INFO,
+    DEB_BUILD_ARCH_LIBC => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_OS => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_CPU => DEB_BUILD | DEB_ARCH_INFO,
     DEB_BUILD_ARCH_BITS => DEB_BUILD | DEB_ARCH_ATTR,
@@ -132,6 +130,8 @@ my %arch_vars = (
     DEB_BUILD_GNU_SYSTEM => DEB_BUILD | DEB_GNU_INFO,
     DEB_BUILD_GNU_TYPE => DEB_BUILD | DEB_GNU_INFO,
     DEB_HOST_ARCH => DEB_HOST,
+    DEB_HOST_ARCH_ABI => DEB_HOST | DEB_ARCH_INFO,
+    DEB_HOST_ARCH_LIBC => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_OS => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_CPU => DEB_HOST | DEB_ARCH_INFO,
     DEB_HOST_ARCH_BITS => DEB_HOST | DEB_ARCH_ATTR,
@@ -141,6 +141,8 @@ my %arch_vars = (
     DEB_HOST_GNU_SYSTEM => DEB_HOST | DEB_GNU_INFO,
     DEB_HOST_GNU_TYPE => DEB_HOST | DEB_GNU_INFO,
     DEB_TARGET_ARCH => DEB_TARGET,
+    DEB_TARGET_ARCH_ABI => DEB_TARGET | DEB_ARCH_INFO,
+    DEB_TARGET_ARCH_LIBC => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_OS => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_CPU => DEB_TARGET | DEB_ARCH_INFO,
     DEB_TARGET_ARCH_BITS => DEB_TARGET | DEB_ARCH_ATTR,
@@ -232,7 +234,6 @@ while (@ARGV) {
 }
 
 my %v;
-my $abi;
 
 #
 # Set build variables
@@ -240,7 +241,8 @@ my $abi;
 
 $v{DEB_BUILD_ARCH} = get_raw_build_arch()
     if (action_needs(DEB_BUILD));
-($abi, $v{DEB_BUILD_ARCH_OS}, $v{DEB_BUILD_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_BUILD_ARCH})
+($v{DEB_BUILD_ARCH_ABI}, $v{DEB_BUILD_ARCH_LIBC},
+ $v{DEB_BUILD_ARCH_OS}, $v{DEB_BUILD_ARCH_CPU}) = debarch_to_debtuple($v{DEB_BUILD_ARCH})
     if (action_needs(DEB_BUILD | DEB_ARCH_INFO));
 ($v{DEB_BUILD_ARCH_BITS}, $v{DEB_BUILD_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_BUILD_ARCH})
     if (action_needs(DEB_BUILD | DEB_ARCH_ATTR));
@@ -265,7 +267,8 @@ if (action_needs(DEB_BUILD | DEB_GNU_INFO)) {
 
 $v{DEB_HOST_ARCH} = $req_host_arch || get_raw_host_arch()
     if (action_needs(DEB_HOST));
-($abi, $v{DEB_HOST_ARCH_OS}, $v{DEB_HOST_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_HOST_ARCH})
+($v{DEB_HOST_ARCH_ABI}, $v{DEB_HOST_ARCH_LIBC},
+ $v{DEB_HOST_ARCH_OS}, $v{DEB_HOST_ARCH_CPU}) = debarch_to_debtuple($v{DEB_HOST_ARCH})
     if (action_needs(DEB_HOST | DEB_ARCH_INFO));
 ($v{DEB_HOST_ARCH_BITS}, $v{DEB_HOST_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_HOST_ARCH})
     if (action_needs(DEB_HOST | DEB_ARCH_ATTR));
@@ -301,7 +304,8 @@ if (action_needs(DEB_HOST | DEB_GNU_INFO)) {
 
 $v{DEB_TARGET_ARCH} = $req_target_arch || $req_host_arch || get_raw_host_arch()
     if (action_needs(DEB_TARGET));
-($abi, $v{DEB_TARGET_ARCH_OS}, $v{DEB_TARGET_ARCH_CPU}) = debarch_to_debtriplet($v{DEB_TARGET_ARCH})
+($v{DEB_TARGET_ARCH_ABI}, $v{DEB_TARGET_ARCH_LIBC},
+ $v{DEB_TARGET_ARCH_OS}, $v{DEB_TARGET_ARCH_CPU}) = debarch_to_debtuple($v{DEB_TARGET_ARCH})
     if (action_needs(DEB_TARGET | DEB_ARCH_INFO));
 ($v{DEB_TARGET_ARCH_BITS}, $v{DEB_TARGET_ARCH_ENDIAN}) = debarch_to_cpuattrs($v{DEB_TARGET_ARCH})
     if (action_needs(DEB_TARGET | DEB_ARCH_ATTR));

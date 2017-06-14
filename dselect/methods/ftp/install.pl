@@ -20,6 +20,7 @@ use strict;
 use warnings;
 
 eval q{
+    pop @INC if $INC[-1] eq '.';
     use Net::FTP;
     use File::Path qw(make_path remove_tree);
     use File::Basename;
@@ -216,7 +217,7 @@ sub md5sum($) {
 
 # construct list of files to get
 # hash of filenames => size of downloaded part
-# query user for each paritial file
+# query user for each partial file
 print "\nConstructing list of files to get...\n";
 my %downloads;
 my ($dir, @info, @files, $csize, $size);

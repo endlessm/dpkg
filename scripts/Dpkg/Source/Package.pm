@@ -34,7 +34,7 @@ is the one that supports the extraction of the source package.
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 our @EXPORT_OK = qw(
     get_default_diff_ignore_regex
     set_default_diff_ignore_regex
@@ -67,7 +67,7 @@ my $diff_ignore_default_regex = '
 # Ignore baz-style junk files or directories
 (?:^|/),,.*(?:$|/.*$)|
 # File-names that should be ignored (never directories)
-(?:^|/)(?:DEADJOE|\.arch-inventory|\.(?:bzr|cvs|hg|git)ignore)$|
+(?:^|/)(?:DEADJOE|\.arch-inventory|\.(?:bzr|cvs|hg|git|mtn-)ignore)$|
 # File or directory names that should be ignored
 (?:^|/)(?:CVS|RCS|\.deps|\{arch\}|\.arch-ids|\.svn|
 \.hg(?:tags|sigs)?|_darcs|\.git(?:attributes|modules|review)?|
@@ -112,6 +112,7 @@ our @tar_ignore_default_pattern = qw(
 .hgsigs
 .hgtags
 .mailmap
+.mtn-ignore
 .shelf
 .svn
 CVS
@@ -188,6 +189,11 @@ specific for source packages using format "2.0" and "3.0 (quilt)".
 If set to 1, the check_signature() method will be stricter and will error
 out if the signature can't be verified.
 
+=item require_strong_checksums
+
+If set to 1, the check_checksums() method will be stricter and will error
+out if there is no strong checksum.
+
 =item copy_orig_tarballs
 
 If set to 1, the extraction will copy the upstream tarballs next the
@@ -224,14 +230,18 @@ sub init_options {
     # note: this function is not called by V1 packages
     $self->{options}{diff_ignore_regex} ||= $diff_ignore_default_regex;
     $self->{options}{diff_ignore_regex} .= '|(?:^|/)debian/source/local-.*$';
+    $self->{options}{diff_ignore_regex} .= '|(?:^|/)debian/files(?:\.new)?$';
     if (defined $self->{options}{tar_ignore}) {
         $self->{options}{tar_ignore} = [ @tar_ignore_default_pattern ]
             unless @{$self->{options}{tar_ignore}};
     } else {
         $self->{options}{tar_ignore} = [ @tar_ignore_default_pattern ];
     }
-    push @{$self->{options}{tar_ignore}}, 'debian/source/local-options',
-         'debian/source/local-patch-header';
+    push @{$self->{options}{tar_ignore}},
+         'debian/source/local-options',
+         'debian/source/local-patch-header',
+         'debian/files',
+         'debian/files.new';
     # Skip debianization while specific to some formats has an impact
     # on code common to all formats
     $self->{options}{skip_debianization} //= 0;
@@ -275,17 +285,23 @@ sub upgrade_object_type {
     my $format = $self->{fields}{'Format'};
 
     if ($format =~ /^([\d\.]+)(?:\s+\((.*)\))?$/) {
-        my ($version, $variant, $major, $minor) = ($1, $2, $1, undef);
+        my ($version, $variant) = ($1, $2);
 
         if (defined $variant and $variant ne lc $variant) {
             error(g_("source package format '%s' is not supported: %s"),
                   $format, g_('format variant must be in lowercase'));
         }
 
-        $major =~ s/\.[\d\.]+$//;
+        my $major = $version =~ s/\.[\d\.]+$//r;
+        my $minor;
+
         my $module = "Dpkg::Source::Package::V$major";
         $module .= '::' . ucfirst $variant if defined $variant;
-        eval "require $module; \$minor = \$${module}::CURRENT_MINOR_VERSION;";
+        eval qq{
+            pop \@INC if \$INC[-1] eq '.';
+            require $module;
+            \$minor = \$${module}::CURRENT_MINOR_VERSION;
+        };
         $minor //= 0;
         if ($update_format) {
             $self->{fields}{'Format'} = "$major.$minor";
@@ -328,17 +344,32 @@ sub get_files {
 
 Verify the checksums embedded in the DSC file. It requires the presence of
 the other files constituting the source package. If any inconsistency is
-discovered, it immediately errors out.
+discovered, it immediately errors out. It will make sure at least one strong
+checksum is present.
+
+If the object has been created with the "require_strong_checksums" option,
+then any problem will result in a fatal error.
 
 =cut
 
 sub check_checksums {
     my $self = shift;
     my $checksums = $self->{checksums};
+    my $warn_on_weak = 0;
+
     # add_from_file verify the checksums if they are already existing
     foreach my $file ($checksums->get_files()) {
+        if (not $checksums->has_strong_checksums($file)) {
+            if ($self->{options}{require_strong_checksums}) {
+                error(g_('source package uses only weak checksums'));
+            } else {
+                $warn_on_weak = 1;
+            }
+        }
 	$checksums->add_from_file($self->{basedir} . $file, key => $file);
     }
+
+    warning(g_('source package uses only weak checksums')) if $warn_on_weak;
 }
 
 sub get_basename {
@@ -414,7 +445,7 @@ sub check_signature {
         if (length $ENV{HOME} and -r "$ENV{HOME}/.gnupg/trustedkeys.gpg") {
             push @exec, '--keyring', "$ENV{HOME}/.gnupg/trustedkeys.gpg";
         }
-        foreach my $vendor_keyring (run_vendor_hook('keyrings')) {
+        foreach my $vendor_keyring (run_vendor_hook('package-keyrings')) {
             if (-r $vendor_keyring) {
                 push @exec, '--keyring', $vendor_keyring;
             }
@@ -440,11 +471,15 @@ sub check_signature {
         }
     } else {
         if ($self->{options}{require_valid_signature}) {
-            error(g_("could not verify signature on %s since gpg isn't installed"), $dsc);
+            error(g_('cannot verify signature on %s since GnuPG is not installed'), $dsc);
         } else {
-            warning(g_("could not verify signature on %s since gpg isn't installed"), $dsc);
+            warning(g_('cannot verify signature on %s since GnuPG is not installed'), $dsc);
         }
     }
+}
+
+sub describe_cmdline_options {
+    return;
 }
 
 sub parse_cmdline_options {
@@ -463,7 +498,8 @@ sub parse_cmdline_option {
 =item $p->extract($targetdir)
 
 Extracts the source package in the target directory $targetdir. Beware
-that if $targetdir already exists, it will be erased.
+that if $targetdir already exists, it will be erased (as long as the
+no_overwrite_dir option is set).
 
 =cut
 
@@ -567,7 +603,7 @@ sub do_build {
 
 sub can_build {
     my ($self, $dir) = @_;
-    return (0, 'can_build() has not been overriden');
+    return (0, 'can_build() has not been overridden');
 }
 
 sub add_file {
@@ -605,12 +641,12 @@ sub write_dsc {
     }
 
     unless ($opts{nocheck}) {
-        foreach my $f (qw(Source Version)) {
+        foreach my $f (qw(Source Version Architecture)) {
             unless (defined($fields->{$f})) {
                 error(g_('missing information for critical output field %s'), $f);
             }
         }
-        foreach my $f (qw(Maintainer Architecture Standards-Version)) {
+        foreach my $f (qw(Maintainer Standards-Version)) {
             unless (defined($fields->{$f})) {
                 warning(g_('missing information for output field %s'), $f);
             }
@@ -634,6 +670,10 @@ sub write_dsc {
 
 =head1 CHANGES
 
+=head2 Version 1.02 (dpkg 1.18.7)
+
+New option: require_strong_checksums in check_checksums().
+
 =head2 Version 1.01 (dpkg 1.17.2)
 
 New functions: get_default_diff_ignore_regex(), set_default_diff_ignore_regex(),
@@ -644,10 +684,6 @@ Deprecated variables: $diff_ignore_default_regexp, @tar_ignore_default_pattern
 =head2 Version 1.00 (dpkg 1.16.1)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
 
 =cut
 

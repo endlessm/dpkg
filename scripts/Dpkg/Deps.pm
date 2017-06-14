@@ -49,7 +49,7 @@ All the deps_* functions are exported by default.
 use strict;
 use warnings;
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 our @EXPORT = qw(
     deps_concat
     deps_parse
@@ -58,10 +58,11 @@ our @EXPORT = qw(
     deps_compare
 );
 
+use Carp;
 use Exporter qw(import);
 
 use Dpkg::Version;
-use Dpkg::Arch qw(get_host_arch get_build_arch);
+use Dpkg::Arch qw(get_host_arch get_build_arch debarch_to_debtuple);
 use Dpkg::BuildProfiles qw(get_build_profiles);
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
@@ -198,7 +199,7 @@ Dpkg::Arch::get_build_arch() to identify the proper architecture.
 =item reduce_arch (defaults to 0)
 
 If set to 1, ignore dependencies that do not concern the current host
-architecture. This implicitely strips off the architecture restriction
+architecture. This implicitly strips off the architecture restriction
 list so that the resulting dependencies are directly applicable to the
 current architecture.
 
@@ -237,12 +238,24 @@ this when parsing non-dependency fields like Conflicts.
 If set to 1, allow build-dep only arch qualifiers, that is “:native”.
 This should be set whenever working with build-deps.
 
+=item tests_dep (defaults to 0)
+
+If set to 1, allow tests-specific package names in dependencies, that is
+"@" and "@builddeps@" (since dpkg 1.18.7). This should be set whenever
+working with dependency fields from F<debian/tests/control>.
+
 =back
 
 =cut
 
 sub deps_parse {
     my ($dep_line, %options) = @_;
+
+    # Validate arguments.
+    croak "invalid host_arch $options{host_arch}"
+        if defined $options{host_arch} and not defined debarch_to_debtuple($options{host_arch});
+    croak "invalid build_arch $options{build_arch}"
+        if defined $options{build_arch} and not defined debarch_to_debtuple($options{build_arch});
 
     $options{use_arch} //= 1;
     $options{reduce_arch} //= 0;
@@ -254,11 +267,20 @@ sub deps_parse {
     $options{reduce_restrictions} //= 0;
     $options{union} //= 0;
     $options{build_dep} //= 0;
+    $options{tests_dep} //= 0;
 
     if ($options{reduce_restrictions}) {
         $options{reduce_arch} = 1;
         $options{reduce_profiles} = 1;
     }
+
+    # Options for Dpkg::Deps::Simple.
+    my %deps_options = (
+        host_arch => $options{host_arch},
+        build_arch => $options{build_arch},
+        build_dep => $options{build_dep},
+        tests_dep => $options{tests_dep},
+    );
 
     # Strip trailing/leading spaces
     $dep_line =~ s/^\s+//;
@@ -268,12 +290,7 @@ sub deps_parse {
     foreach my $dep_and (split(/\s*,\s*/m, $dep_line)) {
         my @or_list = ();
         foreach my $dep_or (split(/\s*\|\s*/m, $dep_and)) {
-	    my $dep_simple = Dpkg::Deps::Simple->new($dep_or, host_arch =>
-	                                             $options{host_arch},
-	                                             build_arch =>
-	                                             $options{build_arch},
-	                                             build_dep =>
-	                                             $options{build_dep});
+	    my $dep_simple = Dpkg::Deps::Simple->new($dep_or, %deps_options);
 	    if (not defined $dep_simple->{package}) {
 		warning(g_("can't parse dependency %s"), $dep_or);
 		return;
@@ -551,7 +568,7 @@ use warnings;
 
 use Carp;
 
-use Dpkg::Arch qw(debarch_is_concerned);
+use Dpkg::Arch qw(debarch_is_concerned debarch_list_parse);
 use Dpkg::BuildProfiles qw(parse_build_profiles evaluate_restriction_formula);
 use Dpkg::Version;
 use Dpkg::ErrorHandling;
@@ -569,6 +586,7 @@ sub new {
     $self->{host_arch} = $opts{host_arch} || Dpkg::Arch::get_host_arch();
     $self->{build_arch} = $opts{build_arch} || Dpkg::Arch::get_build_arch();
     $self->{build_dep} = $opts{build_dep} // 0;
+    $self->{tests_dep} = $opts{tests_dep} // 0;
     $self->parse_string($arg) if defined($arg);
     return $self;
 }
@@ -592,9 +610,17 @@ sub parse {
 
 sub parse_string {
     my ($self, $dep) = @_;
+
+    my $pkgname_re;
+    if ($self->{tests_dep}) {
+        $pkgname_re = qr/[\@a-zA-Z0-9][\@a-zA-Z0-9+.-]*/;
+    } else {
+        $pkgname_re = qr/[a-zA-Z0-9][a-zA-Z0-9+.-]*/;
+    }
+
     return if not $dep =~
            m{^\s*                           # skip leading whitespace
-              ([a-zA-Z0-9][a-zA-Z0-9+.-]*)  # package name
+              ($pkgname_re)                 # package name
               (?:                           # start of optional part
                 :                           # colon for architecture
                 ([a-zA-Z0-9][a-zA-Z0-9-]*)  # architecture name
@@ -602,18 +628,20 @@ sub parse_string {
               (?:                           # start of optional part
                 \s* \(                      # open parenthesis for version part
                 \s* (<<|<=|=|>=|>>|[<>])    # relation part
-                \s* (.*?)                   # do not attempt to parse version
+                \s* ([^\)\s]+)              # do not attempt to parse version
                 \s* \)                      # closing parenthesis
               )?                            # end of optional part
               (?:                           # start of optional architecture
                 \s* \[                      # open bracket for architecture
-                \s* (.*?)                   # don't parse architectures now
+                \s* ([^\]]+)                # don't parse architectures now
                 \s* \]                      # closing bracket
               )?                            # end of optional architecture
-              (?:                           # start of optional restriction
+              (
+                (?:                         # start of optional restriction
                 \s* <                       # open bracket for restriction
-                \s* (.*)                    # do not parse restrictions now
+                \s* [^>]+                   # do not parse restrictions now
                 \s* >                       # closing bracket
+                )+
               )?                            # end of optional restriction
               \s*$                          # trailing spaces at end
             }x;
@@ -627,7 +655,7 @@ sub parse_string {
 	$self->{version} = Dpkg::Version->new($4);
     }
     if (defined($5)) {
-	$self->{arches} = [ split(/\s+/, $5) ];
+	$self->{arches} = [ debarch_list_parse($5) ];
     }
     if (defined($6)) {
 	$self->{restrictions} = [ parse_build_profiles($6) ];
@@ -721,25 +749,50 @@ sub _arch_is_superset {
     return 1;
 }
 
-# _arch_qualifier_allows_implication($p, $q)
+# _arch_qualifier_implies($p, $q)
 #
 # Returns true if the arch qualifier $p and $q are compatible with the
-# implication $p -> $q, false otherwise. $p/$q can be
-# undef/"any"/"native" or an architecture string.
-sub _arch_qualifier_allows_implication {
+# implication $p -> $q, false otherwise. $p/$q can be undef/"any"/"native"
+# or an architecture string.
+#
+# Because we are handling dependencies in isolation, and the full context
+# of the implications are only known when doing dependency resolution at
+# run-time, we can only assert that they are implied if they are equal.
+sub _arch_qualifier_implies {
     my ($p, $q) = @_;
-    if (defined $p and $p eq 'any') {
-	return 1 if defined $q and $q eq 'any';
-	return 0;
-    } elsif (defined $p and $p eq 'native') {
-	return 1 if defined $q and ($q eq 'any' or $q eq 'native');
-	return 0;
-    } elsif (defined $p) {
-	return 1 if defined $q and ($p eq $q or $q eq 'any');
-	return 0;
+
+    return $p eq $q if defined $p and defined $q;
+    return 1 if not defined $p and not defined $q;
+    return 0;
+}
+
+# _restrictions_imply($p, $q)
+#
+# Returns true if the restrictions $p and $q are compatible with the
+# implication $p -> $q, false otherwise.
+# NOTE: We don't try to be very clever here, so we may conservatively
+# return false when there is an implication.
+sub _restrictions_imply {
+    my ($p, $q) = @_;
+
+    if (not defined $p) {
+       return 1;
+    } elsif (not defined $q) {
+       return 0;
     } else {
-	return 0 if defined $q and $q ne 'any' and $q ne 'native';
-	return 1;
+       # Check whether set difference is empty.
+       my %restr;
+
+       for my $restrlist (@{$q}) {
+           my $reststr = join ' ', sort @{$restrlist};
+           $restr{$reststr} = 1;
+       }
+       for my $restrlist (@{$p}) {
+           my $reststr = join ' ', sort @{$restrlist};
+           delete $restr{$reststr};
+       }
+
+       return keys %restr == 0;
     }
 }
 
@@ -757,8 +810,12 @@ sub implies {
 	return unless _arch_is_superset($self->{arches}, $o->{arches});
 
 	# The arch qualifier must not forbid an implication
-	return unless _arch_qualifier_allows_implication($self->{archqual},
-	                                                 $o->{archqual});
+	return unless _arch_qualifier_implies($self->{archqual},
+	                                      $o->{archqual});
+
+	# Our restrictions must imply the restrictions for o
+	return unless _restrictions_imply($self->{restrictions},
+	                                  $o->{restrictions});
 
 	# If o has no version clause, then our dependency is stronger
 	return 1 if not defined $o->{relation};
@@ -1252,7 +1309,7 @@ Those methods are not meaningful for this object and always return undef.
 
 =item $union->simplify_deps($facts)
 
-The simplication is done to generate an union of all the relationships.
+The simplification is done to generate an union of all the relationships.
 It uses $simple_dep->merge_union($other_dep) to get its job done.
 
 =back
@@ -1315,8 +1372,6 @@ Creates a new object.
 
 use strict;
 use warnings;
-
-use Carp;
 
 use Dpkg::Version;
 
@@ -1388,8 +1443,8 @@ methods where appropriate, but it should not be directly queried.
 sub check_package {
     my ($self, $pkg) = @_;
 
-    carp 'obsolete function, pass Dpkg::Deps::KnownFacts to Dpkg::Deps ' .
-         'methods instead';
+    warnings::warnif('deprecated', 'obsolete function, pass ' .
+                     'Dpkg::Deps::KnownFacts to Dpkg::Deps methods instead');
 
     if (exists $self->{pkg}{$pkg}) {
 	return (1, $self->{pkg}{$pkg}[0]{version});
@@ -1468,6 +1523,10 @@ sub _evaluate_simple_dep {
 }
 
 =head1 CHANGES
+
+=head2 Version 1.06 (dpkg 1.18.7; module version bumped on dpkg 1.18.24)
+
+New option: Add tests_dep option to Dpkg::Deps::deps_parse().
 
 =head2 Version 1.05 (dpkg 1.17.14)
 

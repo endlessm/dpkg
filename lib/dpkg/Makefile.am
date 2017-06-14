@@ -34,8 +34,8 @@ libdpkg_la_LIBADD = \
 if BUILD_SHARED
 libdpkg_la_LIBADD += \
 	$(LIBINTL) \
-	$(ZLIB_LIBS) \
-	$(LIBLZMA_LIBS) \
+	$(Z_LIBS) \
+	$(LZMA_LIBS) \
 	$(BZ2_LIBS)
 endif
 libdpkg_la_DEPENDENCIES = \
@@ -48,6 +48,7 @@ libdpkg_la_SOURCES = \
 	buffer.c \
 	c-ctype.c \
 	cleanup.c \
+	color.c \
 	command.c \
 	compress.c \
 	dbdir.c \
@@ -93,10 +94,11 @@ libdpkg_la_SOURCES = \
 	subproc.c \
 	tarfn.c \
 	test.h \
+	treewalk.c \
 	trigname.c \
 	trignote.c \
 	triglib.c \
-	trigdeferred.l \
+	trigdeferred.c \
 	utils.c \
 	varbuf.c \
 	version.c
@@ -107,6 +109,7 @@ pkginclude_HEADERS = \
 	atomic-file.h \
 	buffer.h \
 	c-ctype.h \
+	color.h \
 	command.h \
 	compress.h \
 	deb-version.h \
@@ -138,6 +141,7 @@ pkginclude_HEADERS = \
 	string.h \
 	subproc.h \
 	tarfn.h \
+	treewalk.h \
 	trigdeferred.h \
 	triglib.h \
 	varbuf.h \

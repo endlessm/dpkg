@@ -13,6 +13,9 @@ EXTRA_DIST = \
 	$(test_scripts) \
 	$(nil)
 
+TEST_ENV_VARS = \
+	DPKG_PROGTAR=$(TAR) \
+	$(nil)
 
 # The tests are sorted in order of increasing complexity.
 test_programs = \
@@ -20,6 +23,7 @@ test_programs = \
 	t-test-skip \
 	t-macros \
 	t-c-ctype \
+	t-ehandle \
 	t-error \
 	t-string \
 	t-buffer \
@@ -29,6 +33,7 @@ test_programs = \
 	t-command \
 	t-varbuf \
 	t-ar \
+	t-tar \
 	t-deb-version \
 	t-arch \
 	t-version \
@@ -40,12 +45,16 @@ test_programs = \
 	$(nil)
 
 test_scripts = \
-	t-tar.t \
+	t-tarextract.t \
+	t-treewalk.t \
+	t-trigdeferred.t \
 	$(nil)
 
 check_PROGRAMS = \
 	$(test_programs) \
-	t-tarextract \
+	c-tarextract \
+	c-treewalk \
+	c-trigdeferred \
 	$(nil)
 
 test_tmpdir = t.tmp

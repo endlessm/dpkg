@@ -52,8 +52,8 @@ use constant {
 };
 
 use overload
-    '<=>' => \&comparison,
-    'cmp' => \&comparison,
+    '<=>' => \&_comparison,
+    'cmp' => \&_comparison,
     '""'  => sub { return $_[0]->as_string(); },
     'bool' => sub { return $_[0]->as_string() if $_[0]->is_valid(); },
     'fallback' => 1;
@@ -175,7 +175,7 @@ its string representation is a version number.
 
 =cut
 
-sub comparison {
+sub _comparison {
     my ($a, $b, $inverted) = @_;
     if (not ref($b) or not $b->isa('Dpkg::Version')) {
         $b = Dpkg::Version->new($b);
@@ -316,7 +316,7 @@ numbers. Returns -1 if $a is earlier than $b, 0 if they are equal and 1 if $a
 is later than $b.
 
 The "~" character always sort lower than anything else. Digits sort lower
-than non-digits. Among remaining characters alphabetic characters (A-Za-z)
+than non-digits. Among remaining characters alphabetic characters (A-Z, a-z)
 sort lower than the other ones. Within each range, the ASCII decimal value
 of the character is used to sort between characters.
 
@@ -416,6 +416,21 @@ sub version_check($) {
         return (0, $msg) if wantarray;
         return 0;
     }
+    if (not defined $version->epoch() or not length $version->epoch()) {
+        my $msg = sprintf(g_('epoch part of the version number cannot be empty'));
+        return (0, $msg) if wantarray;
+        return 0;
+    }
+    if (not defined $version->version() or not length $version->version()) {
+        my $msg = g_('upstream version cannot be empty');
+        return (0, $msg) if wantarray;
+        return 0;
+    }
+    if (not defined $version->revision() or not length $version->revision()) {
+        my $msg = sprintf(g_('revision cannot be empty'));
+        return (0, $msg) if wantarray;
+        return 0;
+    }
     if ($version->version() =~ m/^[^\d]/) {
         my $msg = g_('version number does not start with digit');
         return (0, $msg) if wantarray;
@@ -449,12 +464,6 @@ New method: $v->is_native().
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Don Armstrong <don@donarmstrong.com>, Colin Watson
-<cjwatson@debian.org> and Raphaël Hertzog <hertzog@debian.org>, based on
-the implementation in F<dpkg/lib/version.c> by Ian Jackson and others.
 
 =cut
 

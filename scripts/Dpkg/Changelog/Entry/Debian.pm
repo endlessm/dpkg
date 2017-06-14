@@ -19,7 +19,7 @@ package Dpkg::Changelog::Entry::Debian;
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.03';
 our @EXPORT_OK = qw(
     $regex_header
     $regex_trailer
@@ -110,7 +110,7 @@ my %month_name = map { $_ => } qw(
 
 Return a list of change items. Each item contains at least one line.
 A change line starting with an asterisk denotes the start of a new item.
-Any change line like "[ Raphaël Hertzog ]" is treated like an item of its
+Any change line like "C<[ Raphaël Hertzog ]>" is treated like an item of its
 own even if it starts a set of items attributed to this person (the
 following line necessarily starts a new item).
 
@@ -143,9 +143,9 @@ sub get_change_items {
     return @items;
 }
 
-=item @errors = $entry->check_header()
+=item @errors = $entry->parse_header()
 
-=item @errors = $entry->check_trailer()
+=item @errors = $entry->parse_trailer()
 
 Return a list of errors. Each item in the list is an error message
 describing the problem. If the empty list is returned, no errors
@@ -153,23 +153,36 @@ have been found.
 
 =cut
 
-sub check_header {
+sub parse_header {
     my $self = shift;
     my @errors;
     if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	my ($version, $options) = ($2, $4);
+	$self->{header_source} = $1;
+
+	my $version = Dpkg::Version->new($2);
+	my ($ok, $msg) = version_check($version);
+	if ($ok) {
+	    $self->{header_version} = $version;
+	} else {
+	    push @errors, sprintf(g_("version '%s' is invalid: %s"), $version, $msg);
+	}
+
+	@{$self->{header_dists}} = split ' ', $3;
+
+	my $options = $4;
 	$options =~ s/^\s+//;
-	my %optdone;
+	my $f = Dpkg::Control::Changelog->new();
 	foreach my $opt (split(/\s*,\s*/, $options)) {
 	    unless ($opt =~ m/^([-0-9a-z]+)\=\s*(.*\S)$/i) {
 		push @errors, sprintf(g_("bad key-value after ';': '%s'"), $opt);
 		next;
 	    }
 	    my ($k, $v) = (field_capitalize($1), $2);
-	    if ($optdone{$k}) {
+	    if (exists $f->{$k}) {
 		push @errors, sprintf(g_('repeated key-value %s'), $k);
+	    } else {
+		$f->{$k} = $v;
 	    }
-	    $optdone{$k} = 1;
 	    if ($k eq 'Urgency') {
 		push @errors, sprintf(g_('badly formatted urgency value: %s'), $v)
 		    unless ($v =~ m/^([-0-9a-z]+)((\s+.*)?)$/i);
@@ -181,20 +194,19 @@ sub check_header {
 		push @errors, sprintf(g_('unknown key-value %s'), $k);
 	    }
 	}
-	my ($ok, $msg) = version_check($version);
-	unless ($ok) {
-	    push @errors, sprintf(g_("version '%s' is invalid: %s"), $version, $msg);
-	}
+	$self->{header_fields} = $f;
     } else {
 	push @errors, g_("the header doesn't match the expected regex");
     }
     return @errors;
 }
 
-sub check_trailer {
+sub parse_trailer {
     my $self = shift;
     my @errors;
     if (defined($self->{trailer}) and $self->{trailer} =~ $regex_trailer) {
+	$self->{trailer_maintainer} = "$1 <$2>";
+
 	if ($3 ne '  ') {
 	    push @errors, g_('badly formatted trailer line');
 	}
@@ -208,23 +220,59 @@ sub check_trailer {
 	# Ignore the week day ('%a, '), as we have validated it above.
 	local $ENV{LC_ALL} = 'C';
 	eval {
-	    Time::Piece->strptime($7, '%d %b %Y %T %z');
+	    my $tp = Time::Piece->strptime($7, '%d %b %Y %T %z');
+	    $self->{trailer_timepiece} = $tp;
 	} or do {
 	    # Validate the month. Date::Parse used to accept both abbreviated
 	    # and full months, but Time::Piece strptime() implementation only
 	    # matches the abbreviated one with %b, which is what we want anyway.
-	    if (exists $month_name{$8}) {
-	        push @errors, sprintf(g_('uses full instead of abbreviated month name \'%s\''),
-	                              $8, $month_name{$8});
-	    } elsif (not exists $month_abbrev{$8}) {
-	        push @errors, sprintf(g_('invalid abbreviated month name \'%s\''), $8);
+	    if (not exists $month_abbrev{$8}) {
+	        # We have to nest the conditionals because May is the same in
+	        # full and abbreviated forms!
+	        if (exists $month_name{$8}) {
+	            push @errors, sprintf(g_('uses full instead of abbreviated month name \'%s\''),
+	                                  $8, $month_name{$8});
+	        } else {
+	            push @errors, sprintf(g_('invalid abbreviated month name \'%s\''), $8);
+	        }
 	    }
 	    push @errors, sprintf(g_("cannot parse non-comformant date '%s'"), $7);
 	};
+	$self->{trailer_timestamp_date} = $4;
     } else {
 	push @errors, g_("the trailer doesn't match the expected regex");
     }
     return @errors;
+}
+
+=item $entry->check_header()
+
+Obsolete method. Use parse_header() instead.
+
+=cut
+
+sub check_header {
+    my $self = shift;
+
+    warnings::warnif('deprecated',
+                     'obsolete check_header(), use parse_header() instead');
+
+    return $self->parse_header();
+}
+
+=item $entry->check_trailer()
+
+Obsolete method. Use parse_trailer() instead.
+
+=cut
+
+sub check_trailer {
+    my $self = shift;
+
+    warnings::warnif('deprecated',
+                     'obsolete check_trailer(), use parse_trailer() instead');
+
+    return $self->parse_header();
 }
 
 =item $entry->normalize()
@@ -240,50 +288,76 @@ sub normalize {
     #XXX: recreate header/trailer
 }
 
+=item $src = $entry->get_source()
+
+Return the name of the source package associated to the changelog entry.
+
+=cut
+
 sub get_source {
     my $self = shift;
-    if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	return $1;
-    }
-    return;
+
+    return $self->{header_source};
 }
+
+=item $ver = $entry->get_version()
+
+Return the version associated to the changelog entry.
+
+=cut
 
 sub get_version {
     my $self = shift;
-    if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	return Dpkg::Version->new($2);
-    }
-    return;
+
+    return $self->{header_version};
 }
+
+=item @dists = $entry->get_distributions()
+
+Return a list of target distributions for this version.
+
+=cut
 
 sub get_distributions {
     my $self = shift;
-    if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	my @dists = split ' ', $3;
-	return @dists if wantarray;
-	return $dists[0];
+
+    if (defined $self->{header_dists}) {
+        return @{$self->{header_dists}} if wantarray;
+        return $self->{header_dists}[0];
     }
     return;
 }
 
+=item $fields = $entry->get_optional_fields()
+
+Return a set of optional fields exposed by the changelog entry.
+It always returns a Dpkg::Control object (possibly empty though).
+
+=cut
+
 sub get_optional_fields {
     my $self = shift;
-    my $f = Dpkg::Control::Changelog->new();
-    if (defined($self->{header}) and $self->{header} =~ $regex_header) {
-	my $options = $4;
-	$options =~ s/^\s+//;
-	foreach my $opt (split(/\s*,\s*/, $options)) {
-	    if ($opt =~ m/^([-0-9a-z]+)\=\s*(.*\S)$/i) {
-		$f->{$1} = $2;
-	    }
-	}
+    my $f;
+
+    if (defined $self->{header_fields}) {
+        $f = $self->{header_fields};
+    } else {
+        $f = Dpkg::Control::Changelog->new();
     }
+
     my @closes = find_closes(join("\n", @{$self->{changes}}));
     if (@closes) {
 	$f->{Closes} = join(' ', @closes);
     }
+
     return $f;
 }
+
+=item $urgency = $entry->get_urgency()
+
+Return the urgency of the associated upload.
+
+=cut
 
 sub get_urgency {
     my $self = shift;
@@ -295,20 +369,42 @@ sub get_urgency {
     return;
 }
 
+=item $maint = $entry->get_maintainer()
+
+Return the string identifying the person who signed this changelog entry.
+
+=cut
+
 sub get_maintainer {
     my $self = shift;
-    if (defined($self->{trailer}) and $self->{trailer} =~ $regex_trailer) {
-	return "$1 <$2>";
-    }
-    return;
+
+    return $self->{trailer_maintainer};
 }
+
+=item $time = $entry->get_timestamp()
+
+Return the timestamp of the changelog entry.
+
+=cut
 
 sub get_timestamp {
     my $self = shift;
-    if (defined($self->{trailer}) and $self->{trailer} =~ $regex_trailer) {
-	return $4;
-    }
-    return;
+
+    return $self->{trailer_timestamp_date};
+}
+
+=item $time = $entry->get_timepiece()
+
+Return the timestamp of the changelog entry as a Time::Piece object.
+
+This function might return undef if there was no timestamp.
+
+=cut
+
+sub get_timepiece {
+    my $self = shift;
+
+    return $self->{trailer_timepiece};
 }
 
 =back
@@ -369,6 +465,16 @@ sub find_closes {
 
 =head1 CHANGES
 
+=head2 Version 1.03 (dpkg 1.18.8)
+
+New methods: $entry->get_timepiece().
+
+=head2 Version 1.02 (dpkg 1.18.5)
+
+New methods: $entry->parse_header(), $entry->parse_trailer().
+
+Deprecated methods: $entry->check_header(), $entry->check_trailer().
+
 =head2 Version 1.01 (dpkg 1.17.2)
 
 New functions: match_header(), match_trailer()
@@ -378,10 +484,6 @@ Deprecated variables: $regex_header, $regex_trailer
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

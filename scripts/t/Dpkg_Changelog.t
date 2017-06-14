@@ -16,7 +16,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 92;
+use Test::More tests => 94;
+use Test::Dpkg qw(:paths);
 
 use File::Basename;
 
@@ -28,8 +29,7 @@ BEGIN {
     use_ok('Dpkg::Vendor', qw(get_current_vendor));
 };
 
-my $srcdir = $ENV{srcdir} || '.';
-my $datadir = $srcdir . '/t/Dpkg_Changelog';
+my $datadir = test_get_data_path('t/Dpkg_Changelog');
 
 my $vendor = get_current_vendor();
 
@@ -94,7 +94,7 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	check_options( $changes, \@data,
 		       { count => 3, offset => 2 }, 3,
 		       '1:2.0~rc2-2/1:2.0~rc2-1sarge3/1:2.0~rc2-1sarge2',
-		       'positve count + positive offset' );
+		       'positive count + positive offset' );
 	check_options( $changes, \@data,
 		       { count => -3, offset => 4 }, 3,
 		       '1:2.0~rc2-3/1:2.0~rc2-2/1:2.0~rc2-1sarge3',
@@ -103,7 +103,7 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	check_options( $changes, \@data,
 		       { count => 4, offset => 5 }, 2,
 		       '1:2.0~rc2-1sarge1/1.5-1',
-		       'positve count + positive offset (>max)' );
+		       'positive count + positive offset (>max)' );
 	check_options( $changes, \@data,
 		       { count => -4, offset => 2 }, 2,
 		       '2:2.0-1/1:2.0~rc2-3',
@@ -112,7 +112,7 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	check_options( $changes, \@data,
 		       { count => 3, offset => -4 }, 3,
 		       '1:2.0~rc2-1sarge3/1:2.0~rc2-1sarge2/1:2.0~rc2-1sarge1',
-		       'positve count + negative offset' );
+		       'positive count + negative offset' );
 	check_options( $changes, \@data,
 		       { count => -3, offset => -3 }, 3,
 		       '1:2.0~rc2-3/1:2.0~rc2-2/1:2.0~rc2-1sarge3',
@@ -121,7 +121,7 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	check_options( $changes, \@data,
 		       { count => 5, offset => -2 }, 2,
 		       '1:2.0~rc2-1sarge1/1.5-1',
-		       'positve count + negative offset (>max)' );
+		       'positive count + negative offset (>max)' );
 	check_options( $changes, \@data,
 		       { count => -5, offset => -4 }, 3,
 		       '2:2.0-1/1:2.0~rc2-3/1:2.0~rc2-2',
@@ -166,12 +166,13 @@ foreach my $file ("$datadir/countme", "$datadir/shadow", "$datadir/fields",
 	#TODO: test combinations
     }
     if ($file eq "$datadir/fields") {
-	my $str = $changes->dpkg({ all => 1 });
+	my $str = $changes->format_range('dpkg', { all => 1 });
 	my $expected = 'Source: fields
 Version: 2.0-0etch1
 Distribution: stable
 Urgency: high
 Maintainer: Frank Lichtenheld <frank@lichtenheld.de>
+Timestamp: 1200235759
 Date: Sun, 13 Jan 2008 15:49:19 +0100
 Closes: 1000000 1111111 2222222
 Changes:
@@ -201,18 +202,20 @@ Changes:
    * First upload (Closes: #1000000)
 Xb-Userfield2: foobar
 Xc-Userfield: foobar
+
 ';
 	if ($vendor eq 'Ubuntu') {
 	    $expected =~ s/^(Closes:.*)/$1\nLaunchpad-Bugs-Fixed: 12345 54321 424242 2424242/m;
 	}
 	cmp_ok($str, 'eq', $expected, 'fields handling');
 
-	$str = $changes->dpkg({ offset => 1, count => 2 });
+	$str = $changes->format_range('dpkg', { offset => 1, count => 2 });
 	$expected = 'Source: fields
 Version: 2.0-1
 Distribution: unstable frozen
 Urgency: medium
 Maintainer: Frank Lichtenheld <djpig@debian.org>
+Timestamp: 1200149359
 Date: Sun, 12 Jan 2008 15:49:19 +0100
 Closes: 1111111 2222222
 Changes:
@@ -232,18 +235,20 @@ Changes:
  .
    * Beta
 Xc-Userfield: foobar
+
 ';
 	if ($vendor eq 'Ubuntu') {
 	    $expected =~ s/^(Closes:.*)/$1\nLaunchpad-Bugs-Fixed: 12345 424242/m;
 	}
 	cmp_ok($str, 'eq', $expected, 'fields handling 2');
 
-	$str = $changes->rfc822({ offset => 2, count => 2 });
+	$str = $changes->format_range('rfc822', { offset => 2, count => 2 });
 	$expected = 'Source: fields
 Version: 2.0~b1-1
 Distribution: unstable
 Urgency: low
 Maintainer: Frank Lichtenheld <frank@lichtenheld.de>
+Timestamp: 1200062959
 Date: Sun, 11 Jan 2008 15:49:19 +0100
 Changes:
  fields (2.0~b1-1) unstable; urgency=low,xc-userfield=foobar
@@ -256,6 +261,7 @@ Version: 1.0
 Distribution: experimental
 Urgency: high
 Maintainer: Frank Lichtenheld <djpig@debian.org>
+Timestamp: 1199976559
 Date: Sun, 10 Jan 2008 15:49:19 +0100
 Closes: 1000000
 Changes:
@@ -297,7 +303,7 @@ Xb-Userfield2: foobar
            'get date w/ DoW, and zero timezone offset');
     }
     if ($file eq "$datadir/regressions") {
-	my $f = $changes->dpkg();
+	my $f = ($changes->format_range('dpkg'))[0];
 	is("$f->{Version}", '0', 'version 0 correctly parsed');
     }
 
@@ -306,19 +312,20 @@ Xb-Userfield2: foobar
 	    if @data == 1;
 
 	my $oldest_version = $data[-1]->{Version};
-	$str = $changes->dpkg({ since => $oldest_version });
+	$str = $changes->format_range('dpkg', { since => $oldest_version });
 
-	$str = $changes->rfc822();
+	$str = $changes->format_range('rfc822');
 
 	ok(1, 'TODO check rfc822 output');
 
-	$str = $changes->rfc822({ since => $oldest_version });
+	$str = $changes->format_range('rfc822', { since => $oldest_version });
 
 	ok(1, 'TODO check rfc822 output with ranges');
     }
 }
 
-foreach my $test (( [ "$datadir/misplaced-tz", 6 ])) {
+foreach my $test (([ "$datadir/misplaced-tz", 6 ],
+                   [ "$datadir/unreleased", 5, 7 ])) {
 
     my $file = shift @$test;
     my $changes = Dpkg::Changelog::Debian->new(verbose => 0);

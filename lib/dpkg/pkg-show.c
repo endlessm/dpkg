@@ -26,6 +26,7 @@
 
 #include <dpkg/macros.h>
 #include <dpkg/i18n.h>
+#include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/pkg-show.h>
 
@@ -288,4 +289,52 @@ pkg_sorter_by_nonambig_name_arch(const void *a, const void *b)
 	} else {
 		return -1;
 	}
+}
+
+/**
+ * Add a string representation of the source package version to a varbuf.
+ *
+ * It parses the Source field (if present), and extracts the optional
+ * version enclosed in parenthesis. Otherwise it fallsback to use the
+ * binary package version. It NUL terminates the varbuf.
+ *
+ * @param vb      The varbuf struct to modify.
+ * @param pkg     The package to consider.
+ * @param pkgbin  The binary package instance to consider.
+ */
+void
+varbuf_add_source_version(struct varbuf *vb,
+                          const struct pkginfo *pkg, const struct pkgbin *pkgbin)
+{
+	const char *version;
+	size_t len;
+
+	if (pkgbin->source)
+		version = strchr(pkgbin->source, '(');
+	else
+		version = NULL;
+
+	if (version == NULL) {
+		varbufversion(vb, &pkgbin->version, vdew_nonambig);
+	} else {
+		version++;
+
+		len = strcspn(version, ")");
+
+		varbuf_add_buf(vb, version, len);
+	}
+}
+
+void
+pkg_source_version(struct dpkg_version *version,
+                   const struct pkginfo *pkg, const struct pkgbin *pkgbin)
+{
+	struct dpkg_error err;
+	struct varbuf vb = VARBUF_INIT;
+
+	varbuf_add_source_version(&vb, pkg, pkgbin);
+	varbuf_end_str(&vb);
+
+	if (parseversion(version, vb.buf, &err) < 0)
+		ohshit(_("version '%s' has bad syntax: %s"), vb.buf, err.str);
 }

@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
+#include <time.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -43,22 +44,42 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 #include <dpkg/path.h>
+#include <dpkg/treewalk.h>
 #include <dpkg/varbuf.h>
 #include <dpkg/fdio.h>
 #include <dpkg/buffer.h>
 #include <dpkg/subproc.h>
+#include <dpkg/command.h>
 #include <dpkg/compress.h>
 #include <dpkg/ar.h>
 #include <dpkg/options.h>
 
 #include "dpkg-deb.h"
 
+static void
+control_treewalk_feed(const char *dir, int fd_out)
+{
+  struct treeroot *tree;
+  struct treenode *node;
+
+  tree = treewalk_open(dir, TREEWALK_NONE, NULL);
+  for (node = treewalk_node(tree); node; node = treewalk_next(tree)) {
+    char *nodename;
+
+    nodename = str_fmt("./%s", treenode_get_virtname(node));
+    if (fd_write(fd_out, nodename, strlen(nodename) + 1) < 0)
+      ohshite(_("failed to write filename to tar pipe (%s)"),
+              _("control member"));
+    free(nodename);
+  }
+  treewalk_close(tree);
+}
+
 /**
  * Simple structure to store information about a file.
  */
 struct file_info {
   struct file_info *next;
-  struct stat st;
   char *fn;
 };
 
@@ -91,43 +112,6 @@ file_info_find_name(struct file_info *list, const char *filename)
       return node;
 
   return NULL;
-}
-
-/**
- * Read a filename from the file descriptor and create a file_info struct.
- *
- * @return A file_info struct or NULL if there is nothing to read.
- */
-static struct file_info *
-file_info_get(const char *root, int fd)
-{
-  static struct varbuf fn = VARBUF_INIT;
-  struct file_info *fi;
-  size_t root_len;
-
-  varbuf_reset(&fn);
-  root_len = varbuf_printf(&fn, "%s/", root);
-
-  while (1) {
-    int res;
-
-    varbuf_grow(&fn, 1);
-    res = fd_read(fd, (fn.buf + fn.used), 1);
-    if (res < 0)
-      return NULL;
-    if (res == 0) /* EOF -> parent died. */
-      return NULL;
-    if (fn.buf[fn.used] == '\0')
-      break;
-
-    varbuf_trunc(&fn, fn.used + 1);
-  }
-
-  fi = file_info_new(fn.buf + root_len);
-  if (lstat(fn.buf, &(fi->st)) != 0)
-    ohshite(_("unable to stat file name '%.250s'"), fn.buf);
-
-  return fi;
 }
 
 /**
@@ -168,46 +152,39 @@ file_info_list_free(struct file_info *fi)
 static void
 file_treewalk_feed(const char *dir, int fd_out)
 {
-  int pipefd[2];
-  pid_t pid;
+  struct treeroot *tree;
+  struct treenode *node;
   struct file_info *fi;
   struct file_info *symlist = NULL;
   struct file_info *symlist_end = NULL;
 
-  m_pipe(pipefd);
+  tree = treewalk_open(dir, TREEWALK_NONE, NULL);
+  for (node = treewalk_node(tree); node ; node = treewalk_next(tree)) {
+    const char *virtname = treenode_get_virtname(node);
+    char *nodename;
 
-  pid = subproc_fork();
-  if (pid == 0) {
-    m_dup2(pipefd[1], 1);
-    close(pipefd[0]);
-    close(pipefd[1]);
+    if (strncmp(virtname, BUILDCONTROLDIR, strlen(BUILDCONTROLDIR)) == 0)
+      continue;
 
-    if (chdir(dir))
-      ohshite(_("failed to chdir to '%.255s'"), dir);
+    nodename = str_fmt("./%s", virtname);
 
-    execlp(FIND, "find", ".", "-path", "./" BUILDCONTROLDIR, "-prune", "-o",
-           "-print0", NULL);
-    ohshite(_("unable to execute %s (%s)"), "find", FIND);
-  }
-  close(pipefd[1]);
+    if (strchr(nodename, '\n'))
+      ohshit(_("newline not allowed in pathname '%s'"), nodename);
 
-  /* We need to reorder the files so we can make sure that symlinks
-   * will not appear before their target. */
-  while ((fi = file_info_get(dir, pipefd[0])) != NULL) {
-    if (strchr(fi->fn, '\n'))
-      ohshit(_("newline not allowed in pathname '%s'"), fi->fn);
-    if (S_ISLNK(fi->st.st_mode)) {
+    /* We need to reorder the files so we can make sure that symlinks
+     * will not appear before their target. */
+    if (S_ISLNK(treenode_get_mode(node))) {
+      fi = file_info_new(nodename);
       file_info_list_append(&symlist, &symlist_end, fi);
     } else {
-      if (fd_write(fd_out, fi->fn, strlen(fi->fn) + 1) < 0)
+      if (fd_write(fd_out, nodename, strlen(nodename) + 1) < 0)
         ohshite(_("failed to write filename to tar pipe (%s)"),
                 _("data member"));
-      file_info_free(fi);
     }
-  }
 
-  close(pipefd[0]);
-  subproc_reap(pid, "find", 0);
+    free(nodename);
+  }
+  treewalk_close(tree);
 
   for (fi = symlist; fi; fi = fi->next)
     if (fd_write(fd_out, fi->fn, strlen(fi->fn) + 1) < 0)
@@ -350,6 +327,9 @@ check_control_file(const char *ctrldir)
   if (strspn(pkg->set->name, "abcdefghijklmnopqrstuvwxyz0123456789+-.") !=
       strlen(pkg->set->name))
     ohshit(_("package name has characters that aren't lowercase alphanums or '-+.'"));
+  if (pkg->available.arch->type == DPKG_ARCH_NONE ||
+      pkg->available.arch->type == DPKG_ARCH_EMPTY)
+    ohshit(_("package architecture is missing or empty"));
   if (pkg->priority == PKG_PRIO_OTHER)
     warning(_("'%s' contains user-defined Priority value '%s'"),
             controlfile, pkg->otherpriority);
@@ -430,17 +410,9 @@ gen_dest_pathname(const char *dir, const char *dest)
 static char *
 gen_dest_pathname_from_pkg(const char *dir, struct pkginfo *pkg)
 {
-  const char *arch_sep;
-
-  if (pkg->available.arch->type == DPKG_ARCH_NONE ||
-      pkg->available.arch->type == DPKG_ARCH_EMPTY)
-    arch_sep = "";
-  else
-    arch_sep = "_";
-
-  return str_fmt("%s/%s_%s%s%s%s", dir, pkg->set->name,
+  return str_fmt("%s/%s_%s_%s%s", dir, pkg->set->name,
                  versiondescribe(&pkg->available.version, vdew_never),
-                 arch_sep, pkg->available.arch->name, DEBEXT);
+                 pkg->available.arch->name, DEBEXT);
 }
 
 typedef void filenames_feed_func(const char *dir, int fd_out);
@@ -450,6 +422,7 @@ typedef void filenames_feed_func(const char *dir, int fd_out);
  */
 static void
 tarball_pack(const char *dir, filenames_feed_func *tar_filenames_feeder,
+             time_t timestamp, const char *mode,
              struct compress_params *tar_compress_params, int fd_out)
 {
   int pipe_filenames[2], pipe_tarball[2];
@@ -460,6 +433,9 @@ tarball_pack(const char *dir, filenames_feed_func *tar_filenames_feeder,
   m_pipe(pipe_tarball);
   pid_tar = subproc_fork();
   if (pid_tar == 0) {
+    struct command cmd;
+    char mtime[50];
+
     m_dup2(pipe_filenames[0], 0);
     close(pipe_filenames[0]);
     close(pipe_filenames[1]);
@@ -470,9 +446,17 @@ tarball_pack(const char *dir, filenames_feed_func *tar_filenames_feeder,
     if (chdir(dir))
       ohshite(_("failed to chdir to '%.255s'"), dir);
 
-    execlp(TAR, "tar", "-cf", "-", "--format=gnu", "--null", "--no-unquote",
-                       "--no-recursion", "-T", "-", NULL);
-    ohshite(_("unable to execute %s (%s)"), "tar -cf", TAR);
+    snprintf(mtime, sizeof(mtime), "@%ld", timestamp);
+
+    command_init(&cmd, TAR, "tar -cf");
+    command_add_args(&cmd, "tar", "-cf", "-", "--format=gnu",
+                           "--mtime", mtime, "--clamp-mtime", NULL);
+    /* Mode might become a positional argument, pass it before -T. */
+    if (mode)
+      command_add_args(&cmd, "--mode", mode, NULL);
+    command_add_args(&cmd, "--null", "--no-unquote", "--no-recursion",
+                           "-T", "-", NULL);
+    command_exec(&cmd);
   }
   close(pipe_filenames[0]);
   close(pipe_tarball[1]);
@@ -496,6 +480,20 @@ tarball_pack(const char *dir, filenames_feed_func *tar_filenames_feeder,
   subproc_reap(pid_tar, "tar -cf", 0);
 }
 
+static time_t
+parse_timestamp(const char *value)
+{
+  time_t timestamp;
+  char *end;
+
+  errno = 0;
+  timestamp = strtol(value, &end, 10);
+  if (value == end || *end || errno != 0)
+    ohshite(_("unable to parse timestamp '%.255s'"), value);
+
+  return timestamp;
+}
+
 /**
  * Overly complex function that builds a .deb file.
  */
@@ -504,13 +502,14 @@ do_build(const char *const *argv)
 {
   struct compress_params control_compress_params;
   struct dpkg_error err;
+  struct dpkg_ar *ar;
+  time_t timestamp;
+  const char *timestamp_str;
   const char *dir, *dest;
   char *ctrldir;
   char *debar;
   char *tfbuf;
-  int arfd;
-  int p1[2], gzfd;
-  pid_t c1, c2;
+  int gzfd;
 
   /* Decode our arguments. */
   dir = *argv++;
@@ -529,36 +528,30 @@ do_build(const char *const *argv)
     if (debar == NULL)
       ohshit(_("target is directory - cannot skip control file check"));
     warning(_("not checking contents of control area"));
-    printf(_("dpkg-deb: building an unknown package in '%s'.\n"), debar);
+    info(_("building an unknown package in '%s'."), debar);
   } else {
     struct pkginfo *pkg;
 
     pkg = check_control_area(ctrldir, dir);
     if (debar == NULL)
       debar = gen_dest_pathname_from_pkg(dest, pkg);
-    printf(_("dpkg-deb: building package '%s' in '%s'.\n"),
-           pkg->set->name, debar);
+    info(_("building package '%s' in '%s'."), pkg->set->name, debar);
   }
   m_output(stdout, _("<standard output>"));
 
-  /* Now that we have verified everything its time to actually
+  timestamp_str = getenv("SOURCE_DATE_EPOCH");
+  if (timestamp_str)
+    timestamp = parse_timestamp(timestamp_str);
+  else
+    timestamp = time(NULL);
+
+  /* Now that we have verified everything it is time to actually
    * build something. Let's start by making the ar-wrapper. */
-  arfd = creat(debar, 0644);
-  if (arfd < 0)
-    ohshite(_("unable to create '%.255s'"), debar);
-  /* Fork a tar to package the control-section of the package. */
+  ar = dpkg_ar_create(debar, 0644);
+
+  dpkg_ar_set_mtime(ar, timestamp);
+
   unsetenv("TAR_OPTIONS");
-  m_pipe(p1);
-  c1 = subproc_fork();
-  if (!c1) {
-    m_dup2(p1[1],1); close(p1[0]); close(p1[1]);
-    if (chdir(ctrldir))
-      ohshite(_("failed to chdir to '%.255s'"), ctrldir);
-    execlp(TAR, "tar", "-cf", "-", "--format=gnu", ".", NULL);
-    ohshite(_("unable to execute %s (%s)"), "tar -cf", TAR);
-  }
-  close(p1[1]);
-  free(ctrldir);
 
   /* Create a temporary file to store the control data in. Immediately
    * unlink our temporary file so others can't mess with it. */
@@ -572,7 +565,7 @@ do_build(const char *const *argv)
            tfbuf);
   free(tfbuf);
 
-  /* And run the compressor on our control archive. */
+  /* Select the compressor to use for our control archive. */
   if (opt_uniform_compression) {
     control_compress_params = compress_params;
   } else {
@@ -583,14 +576,11 @@ do_build(const char *const *argv)
       internerr("invalid control member compressor params: %s", err.str);
   }
 
-  c2 = subproc_fork();
-  if (!c2) {
-    compress_filter(&control_compress_params, p1[0], gzfd, _("compressing control member"));
-    exit(0);
-  }
-  close(p1[0]);
-  subproc_reap(c2, _("<compress> from tar -cf"), 0);
-  subproc_reap(c1, "tar -cf", 0);
+  /* Fork a tar to package the control-section of the package. */
+  tarball_pack(ctrldir, control_treewalk_feed, timestamp, "u+rw,go=rX",
+               &control_compress_params, gzfd);
+
+  free(ctrldir);
 
   if (lseek(gzfd, 0, SEEK_SET))
     ohshite(_("failed to rewind temporary file (%s)"), _("control member"));
@@ -605,11 +595,11 @@ do_build(const char *const *argv)
       ohshite(_("failed to stat temporary file (%s)"), _("control member"));
     sprintf(versionbuf, "%-8s\n%jd\n", OLDARCHIVEVERSION,
             (intmax_t)controlstab.st_size);
-    if (fd_write(arfd, versionbuf, strlen(versionbuf)) < 0)
+    if (fd_write(ar->fd, versionbuf, strlen(versionbuf)) < 0)
       ohshite(_("error writing '%s'"), debar);
-    if (fd_fd_copy(gzfd, arfd, -1, &err) < 0)
+    if (fd_fd_copy(gzfd, ar->fd, -1, &err) < 0)
       ohshit(_("cannot copy '%s' into archive '%s': %s"), _("control member"),
-             debar, err.str);
+             ar->name, err.str);
   } else if (deb_format.major == 2) {
     const char deb_magic[] = ARCHIVEVERSION "\n";
     char adminmember[16 + 1];
@@ -617,9 +607,9 @@ do_build(const char *const *argv)
     sprintf(adminmember, "%s%s", ADMINMEMBER,
             compressor_get_extension(control_compress_params.type));
 
-    dpkg_ar_put_magic(debar, arfd);
-    dpkg_ar_member_put_mem(debar, arfd, DEBMAGIC, deb_magic, strlen(deb_magic));
-    dpkg_ar_member_put_file(debar, arfd, adminmember, gzfd, -1);
+    dpkg_ar_put_magic(ar);
+    dpkg_ar_member_put_mem(ar, DEBMAGIC, deb_magic, strlen(deb_magic));
+    dpkg_ar_member_put_file(ar, adminmember, gzfd, -1);
   } else {
     internerr("unknown deb format version %d.%d", deb_format.major, deb_format.minor);
   }
@@ -631,7 +621,7 @@ do_build(const char *const *argv)
     /* In old format, the data member is just concatenated after the
      * control member, so we do not need a temporary file and can use
      * the compression file descriptor. */
-    gzfd = arfd;
+    gzfd = ar->fd;
   } else if (deb_format.major == 2) {
     /* Start by creating a new temporary file. Immediately unlink the
      * temporary file so others can't mess with it. */
@@ -649,7 +639,7 @@ do_build(const char *const *argv)
   }
 
   /* Pack the directory into a tarball, feeding files from the callback. */
-  tarball_pack(dir, file_treewalk_feed, &compress_params, gzfd);
+  tarball_pack(dir, file_treewalk_feed, timestamp, NULL, &compress_params, gzfd);
 
   /* Okay, we have data.tar as well now, add it to the ar wrapper. */
   if (deb_format.major == 2) {
@@ -661,14 +651,14 @@ do_build(const char *const *argv)
     if (lseek(gzfd, 0, SEEK_SET))
       ohshite(_("failed to rewind temporary file (%s)"), _("data member"));
 
-    dpkg_ar_member_put_file(debar, arfd, datamember, gzfd, -1);
+    dpkg_ar_member_put_file(ar, datamember, gzfd, -1);
 
     close(gzfd);
   }
-  if (fsync(arfd))
-    ohshite(_("unable to sync file '%s'"), debar);
-  if (close(arfd))
-    ohshite(_("unable to close file '%s'"), debar);
+  if (fsync(ar->fd))
+    ohshite(_("unable to sync file '%s'"), ar->name);
+
+  dpkg_ar_close(ar);
 
   free(debar);
 

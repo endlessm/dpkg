@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.10\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
-"PO-Revision-Date: 2015-09-23 18:54+0300\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
+"PO-Revision-Date: 2017-01-30 18:28+0300\n"
 "Last-Translator: Mert Dirik <mertdirik@gmail.com>\n"
 "Language-Team: Turkish <debian-l10n-turkish@lists.debian.org>\n"
 "Language: tr\n"
@@ -15,7 +15,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.2\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "arşive fstat çağrısı yapılamadı"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "'%.255s' arşivi okunamadı"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "'%.255s' oluşturulamadı"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "'%s' dosyası kapatılamadı"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -143,8 +163,8 @@ msgstr "beklenmeyen dosya ya da akış sonu"
 msgid "failed to seek"
 msgstr "seek çağrısı başarısız oldu"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "%s (%s) çalıştırılamadı"
@@ -306,11 +326,6 @@ msgstr "güncelleme dizini (%.255s) taranamadı"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "birleştirilmiş güncelleme dosyası %.255s silinirken sorun yaşandı"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "'%.255s' oluşturulamadı"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -421,8 +436,7 @@ msgstr "'%s' dizini için sync çağrısı başarısız oldu"
 msgid "unable to open directory '%s'"
 msgstr "'%s' dizini açılamadı"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "'%s' dosyası açılamadı"
@@ -432,12 +446,6 @@ msgstr "'%s' dosyası açılamadı"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "'%s' dosyası için sync çağrısı başarısız oldu"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "'%s' dosyası kapatılamadı"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -456,22 +464,17 @@ msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr ""
 "'%2$.50s' paketinin \"%1$s\" veritabanı kaydı '%3$.250s' dosyasına yazılamadı"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: kurtarılamaz ciddi hata, işlem iptal ediliyor:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "hata"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: hata bağlamı dışında, iptal ediliyor:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
@@ -479,18 +482,12 @@ msgid "out of memory for new error context"
 msgstr "yeni hata bağlamı için bellek yetersiz"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
-msgstr ""
-"%s: temizlik yapılırken sorun yaşandı:\n"
-" %s\n"
+msgid "error while cleaning up"
+msgstr "temizlik yapılırken sorun yaşandı"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
-msgstr "%s: hata kurtarma esnasında çok fazla yuvalanmış hata!!\n"
+msgid "too many nested errors during error recovery"
+msgstr "hata kurtarma esnasında çok fazla yuvalanmış hatayla karşılaşıldı"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new cleanup entry"
@@ -501,14 +498,16 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "çok argümanlı yeni temizlik girdisi için bellek yetersiz"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: hata: %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr "kurtarılamaz ciddi hata, işlem iptal ediliyor"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: dâhilî hata: %s\n"
+msgid "outside error context, aborting"
+msgstr "hata bağlamı dışında, işlem iptal ediliyor"
+
+#: lib/dpkg/ehandle.c
+msgid "internal error"
+msgstr "dâhilî hata"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -598,7 +597,7 @@ msgstr "artık kullanılmayan '%s' veya '%s' alanları kullanılmış"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "'%s' alanının değeri hatalı biçimlenmiş bir satır içeriyor (%.*s)"
 
 #: lib/dpkg/fields.c
@@ -698,7 +697,7 @@ msgstr "'%s' alanı, '%.255s' referansı: sürüm hatalı"
 #: lib/dpkg/fields.c
 #, c-format
 msgid "'%s' field, syntax error after reference to package '%.255s'"
-msgstr "'%s' alanı, '%.255s' paketine olan referanstan sonra sözdizimi hatası"
+msgstr "'%s' alanı, '%.255s' paketine olan referanstan sonra söz dizimi hatası"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -889,7 +888,12 @@ msgstr "-%c seçeneği bir değer almaz"
 #: lib/dpkg/options.c dpkg-split/main.c
 #, c-format
 msgid "invalid integer for --%s: '%.250s'"
-msgstr "--%s seçeneği için geçersiz tamsayı: '%.250s'"
+msgstr "--%s seçeneği için geçersiz tam sayı: '%.250s'"
+
+#: lib/dpkg/options.c
+#, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "-%c seçeneği için geçersiz tam sayı: '%.250s'"
 
 #: lib/dpkg/options.c
 #, c-format
@@ -1131,6 +1135,10 @@ msgid "version string has embedded spaces"
 msgstr "sürüm dizgisinde boşluk karakterleri var"
 
 #: lib/dpkg/parsehelp.c
+msgid "epoch in version is empty"
+msgstr "sürüm numarasındaki devir sayısı boş"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "sürüm numarasındaki devir kısmı bir sayı değil"
 
@@ -1145,6 +1153,14 @@ msgstr "sürüm numarasındaki devir sayısı çok büyük"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "sürüm numarasında iki noktadan sonra karakter yok"
+
+#: lib/dpkg/parsehelp.c
+msgid "revision number is empty"
+msgstr "düzeltme numarası boş"
+
+#: lib/dpkg/parsehelp.c
+msgid "version number is empty"
+msgstr "sürüm numarası boş"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1189,6 +1205,11 @@ msgstr "kapatma parantezi eksik"
 msgid "(no description available)"
 msgstr "(açıklama mevcut değil)"
 
+#: lib/dpkg/pkg-show.c
+#, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "'%s' sürümünü hatalı söz dizimine sahip: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1199,10 +1220,9 @@ msgstr "'%s%s%s' tanımlayıcısında geçersiz paket adı: %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "'%s:%s' tanımlayıcısında geçersiz mimari adı: %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: uyarı: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "uyarı"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1233,7 +1253,7 @@ msgstr "%s (alt süreç): %s\n"
 msgid "fork failed"
 msgstr "fork sistem çağrısı başarısız oldu"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "alt süreç %s %d çıkış kodu ile sona erdi"
@@ -1262,63 +1282,74 @@ msgstr "alt süreç %s %d durum kodu döndürerek başarısız oldu"
 msgid "wait for subprocess %s failed"
 msgstr "%s alt süreci wait çağrısı başarısız oldu"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr "tetikleyici erteleme dosyasında (%.250s) geçersiz paket adı (%.250s)"
+msgid "cannot stat pathname '%s'"
+msgstr "'%s' konumuna stat çağrısı başarısız oldu"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "tetikleyici erteleme dosyası (%.250s) kısaltıldı"
+msgid "cannot open directory '%s'"
+msgstr "'%s' dizini açılamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"tetikleyici erteleme dosyasındaki (%.250s) '%s'%s karakterinde sözdizimi "
-"hatası"
+msgid "treewalk root %s is not a directory"
+msgstr "treewalk kök dizini %s bir dizin değil"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "yeni tetikleyici kilit dosyası (%.250s) açılamadı/oluşturulamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 msgid "triggers area"
 msgstr "tetikleyici bölgesi"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "tetikleyici erteleme dosyası (%.250s) açılamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "tetikleyici erteleme dosyasına (%.250s) stat çağrısı yapılamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "yeni tetikleyici erteleme dosyası (%.250s) açılamadı/oluşturulamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"tetikleyici erteleme dosyasındaki (%.250s) %d numaralı satır %zd "
+"karakterinde söz dizimi hatası '%s'"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr "tetikleyici erteleme dosyasında (%.250s) geçersiz paket adı (%.250s)"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "tetikleyici erteleme dosyası (%.250s) okunurken sorun yaşandı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "yeni tetikleyici erteleme dosyasına (%.250s) yazılamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "yeni tetikleyici erteleme dosyası (%.250s) kapatılamadı"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "yeni tetikleyici erteleme dosyası (%.250s) kurulamadı"
@@ -1329,8 +1360,8 @@ msgid ""
 "invalid or unknown syntax in trigger name '%.250s' (in trigger interests for "
 "package '%.250s')"
 msgstr ""
-"tetikleyici adı (%.250s) geçersiz veya bilinmeyen bir sözdizimi kullanıyor (`"
-"%.250s' paketinin tetikleyici ilgi listesinde)"
+"tetikleyici adı (%.250s) geçersiz veya bilinmeyen bir söz dizimi kullanıyor "
+"(`%.250s' paketinin tetikleyici ilgi listesinde)"
 
 #: lib/dpkg/triglib.c
 #, c-format
@@ -1348,7 +1379,7 @@ msgid ""
 "trigger interest file '%.250s' syntax error; illegal package name '%.250s': "
 "%.250s"
 msgstr ""
-"tetikleyici ilgi listesi (%.250s) sözdizimi hatası içeriyor; paket adı "
+"tetikleyici ilgi listesi (%.250s) söz dizimi hatası içeriyor; paket adı "
 "(%.250s) hatalı: %.250s"
 
 #: lib/dpkg/triglib.c
@@ -1366,7 +1397,7 @@ msgstr "tetikleyici erteleme dosyası (%.250s) okunamadı"
 #: lib/dpkg/triglib.c
 #, c-format
 msgid "syntax error in file triggers file '%.250s'"
-msgstr "tetikleyici ilgi dosyasında (%.250s) sözdizimi hatası"
+msgstr "tetikleyici ilgi dosyasında (%.250s) söz dizimi hatası"
 
 #: lib/dpkg/triglib.c
 #, c-format
@@ -1384,7 +1415,7 @@ msgid ""
 "'%.250s': %.250s"
 msgstr ""
 "tetikleyici ci dosyası (%.250s) tetikleyici adında (%.250s) geçersiz bir "
-"tetikleyici sözdizimi içeriyor: %.250s"
+"tetikleyici söz dizimi içeriyor: %.250s"
 
 #: lib/dpkg/triglib.c
 #, c-format
@@ -1393,7 +1424,7 @@ msgstr "tetikleyici 'ci' dosyası (%.250s) açılamadı"
 
 #: lib/dpkg/triglib.c
 msgid "triggers ci file contains unknown directive syntax"
-msgstr "tetikleyici ci dosyası bilinmeyen bir yönerge sözdizimi içeriyor"
+msgstr "tetikleyici ci dosyası bilinmeyen bir yönerge söz dizimi içeriyor"
 
 #: lib/dpkg/triglib.c
 #, c-format
@@ -1605,11 +1636,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "arşiv bilinmeyen 0x%2$x türündeki '%1$.255s' nesnesini içeriyor"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "'%s' dosyasına stat çağrısı başarısız"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1811,29 +1837,6 @@ msgstr ""
 "--%s --recursive seçeneği en az bir adet yol argümanı kullanımını gerektirir"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "dpkg --recursive için find komutu"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "find sürecinin borusuna fdopen çağrısı başarısız oldu"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "find sürecinin borusu okunurken bir sorun yaşandı"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "find sürecinin borusu kapatılırken bir sorun yaşandı"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr ""
-"--recursive işlemi için açılan find süreci yakalanmayan bir hata ile döndü "
-"(%i)"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "arama yapıldı ama hiç (*.deb örüntüsüyle eşleşen) paket bulunamadı"
 
@@ -1842,6 +1845,16 @@ msgstr "arama yapıldı ama hiç (*.deb örüntüsüyle eşleşen) paket bulunam
 msgid "--%s needs at least one package archive file argument"
 msgstr ""
 "--%s seçeneği en az bir adet paket arşivi dosyası argümanına ihtiyaç duyar"
+
+#: src/archives.c src/unpack.c
+#, c-format
+msgid "cannot access archive '%s'"
+msgstr "'%s' arşivine ulaşılamıyor"
+
+#: src/archives.c
+#, c-format
+msgid "archive '%s' is not a regular file"
+msgstr "'%s' arşivi normal bir dosya değil"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2430,6 +2443,11 @@ msgstr ""
 "zaman\n"
 "belirtmelidir.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "'%s' dosyasına stat çağrısı başarısız"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2792,11 +2810,45 @@ msgstr ""
 msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr "%.250s için önbağımlılıklar sağlanamıyor (%.250s için isteniyordu)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr ""
-"'--%s' seçeneği kullanımdan kalkmıştır; lütfen bunun yerine '--%s' kullanın"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s seçeneği bir adet <paket adı> argümanı alır"
+
+#: src/enquiry.c
+#, c-format
+msgid "package name '%s' is invalid: %s"
+msgstr "paket adı (%s) geçersiz: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s seçeneği bir adet <tetikleyici adı> argümanı alır"
+
+#: src/enquiry.c
+#, c-format
+msgid "trigger name '%s' is invalid: %s"
+msgstr "tetikleyici adı (%s) geçersiz: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <archname> argument"
+msgstr "--%s seçeneği bir <mimari adı> argümanı alır"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr "mimari adı (%s) geçersiz: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <version> argument"
+msgstr "--%s seçeneği bir <sürüm> argümanı alır"
+
+#: src/enquiry.c
+#, c-format
+msgid "version '%s' has bad syntax"
+msgstr "'%s' sürümünü hatalı söz dizimine sahip"
 
 #: src/enquiry.c
 msgid ""
@@ -2811,11 +2863,6 @@ msgstr "--compare-versions kötü ilişki"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr "--%s seçeneği kullanımdan kalkmış olan '%s' işleci ile kullanıldı"
-
-#: src/enquiry.c
-#, c-format
-msgid "version '%s' has bad syntax"
-msgstr "'%s' sürümünü hatalı sözdizimine sahip"
 
 #: src/errors.c
 #, c-format
@@ -2936,13 +2983,14 @@ msgstr ""
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value"
-msgstr "'%s' denetim dosyasında eksik değer"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "'%2$s' paketinin denetim dosyasında (%1$s) eksik değer var"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value separator"
-msgstr "'%s' denetim dosyasında eksik bir değer ayırıcı var"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"'%2$s' paketinin denetim dosyasında (%1$s) eksik değer ayırıcı karakter var"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2951,28 +2999,28 @@ msgstr "'%2$s' paketinin denetim dosyası (%1$s) boş bir dosya adı içeriyor"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "'%2$s' paketinin denetim dosyası (%1$s) açılamıyor"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot stat '%s' control file for package '%s'"
-msgstr "'%2$s' paketinin denetim dosyasına (%1$s) stat çağrısı yapılamadı"
+msgid "cannot stat control file '%s' for package '%s'"
+msgstr "'%2$s' paketinin denetim dosyasına (%1$s) stat çağrısı yapılamıyor"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "'%2$s' paketinin '%1$s' dosyası normal bir dosya değil"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot read '%s' control file for package '%s'"
-msgstr "'%2$s' paketinin denetim dosyası (%1$s) okunamadı"
+msgid "cannot read control file '%s' for package '%s'"
+msgstr "'%2$s' paketinin denetim dosyası (%1$s) okunamıyor"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot close '%s' control file for package '%s'"
-msgstr "'%2$s' paketinin denetim dosyası (%1$s) kapatılamadı"
+msgid "cannot close control file '%s' for package '%s'"
+msgstr "'%2$s' paketinin denetim dosyası (%1$s) kapatılamıyor"
 
 #: src/help.c
 msgid "not installed"
@@ -3116,6 +3164,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3132,7 +3181,8 @@ msgstr ""
 "  -V|--verify <paket> ...          Paket(ler)in tutarlılığını denetle.\n"
 "  --get-selections [<örüntü> ...]  Seçimlerin listesini standart çıktıya "
 "yaz.\n"
-"  --set-selections                 Paket seçimlerini standart girdiden al.\n"
+"  --set-selections                 Paket seçimlerini standart girdiden alıp "
+"ayarla.\n"
 "  --clear-selections               Temel olmayan tüm paketlerin seçimini "
 "kaldır.\n"
 "  --update-avail [<Paket-dosyası>] Mevcut paket bilgisini değiştir.\n"
@@ -3145,7 +3195,7 @@ msgstr ""
 "  -p|--print-avail <paket> ...     Paketin kullanılabilir sürümlerini "
 "göster.\n"
 "  -L|--listfiles <paket> ...       Paket(ler)in dosyalarını göster.\n"
-"  -l|--list [<örüntü> ...]         Eşleşen paketleri listele.\n"
+"  -l|--list [<örüntü> ...]         Eşleşen paketleri kısaca listele.\n"
 "  -S|--search <örüntü> ...         Dosyaların hangi paketlere ait olduğunu "
 "bul.\n"
 "  -C|--audit [<paket> ...]         Bozuk paket(ler)i denetle.\n"
@@ -3158,6 +3208,8 @@ msgstr ""
 "  --assert-<özellik>               Belirtilen özelliğin desteklendiğini öne "
 "sür.\n"
 "  --compare-versions <a> <op> <b>  Sürüm numaralarını karşılaştır.\n"
+"  --validate-<alan> <dizgi>        <dizgi>nin <alan> olarak geçerliliğini "
+"denetle.\n"
 "  --force-help                     Zorlama yardımını göster.\n"
 "  -Dh|--debug=help                 Hata ayıklama yardımını göster.\n"
 "\n"
@@ -3183,6 +3235,16 @@ msgstr ""
 "Desteklendiği öne sürülebilen özellikler: support-predepends, working-"
 "epoch,\n"
 "  long-filenames, multi-conrep, multi-arch, versioned-provides.\n"
+"\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
+"Geçerliliği denetlenebilen alanlar: paket adı, mimari adı, tetikleyici adı, "
+"sürüm numarası.\n"
 "\n"
 
 #: src/main.c
@@ -3289,7 +3351,8 @@ msgstr ""
 "sayılır);\n"
 "  lt-nl le-nl ge-nl gt-nl   (boş sürümler diğer her sürümden daha yeni "
 "sayılır);\n"
-"  < << <= = >= >> >         (control dosyası sözdizimi ile uyumluluk için).\n"
+"  < << <= = >= >> >         (control dosyası söz dizimi ile uyumluluk "
+"için).\n"
 "\n"
 
 #: src/main.c
@@ -3368,6 +3431,10 @@ msgstr "Bir paketin dosyasını başka bir paketin dizininin üzerine yaz"
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "Paket açarken güvenli G/Ç işlemlerini kullanma"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr "Geliştirici betiği ortamı kök dizinini chroot ile değiştirme"
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3606,6 +3673,10 @@ msgstr "%d. satır bitmeden önce beklenmeyen dosya sonu karakteri"
 msgid "need an action option"
 msgstr "bir eylem seçeneği belirtilmesi gerekiyor"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr "birincil grup tanımlayıcısı root olarak ayarlanamadı"
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "alt süreç için setenv çağrısı başarısız oldu"
@@ -3731,6 +3802,11 @@ msgstr " şuna bağımlı: "
 msgid "; however:\n"
 msgstr ", ama:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "%s ile eşleşen bir paket bulunamadı"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3765,11 +3841,6 @@ msgstr "Mimari"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Açıklama"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "%s ile eşleşen bir paket bulunamadı"
 
 #: src/querycmd.c
 #, c-format
@@ -3941,12 +4012,12 @@ msgid ""
 "which\n"
 "  case left alignment will be used.\n"
 msgstr ""
-"Biçim sözdizimi:\n"
+"Biçim söz dizimi:\n"
 "  Biçim, her paket için çıktıya yazılacak bir dizgidir. Biçim standart\n"
 "  atlatma karakterlerini (\\n 'yeni satır', \\r 'satır başı' veya \\\\ "
 "'normal\n"
-"  eğik çizgi') içerebilir. Paket alanlarına ${değişken[;genişlik]} "
-"sözdizimi\n"
+"  eğik çizgi') içerebilir. Paket alanlarına ${değişken[;genişlik]} söz "
+"dizimi\n"
 "  ile değişken başvuruları eklenerek paket bilgileri dahil edilebilir. Aksi\n"
 "  belirtilmediği sürece alanlar sağa dayalıdır. Genişlik negatif olarak\n"
 "  belirtilirse sola dayalı olur.\n"
@@ -4163,8 +4234,10 @@ msgstr "%d. satırdaki paket adı geçersiz: %.250s"
 
 #: src/select.c
 #, c-format
-msgid "package not in database at line %d: %.250s"
-msgstr "%d. satırdaki paket veritabanında mevcut değil: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
+msgstr ""
+"%d. satırdaki paket ne durum ne de kullanılabilir paketler veritabanında "
+"mevcut değil: %.250s"
 
 #: src/select.c
 #, c-format
@@ -4178,11 +4251,13 @@ msgstr "standart girdide okuma hatası"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "bilinmeyen paketlerle karşılaşıldı; bu durum kullanılabilir paketler\n"
 "veritabanının güncelliğini yitirdiği ve bir ön yüz yöntemi ile\n"
-"güncellenmesi gerektiği anlamına gelebilir"
+"güncellenmesi gerektiği anlamına gelebilir; ilgili soru ve yanıtlar\n"
+"için FAQ sayfasına bakın <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 
 #: src/selinux.c
 msgid "cannot open security status notification channel"
@@ -4330,7 +4405,7 @@ msgstr "statoverride dosyası boş satır içeriyor"
 
 #: src/statdb.c
 msgid "syntax error in statoverride file"
-msgstr "statoverride dosyasında sözdizimi hatası"
+msgstr "statoverride dosyasında söz dizimi hatası"
 
 #: src/statdb.c
 #, c-format
@@ -4531,6 +4606,36 @@ msgstr "geçti\n"
 msgid "unable to create temporary directory"
 msgstr "geçici dizin oluşturulamadı"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"%s ile ilgili %s, önbağımlılık sorunu:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "önbağımlılık sorunu - %.250s kurulmuyor"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "önbağımlılık sorunu gözardı ediliyor!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr ""
+"%3$s (%4$s) paketinin kaldırılabilmesi için %1$s (%2$s) yapılandırması "
+"kaldırılıyor ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Yapılandırma kaldırılıyor: %s (%s) ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4597,92 +4702,6 @@ msgstr "yeni bilgi dosyası (%.250s) '%.250s' olarak kurulamadı"
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr ""
-"(Tümüyle değiştirilmiş olan %s paketinin ortadan kalkışı kaydediliyor.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "arşive ulaşılamıyor"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "paket denetim bilgisi açma"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "%s paketinin bilgileri %s dosyasına kaydedildi.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "paket mimarisi (%s) sistemin mimarisi (%s) ile uyuşmuyor"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"%s ile ilgili %s, önbağımlılık sorunu:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "önbağımlılık sorunu - %.250s kurulmuyor"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "önbağımlılık sorunu gözardı ediliyor!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Paket açılacak: %s ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr ""
-"%3$s (%4$s) paketinin kaldırılabilmesi için %1$s (%2$s) yapılandırması "
-"kaldırılıyor ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Yapılandırma kaldırılıyor: %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Paket açılıyor: %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Paket açılıyor: %1$s (%3$s) üzerine (%2$s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "paket dosya sistemi arşiv açma"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "dpkg-deb tar çıktısı okunamadı"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "bozuk dosya sistemi tar dosyası - bozuk paket arşivi"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "olası izleyen sıfırlar dpkg-deb'den kaldırılamadı: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
 "eski '%.250s' dosyasına stat çağrısı yapılamadı, dosya silinmeyecek: %s"
@@ -4714,6 +4733,58 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "eski '%.250s' dosyası güvenli biçimde kaldırılamadı: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr ""
+"(Tümüyle değiştirilmiş olan %s paketinin ortadan kalkışı kaydediliyor.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "paket denetim bilgisi açma"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "%s paketinin bilgileri %s dosyasına kaydedildi.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "paket mimarisi (%s) sistemin mimarisi (%s) ile uyuşmuyor"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Paket açılacak: %s ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Paket açılıyor: %s (%s) ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Paket açılıyor: %1$s (%3$s) üzerine (%2$s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "paket dosya sistemi arşiv açma"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "dpkg-deb tar çıktısı okunamadı"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "bozuk dosya sistemi tar dosyası - bozuk paket arşivi"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "olası izleyen sıfırlar dpkg-deb'den kaldırılamadı: %s"
 
 #: src/update.c
 #, c-format
@@ -4759,18 +4830,17 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "dosya adına stat çağrısı yapılamadı (%.250s)"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "dosya adı tar borusuna yazılamadı (%s)"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "denetim üyesi"
 
 #: dpkg-deb/build.c
 #, c-format
 msgid "newline not allowed in pathname '%s'"
 msgstr "dosya konumlarında (%s) yeni satır karakteri kullanılamaz"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "dosya adı tar borusuna yazılamadı (%s)"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4853,6 +4923,10 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "paket adı küçük harf, rakam ya da `-+.` olmayan karakterler içeriyor"
 
 #: dpkg-deb/build.c
+msgid "package architecture is missing or empty"
+msgstr "paket mimarisi eksik ya da boş bırakılmış"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' dosyası kullanıcı tanımlı bir Öncelik değeri (%s) içeriyor"
@@ -4870,14 +4944,17 @@ msgid "unable to check for existence of archive '%.250s'"
 msgstr "'%.250s' arşivinin varlığı denetlenemedi"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "compressing data member"
 msgid "compressing tar member"
-msgstr "veri üyesi sıkıştırılıyor"
+msgstr "tar üyesi sıkıştırılıyor"
 
 #: dpkg-deb/build.c
 msgid "<compress> from tar -cf"
 msgstr "<sıkıştır> tar -cf"
+
+#: dpkg-deb/build.c dpkg-split/split.c
+#, c-format
+msgid "unable to parse timestamp '%.255s'"
+msgstr "'%.255s' zaman damgası ayrıştırılamadı"
 
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
@@ -4894,13 +4971,13 @@ msgstr "denetim alanının içeriği denetlenmeyecek"
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
-msgstr "dpkg-deb: bilinmeyen paket '%s' konumunda inşa ediliyor.\n"
+msgid "building an unknown package in '%s'."
+msgstr "'%s' konumunda bilinmeyen bir paket inşa ediliyor."
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
-msgstr "dpkg-deb: '%s' paketi '%s' konumunda inşa ediliyor.\n"
+msgid "building package '%s' in '%s'."
+msgstr "'%s' paketi '%s' konumunda inşa ediliyor."
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4908,17 +4985,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "geçici dosya oluşturulamadı (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "denetim üyesi"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "geçici dosyanın (%s) bağı kaldırılamadı, %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "denetim üyesi sıkıştırılıyor"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4944,24 +5013,15 @@ msgstr "'%s' üyesi '%s' arşivine kopyalanamadı: %s"
 msgid "shell command to move files"
 msgstr "dosya taşımakta kullanılan kabuk komutu"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "%s arşivinin %.255s kısmında beklenmeyen dosya sonu"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "%2$.255s arşivinin %1$s kısmı okunurken bir sorun yaşandı"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "'%.255s' arşivi okunamadı"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "arşive fstat çağrısı yapılamadı"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5042,7 +5102,7 @@ msgstr "arşiv denetim üyesi boyutu"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "arşivin denetim üyesi boyutu hatalı (%s)"
 
 #: dpkg-deb/extract.c
@@ -5198,8 +5258,8 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     normal bir dosya değil    %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
-msgstr "(denetim arşivinde `control' dosyası yok!)\n"
+msgid "no 'control' file in control archive!"
+msgstr "denetim arşivinde 'control' dosyası yok!"
 
 #: dpkg-deb/main.c
 #, c-format
@@ -5261,9 +5321,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5271,7 +5328,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5284,8 +5341,6 @@ msgstr ""
 "      --showformat=<biçim>         --show için alternatif biçim kullan\n"
 "      --deb-format=<biçim>         Arşiv biçimini seç. İzin verilen\n"
 "                                     değerler: 0.939000, 2.0 (öntanımlı)\n"
-"      --old                        '--deb-format=0.939000' için takma ad\n"
-"      --new                        '--deb-format=2.0' için takma ad\n"
 "      --nocheck                    Denetim dosyasını denetleme (bozuk "
 "paketleri\n"
 "                                     inşa et)\n"
@@ -5355,13 +5410,13 @@ msgstr "bilinmeyen sıkıştırma türü '%s'!"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr ""
 "'%s' sıkıştırma türü artık kullanılmamaktadır; bunun yerine xz kullanın"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr ""
 "'%s' sıkıştırma türü artık kullanılmamaktadır; bunun yerine xz veya gzip "
 "kullanın"
@@ -5385,7 +5440,7 @@ msgstr "'%.250s' dosyası bozuk - şuradaki rakam (kod %d) geçersiz: %s"
 #, c-format
 msgid "file '%s' is corrupt; out of range integer in %s"
 msgstr ""
-"'%s' dosyası bozuk - şuradaki tamsayı izin verilen aralığın dışında: %s"
+"'%s' dosyası bozuk - şuradaki tam sayı izin verilen aralığın dışında: %s"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5397,7 +5452,7 @@ msgstr "'%.250s' dosyası bozuk - %.250s eksik"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "'%.250s' dosyası bozuk - %.250s satırından sonra yeni satır eksik"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "%.250s dosyası okunurken sorun yaşandı"
@@ -5509,11 +5564,6 @@ msgstr "'%.250s' dosyası bozuk - verilen boyutlar için parça sayısı yanlı�
 #, c-format
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr "'%.250s' dosyası bozuk - verilen parça sayısına göre boyut yanlış"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "'%.250s' parça dosyasına fstat çağrısı başarısız"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5691,11 +5741,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Yardım almak için dpkg-split --help komutunu kullanın."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "%.250s dosyasında beklenmeyen dosya sonu"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5923,7 +5968,7 @@ msgstr ""
 "  (örneğin pager)\n"
 "<yol>, alternatif hedef dosyalardan birinin dosya sistemindeki konumudur.\n"
 "  (örneğin /usr/bin/less)\n"
-"<öncelik> bir tamsayıdır; öncelik sayısı daha büyük olan seçeneklerin "
+"<öncelik> bir tam sayıdır; öncelik sayısı daha büyük olan seçeneklerin "
 "otomatik\n"
 "  kipteki önceliği diğerlerine göre daha yüksektir.\n"
 "\n"
@@ -5960,17 +6005,9 @@ msgstr ""
 "  --version                sürüm numarasını göster.\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "hata"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr "Programın kullanım bilgileri için '%s --help' komutunu kullanın."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "uyarı"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6378,7 +6415,7 @@ msgstr "<bağ> ve <yol> aynı olamaz"
 
 #: utils/update-alternatives.c
 msgid "priority must be an integer"
-msgstr "öncelik değeri bir tamsayı olmalıdır"
+msgstr "öncelik değeri bir tam sayı olmalıdır"
 
 #: utils/update-alternatives.c
 msgid "priority is out of range"
@@ -6449,6 +6486,58 @@ msgid "to return to automatic updates use '%s --auto %s'"
 msgstr ""
 "otomatik güncelleştirmeleri tekrar etkinleştirmek için '%s --auto %s' "
 "komutunu kullanın"
+
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr ""
+#~ "'--%s' seçeneği kullanımdan kalkmıştır; lütfen bunun yerine '--%s' "
+#~ "kullanın"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "'%s' denetim dosyasında eksik değer"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "'%s' denetim dosyasında eksik bir değer ayırıcı var"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "'%.250s' parça dosyasına fstat çağrısı başarısız"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "%.250s dosyasında beklenmeyen dosya sonu"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: hata: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: dâhilî hata: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: uyarı: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "tetikleyici erteleme dosyası (%.250s) kısaltıldı"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "dpkg --recursive için find komutu"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "find sürecinin borusuna fdopen çağrısı başarısız oldu"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "find sürecinin borusu okunurken bir sorun yaşandı"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "find sürecinin borusu kapatılırken bir sorun yaşandı"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr ""
+#~ "--recursive işlemi için açılan find süreci yakalanmayan bir hata ile "
+#~ "döndü (%i)"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "dosya adına stat çağrısı yapılamadı (%.250s)"
+
+#~ msgid "compressing control member"
+#~ msgstr "denetim üyesi sıkıştırılıyor"
 
 #~ msgid "Call %s."
 #~ msgstr "%s komutunu çağır."

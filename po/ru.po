@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:52+0200\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -20,6 +20,26 @@ msgstr ""
 "X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "не удалось получить информацию об архиве"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "не удалось прочитать архив «%.255s»"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "не удалось создать «%.255s»"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "не удалось закрыть файл «%s»"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -145,8 +165,8 @@ msgstr "неожиданный конец файла или потока"
 msgid "failed to seek"
 msgstr "ошибка позиционирования"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "не удалось запустить %s (%s)"
@@ -307,11 +327,6 @@ msgstr "не удалось просмотреть каталог обновле
 msgid "failed to remove incorporated update file %.255s"
 msgstr "не удалось удалить втянутый файл обновлений %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "не удалось создать «%.255s»"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -422,8 +437,7 @@ msgstr "не удалось синхронизировать каталог «%s
 msgid "unable to open directory '%s'"
 msgstr "не удалось открыть каталог «%s»"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "не удалось открыть файл «%s»"
@@ -433,12 +447,6 @@ msgstr "не удалось открыть файл «%s»"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "не удалось синхронизировать файл «%s»"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "не удалось закрыть файл «%s»"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -455,40 +463,35 @@ msgstr "не удалось установить буферизацию файл
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "не удалось сохранить запись в базу данных %s о «%.50s» в «%.250s»"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: невосстановимая ошибка, прекращение работы:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "ошибка"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: вне контекста ошибок, прекращение работы:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new error context"
 msgstr "недостаточно памяти для нового контекста ошибок"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: ошибка при очистке:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
+#, fuzzy
+#| msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr ""
 "%s: при восстановлении после ошибки обнаружено слишком много наведённых "
 "ошибок!!!\n"
@@ -503,14 +506,30 @@ msgstr ""
 "недостаточно памяти для новой записи очистки с большим количеством аргументов"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: ошибка: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: невосстановимая ошибка, прекращение работы:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: внутренняя ошибка: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: outside error context, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: вне контекста ошибок, прекращение работы:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error (bug)"
+msgid "internal error"
+msgstr "внутренняя ошибка"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -601,7 +620,7 @@ msgstr "используется устаревшее поле «%s» или «%
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "значение поля «%s» содержит недопустимую строку «%.*s»"
 
 #: lib/dpkg/fields.c
@@ -896,6 +915,11 @@ msgid "invalid integer for --%s: '%.250s'"
 msgstr "некорректное целое значение аргумента --%s: «%.250s»"
 
 #: lib/dpkg/options.c
+#, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "недопустимое целое для -%c: «%.250s»"
+
+#: lib/dpkg/options.c
 #, fuzzy, c-format
 #| msgid "obsolete option '--%s'\n"
 msgid "obsolete option '--%s'"
@@ -1139,6 +1163,12 @@ msgid "version string has embedded spaces"
 msgstr "в строке версии есть пробелы"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is negative"
+msgid "epoch in version is empty"
+msgstr "значение эпохи в версии отрицательно"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "эпоха версии не является числом"
 
@@ -1153,6 +1183,18 @@ msgstr "значение эпохи в версии слишком большо�
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "после двоеточия в номере версии ничего не следует"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "строка версии пуста"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "строка версии пуста"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1198,6 +1240,12 @@ msgstr "нет закрывающей скобки"
 msgid "(no description available)"
 msgstr "(описание недоступно)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax: %s"
+msgstr "версия «%s» имеет неправильный синтаксис: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1208,10 +1256,9 @@ msgstr "недопустимое имя пакета в описателе «%s%
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "недопустимое имя архитектуры в описателе «%s:%s»: %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: предупреждение: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "предупреждение"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1245,7 +1292,7 @@ msgstr "%s (подпроцесс): %s\n"
 msgid "fork failed"
 msgstr "ошибка при выполнении системного вызова fork"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "подпроцесс %s возвратил код ошибки %d"
@@ -1274,63 +1321,78 @@ msgstr "работа подпроцесса %s завершилась неуда
 msgid "wait for subprocess %s failed"
 msgstr "ожидание завершения подпроцесса %s завершилось неудачно"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr "неверное имя пакета «%.250s» в файле триггеров deferred «%.250s»"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat file '%s'"
+msgid "cannot stat pathname '%s'"
+msgstr "не удалось выполнить stat для файла «%s»"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "урезанный файл триггеров deferred «%.250s»"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "не удалось просмотреть каталог «%.255s»"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"синтаксическая ошибка в файле триггеров deferred «%.250s», начиная с символа "
-"«%s»%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "каталог control не является каталогом"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "не удалось открыть/создать файл блокировки триггеров «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 msgid "triggers area"
 msgstr "область триггеров"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "не удалось открыть файл триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "не удалось получить информацию о файле триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr "не удалось открыть/создать новый файл триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"синтаксическая ошибка в файле триггеров deferred «%.250s», начиная с символа "
+"«%s»%s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr "неверное имя пакета «%.250s» в файле триггеров deferred «%.250s»"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "ошибка чтения файла триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "ошибка записи в новый файл триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "не удалось закрыть новый файл триггеров deferred «%.250s»"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "не удалось установить новый файл триггеров deferred «%.250s»"
@@ -1613,11 +1675,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "архив содержит объект «%.255s» неизвестного типа 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "не удалось выполнить stat для файла «%s»"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1813,29 +1870,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive требует задания хотя бы одного имени каталога"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "поиск для dpkg --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "не удалось открыть дескриптор канала find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "ошибка чтения из канала find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "ошибка при закрытии канала find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr ""
-"при поиске файлов в каталогах программа find вернула неизвестный код ошибки "
-"%i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr ""
 "поиск завершён, пакеты (файлы с именами, удовлетворяющими шаблону *.deb) "
@@ -1845,6 +1879,18 @@ msgstr ""
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s требует задания хотя бы одного имени файла"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "нет доступа к архиву"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "conffile-файл «%s» не является обычным файлом"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2437,6 +2483,11 @@ msgstr ""
 " совпадать с --divert. В сценариях пакетов preinst/postrm всегда нужно\n"
 "указывать --package и --divert.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "не удалось выполнить stat для файла «%s»"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2801,10 +2852,53 @@ msgstr ""
 "установить пакет %.250s невозможно, однако это необходимо сделать до "
 "установки %.250s"
 
-#: src/enquiry.c dpkg-deb/main.c
-#, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "устаревший параметр «--%s»; вместо него используйте «--%s»."
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "для --%s требуется одно имя пакета"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "package '%s' is not installed"
+msgid "package name '%s' is invalid: %s"
+msgstr "пакет «%s» не установлен"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "для --%s требуется одно имя пакета"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "имя триггера содержит недопустимый символ"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "для --%s требуется одно имя пакета"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "architecture '%s' is illegal: %s"
+msgid "architecture name '%s' is invalid: %s"
+msgstr "архитектура «%s» некорректна: %s"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes one argument"
+msgid "--%s takes one <version> argument"
+msgstr "--%s принимает один аргумент"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "version '%s' has bad syntax: %s"
+msgid "version '%s' has bad syntax"
+msgstr "версия «%s» имеет неправильный синтаксис: %s"
 
 #: src/enquiry.c
 msgid ""
@@ -2821,12 +2915,6 @@ msgstr "в качестве аргумента --compare-versions указано
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-#| msgid "version '%s' has bad syntax: %s"
-msgid "version '%s' has bad syntax"
-msgstr "версия «%s» имеет неправильный синтаксис: %s"
 
 #: src/errors.c
 #, c-format
@@ -2945,14 +3033,16 @@ msgid "control file '%s' for package '%s' is missing final newline"
 msgstr "в конце управляющего файла «%s» пакетом «%s» нет символа новой строки"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value"
-msgstr "в управляющем файле «%s» отсутствует значение"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "в конце управляющего файла «%s» пакетом «%s» нет символа новой строки"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "control file '%s' missing value separator"
-msgstr "в управляющем файле «%s» отсутствует значение разделителя"
+#, fuzzy, c-format
+#| msgid "control file '%s' for package '%s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "в конце управляющего файла «%s» пакетом «%s» нет символа новой строки"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2960,28 +3050,33 @@ msgid "control file '%s' for package '%s' contains empty filename"
 msgstr "в управляющем файле «%s» пакета «%s» содержится пустое имя файла"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot open '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "не удалось открыть управляющий файл «%s» пакета «%s»"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "не удалось выполнить stat для управляющего файла «%s» пакета «%s»"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+#, fuzzy, c-format
+#| msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr "файл «%s» пакета «%s» не является обычным файлом"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot read '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "не удалось прочитать управляющий файл «%s» пакета «%s»"
 
 #: src/filesdb-hash.c
-#, c-format
-msgid "cannot close '%s' control file for package '%s'"
+#, fuzzy, c-format
+#| msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "не удалось закрыть управляющий файл «%s» пакета «%s»"
 
 #: src/help.c
@@ -3164,6 +3259,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3243,6 +3339,13 @@ msgstr ""
 "  --assert-multi-conrep | --assert-multi-arch | --assert-versioned-"
 "provides.\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3442,6 +3545,10 @@ msgstr "Перезаписывать каталог из одного пакет
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "Не выполнять безопасные операции ввода-вывода при распаковке"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr ""
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3682,6 +3789,10 @@ msgstr "неожиданный конец файла, ещё не кончила
 msgid "need an action option"
 msgstr "укажите требуемое действие"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "не удалось выполнить setenv для подпроцесса"
@@ -3806,6 +3917,11 @@ msgstr " зависит от "
 msgid "; however:\n"
 msgstr ", однако:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "шаблону %s не соответствует ни один пакет"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3842,11 +3958,6 @@ msgstr "Архитектура"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Описание"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "шаблону %s не соответствует ни один пакет"
 
 #: src/querycmd.c
 #, c-format
@@ -4246,8 +4357,9 @@ msgid "illegal package name at line %d: %.250s"
 msgstr "недопустимое имя пакета в строке %d: %.250s"
 
 #: src/select.c
-#, c-format
-msgid "package not in database at line %d: %.250s"
+#, fuzzy, c-format
+#| msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "пакет не в базе данных в строке %d: %.250s"
 
 #: src/select.c
@@ -4260,9 +4372,14 @@ msgid "read error on standard input"
 msgstr "ошибка чтения стандартного потока ввода"
 
 #: src/select.c
+#, fuzzy
+#| msgid ""
+#| "found unknown packages; this might mean the available database\n"
+#| "is outdated, and needs to be updated through a frontend method"
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "найдены неизвестные пакеты; это может означать, что имеющаяся\n"
 "база данных устарела и её необходимо обновить с помощью соответствующих "
@@ -4619,6 +4736,36 @@ msgstr "пройдена\n"
 msgid "unable to create temporary directory"
 msgstr "не удалось создать временный каталог"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"из-за %s, содержащегося в %s, возникла проблема предварительных "
+"зависимостей:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr ""
+"проблема предварительных зависимостей — пакет %.250s не будет установлен"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "игнорируется проблема предварительных зависимостей!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Деконфигурируется %s (%s), чтобы можно было удалить %s (%s) …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Деконфигурируется %s (%s) …\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4688,91 +4835,6 @@ msgstr "не удалось переименовать новый информа
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Пакет %s полностью заменён и фактически исчез.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "нет доступа к архиву"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "извлечение управляющей информации пакета"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Записана информация о пакете %s из файла %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "архитектура пакета (%s) не соответствует архитектуре системы (%s)"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"из-за %s, содержащегося в %s, возникла проблема предварительных "
-"зависимостей:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr ""
-"проблема предварительных зависимостей — пакет %.250s не будет установлен"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "игнорируется проблема предварительных зависимостей!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Подготовка к распаковке %s …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Деконфигурируется %s (%s), чтобы можно было удалить %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Деконфигурируется %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Распаковывается %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Распаковывается %s (%s) на замену (%s) …\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "извлечение архива файловой системы пакета"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "ошибка чтения архива tar, возвращённого dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "повреждённый архив файловой системы: повреждён файл пакета"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "невозможно удалить возможные завершающие нули из dpkg-deb: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
 "не удалось получить информацию о старом файл «%.250s», поэтому не удаляем "
@@ -4806,6 +4868,57 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "не удалось безопасно удалить старый файл «%.250s»: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Пакет %s полностью заменён и фактически исчез.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "извлечение управляющей информации пакета"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Записана информация о пакете %s из файла %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "архитектура пакета (%s) не соответствует архитектуре системы (%s)"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Подготовка к распаковке %s …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Распаковывается %s (%s) …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Распаковывается %s (%s) на замену (%s) …\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "извлечение архива файловой системы пакета"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "ошибка чтения архива tar, возвращённого dpkg-deb"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "повреждённый архив файловой системы: повреждён файл пакета"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "невозможно удалить возможные завершающие нули из dpkg-deb: %s"
 
 #: src/update.c
 #, c-format
@@ -4851,19 +4964,18 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "не удалось выполнить stat для файла с именем «%.250s»"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "не удалось записать имя файла в канал программы tar (%s)"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "управляющий элемент"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "в имени поля «%.*s» обнаружен символ конца строки"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "не удалось записать имя файла в канал программы tar (%s)"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4949,6 +5061,12 @@ msgstr ""
 "+»."
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture"
+msgid "package architecture is missing or empty"
+msgstr "архитектура пакета"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "«%s» содержит определённое пользователем значение приоритета «%s»"
@@ -4976,6 +5094,12 @@ msgstr "сжимающий элемент данных"
 msgid "<compress> from tar -cf"
 msgstr "<compress> из tar -cf"
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "не удалось создать «%.255s»"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -4992,13 +5116,15 @@ msgid "not checking contents of control area"
 msgstr "не проверяется содержимое управляющей области"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: сборка неизвестного пакета в «%s».\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: сборка пакета «%s» в файл «%s».\n"
 
 #: dpkg-deb/build.c
@@ -5007,17 +5133,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "не удалось создать временный файл (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "управляющий элемент"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "не удалось удалить временный файл (%s), %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "сжимающий управляющий элемент"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -5043,24 +5161,15 @@ msgstr "не удалось скопировать «%s» в архив «%s»: 
 msgid "shell command to move files"
 msgstr "команда оболочки для перемещения файлов"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "неожиданный конец файла, не удалось прочитать %s из файла %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "не удалось прочитать %s из файла %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "не удалось прочитать архив «%.255s»"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "не удалось получить информацию об архиве"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5138,7 +5247,7 @@ msgstr "размер управляющего элемента архива"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr ""
 "запись о длине управляющей информации архива «%s» имеет недопустимый формат"
 
@@ -5292,7 +5401,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     не является обычным файлом %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(в управляющем архиве нет файла «control»!)\n"
 
 #: dpkg-deb/main.c
@@ -5351,7 +5462,35 @@ msgstr ""
 "\n"
 
 #: dpkg-deb/main.c
-#, c-format
+#, fuzzy, c-format
+#| msgid ""
+#| "Options:\n"
+#| "  -v, --verbose                    Enable verbose output.\n"
+#| "  -D, --debug                      Enable debugging output.\n"
+#| "      --showformat=<format>        Use alternative format for --show.\n"
+#| "      --deb-format=<format>        Select archive format.\n"
+#| "                                     Allowed values: 0.939000, 2.0 "
+#| "(default).\n"
+#| "      --old                        Legacy alias for '--deb-"
+#| "format=0.939000'.\n"
+#| "      --new                        Legacy alias for '--deb-format=2.0'.\n"
+#| "      --nocheck                    Suppress control file check (build "
+#| "bad\n"
+#| "                                     packages).\n"
+#| "      --uniform-compression        Use the compression params on all "
+#| "members.\n"
+#| "  -z#                              Set the compression level when "
+#| "building.\n"
+#| "  -Z<type>                         Set the compression type used when "
+#| "building.\n"
+#| "                                     Allowed types: gzip, xz, bzip2, "
+#| "none.\n"
+#| "  -S<strategy>                     Set the compression strategy when "
+#| "building.\n"
+#| "                                     Allowed values: none; extreme (xz);\n"
+#| "                                     filtered, huffman, rle, fixed "
+#| "(gzip).\n"
+#| "\n"
 msgid ""
 "Options:\n"
 "  -v, --verbose                    Enable verbose output.\n"
@@ -5360,9 +5499,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5370,7 +5506,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5451,13 +5587,15 @@ msgid "unknown compression type '%s'!"
 msgstr "неизвестный тип сжатия «%s»!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "тип сжатия «%s» устарел; используйте xz"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+#, fuzzy, c-format
+#| msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "тип сжатия «%s» устарел; используйте xz или gzip"
 
 #: dpkg-deb/main.c
@@ -5490,7 +5628,7 @@ msgstr "файл «%.250s» повреждён — отсутствует %.250s
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "файл «%.250s» повреждён — отсутствует символ конца строки после %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "ошибка чтения %.250s"
@@ -5607,11 +5745,6 @@ msgstr ""
 #, c-format
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr "файл «%.250s» повреждён — неправильный размер указанной части"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "не удалось получить информацию о части архива «%.250s»"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5791,11 +5924,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Чтобы получить справку, введите dpkg-split --help."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "неожиданный конец файла %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -6057,18 +6185,10 @@ msgstr ""
 "  --version              показать номер версии\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "ошибка"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
 "Для получения информации по использованию программы используйте «%s --help»."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "предупреждение"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6545,6 +6665,56 @@ msgstr ""
 "чтобы вернуться к автоматическим обновлениям, выполните команду «%s --auto "
 "%s»"
 
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "устаревший параметр «--%s»; вместо него используйте «--%s»."
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "в управляющем файле «%s» отсутствует значение"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "в управляющем файле «%s» отсутствует значение разделителя"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "не удалось получить информацию о части архива «%.250s»"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "неожиданный конец файла %.250s"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: ошибка: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: внутренняя ошибка: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: предупреждение: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "урезанный файл триггеров deferred «%.250s»"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "поиск для dpkg --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "не удалось открыть дескриптор канала find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "ошибка чтения из канала find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "ошибка при закрытии канала find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr ""
+#~ "при поиске файлов в каталогах программа find вернула неизвестный код "
+#~ "ошибки %i"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "не удалось выполнить stat для файла с именем «%.250s»"
+
+#~ msgid "compressing control member"
+#~ msgstr "сжимающий управляющий элемент"
+
 #~ msgid "Call %s."
 #~ msgstr "Вызов %s."
 
@@ -6584,9 +6754,6 @@ msgstr ""
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "«%s» содержит определённое пользователем поле «%s»"
 
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s принимает один аргумент"
-
 #~ msgid "could not open the `control' component"
 #~ msgstr "не удалось открыть компонент «control»"
 
@@ -6625,9 +6792,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Распаковывается замена для пакета %.250s …\n"
-
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "недопустимое целое для -%c: «%.250s»"
 
 #~ msgid "priority is out of range: %s clamped to %ld"
 #~ msgstr "значение приоритета вне допустимого диапазона: %s прикреплена к %ld"

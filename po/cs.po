@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
-"PO-Revision-Date: 2015-04-07 09:54+0200\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
+"PO-Revision-Date: 2017-05-06 12:49+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "Language: cs\n"
@@ -19,6 +19,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n>=2 && n<=4 ? 1 : 2;\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "na archivu selhalo volání fstat()"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "chyba při čtení archivu „%.255s“"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "nelze vytvořit „%.255s“"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "nelze zavřít soubor „%s“"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -144,8 +164,8 @@ msgstr "neočekávaný konec souboru nebo proudu"
 msgid "failed to seek"
 msgstr "selhal posun"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "nelze spustit %s (%s)"
@@ -306,11 +326,6 @@ msgstr "nelze zjistit obsah adresáře s aktualizacemi „%.255s“"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "selhalo odstranění spojeného aktualizačního souboru %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "nelze vytvořit „%.255s“"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -421,8 +436,7 @@ msgstr "nelze synchronizovat adresář „%s“"
 msgid "unable to open directory '%s'"
 msgstr "nelze otevřít adresář „%s“"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "nelze otevřít soubor „%s“"
@@ -432,12 +446,6 @@ msgstr "nelze otevřít soubor „%s“"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "nelze synchronizovat soubor „%s“"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "nelze zavřít soubor „%s“"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -454,22 +462,17 @@ msgstr "nelze nastavit bufferování na souboru databáze %s"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "selhalo zapsání %s záznamu o „%.50s“ do souboru „%.250s“"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: neobnovitelná kritická chyba, přerušuji:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "chyba"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: mimo kontext chyby, přerušuji:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
@@ -477,18 +480,12 @@ msgid "out of memory for new error context"
 msgstr "nedostatek paměti pro nový kontext chyby"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
-msgstr ""
-"%s: chyba při úklidu:\n"
-" %s\n"
+msgid "error while cleaning up"
+msgstr "chyba při úklidu"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
-msgstr "%s: příliš mnoho vnořených chyb během opravování chyb!!\n"
+msgid "too many nested errors during error recovery"
+msgstr "příliš mnoho vnořených chyb během opravování chyb"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new cleanup entry"
@@ -499,14 +496,16 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "nedostatek paměti pro novou položku s mnoha argumenty"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: chyba: %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr "neobnovitelná kritická chyba, přerušuji"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: vnitřní chyba: %s\n"
+msgid "outside error context, aborting"
+msgstr "mimo kontext chyby, přerušuji"
+
+#: lib/dpkg/ehandle.c
+msgid "internal error"
+msgstr "vnitřní chyba"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -594,7 +593,7 @@ msgstr "použito zastaralé pole „%s“ nebo „%s“"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "hodnota pole „%s“ obsahuje zkomolený řádek „%.*s“"
 
 #: lib/dpkg/fields.c
@@ -884,10 +883,14 @@ msgid "invalid integer for --%s: '%.250s'"
 msgstr "neplatné číslo pro --%s: „%.250s“"
 
 #: lib/dpkg/options.c
-#, fuzzy, c-format
-#| msgid "obsolete option '--%s'\n"
+#, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "neplatné celé číslo pro -%c: „%.250s“"
+
+#: lib/dpkg/options.c
+#, c-format
 msgid "obsolete option '--%s'"
-msgstr "zastaralá volba `--%s'\n"
+msgstr "zastaralá volba „--%s“"
 
 #: lib/dpkg/options.c
 #, c-format
@@ -1023,10 +1026,9 @@ msgid "field name '%.*s' cannot start with hyphen"
 msgstr "název pole „%.*s“ nemůže začínat pomlčkou"
 
 #: lib/dpkg/parse.c
-#, fuzzy, c-format
-#| msgid "EOF after field name `%.*s'"
+#, c-format
 msgid "end of file after field name '%.*s'"
-msgstr "EOF za položkou „%.*s“"
+msgstr "konec souboru za položkou „%.*s“"
 
 #: lib/dpkg/parse.c
 #, c-format
@@ -1034,10 +1036,9 @@ msgid "newline in field name '%.*s'"
 msgstr "nový řádek v položce „%.*s“"
 
 #: lib/dpkg/parse.c
-#, fuzzy, c-format
-#| msgid "MSDOS EOF (^Z) in field name `%.*s'"
+#, c-format
 msgid "MSDOS end of file (^Z) in field name '%.*s'"
-msgstr "MS-DOS EOF (^Z) ve položce „%.*s“"
+msgstr "MS-DOS konec souboru (^Z) v položce „%.*s“"
 
 #: lib/dpkg/parse.c
 #, c-format
@@ -1045,16 +1046,15 @@ msgid "field name '%.*s' must be followed by colon"
 msgstr "jméno položky „%.*s“ musí být následováno dvojtečkou"
 
 #: lib/dpkg/parse.c
-#, fuzzy, c-format
-#| msgid "EOF before value of field `%.*s' (missing final newline)"
+#, c-format
 msgid "end of file before value of field '%.*s' (missing final newline)"
-msgstr "EOF před hodnotou v položce „%.*s“ (chybí závěrečný nový řádek)"
+msgstr ""
+"konec souboru před hodnotou v položce „%.*s“ (chybí závěrečný nový řádek)"
 
 #: lib/dpkg/parse.c
-#, fuzzy, c-format
-#| msgid "MSDOS EOF char in value of field `%.*s' (missing newline?)"
+#, c-format
 msgid "MSDOS end of file (^Z) in value of field '%.*s' (missing newline?)"
-msgstr "položka „%.*s“ obsahuje MSDOS EOF znaky (chybějící nový řádek?)"
+msgstr "položka „%.*s“ obsahuje MSDOS konec souboru (^Z) (chybí nový řádek?)"
 
 #: lib/dpkg/parse.c
 #, c-format
@@ -1062,10 +1062,9 @@ msgid "blank line in value of field '%.*s'"
 msgstr "prázdný řádek v hodnotě položky „%.*s“"
 
 #: lib/dpkg/parse.c
-#, fuzzy, c-format
-#| msgid "EOF during value of field `%.*s' (missing final newline)"
+#, c-format
 msgid "end of file during value of field '%.*s' (missing final newline)"
-msgstr "EOF při čtení položky „%.*s“ (chybějící závěrečný nový řádek)"
+msgstr "konec souboru při čtení položky „%.*s“ (chybí závěrečný nový řádek)"
 
 #: lib/dpkg/parse.c
 #, c-format
@@ -1117,6 +1116,10 @@ msgid "version string has embedded spaces"
 msgstr "verze obsahuje mezery"
 
 #: lib/dpkg/parsehelp.c
+msgid "epoch in version is empty"
+msgstr "epocha ve verzi je prázdná"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "epocha ve verzi není číslo"
 
@@ -1131,6 +1134,14 @@ msgstr "epocha ve verzi je příliš velká"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "za dvojtečkou ve verzi nic nenásleduje"
+
+#: lib/dpkg/parsehelp.c
+msgid "revision number is empty"
+msgstr "číslo revize je prázdné"
+
+#: lib/dpkg/parsehelp.c
+msgid "version number is empty"
+msgstr "číslo verze je prázdné"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1175,6 +1186,11 @@ msgstr "chybí uzavírací závorka"
 msgid "(no description available)"
 msgstr "(popis není k dispozici)"
 
+#: lib/dpkg/pkg-show.c
+#, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "verze „%s“ má chybnou syntaxi: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1185,10 +1201,9 @@ msgstr "nepovolené jméno balíku v zadání „%s%s%s“: %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "nepovolené jméno architektury v zadání „%s:%s“: %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: varování: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "varování"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1219,7 +1234,7 @@ msgstr "%s (podproces): %s\n"
 msgid "fork failed"
 msgstr "fork selhal"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "podproces %s vrátil chybový status %d"
@@ -1248,63 +1263,75 @@ msgstr "podproces %s vrátil čekací chybový status %d"
 msgid "wait for subprocess %s failed"
 msgstr "čekání na podproces %s selhalo"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
+#, c-format
+msgid "cannot stat pathname '%s'"
+msgstr "nelze volat stat na cestu „%s“"
+
+#: lib/dpkg/treewalk.c
+#, c-format
+msgid "cannot open directory '%s'"
+msgstr "nelze otevřít adresář „%s“"
+
+#: lib/dpkg/treewalk.c
+#, c-format
+msgid "treewalk root %s is not a directory"
+msgstr "vrcholový adresář %s není adresářem"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open/create triggers lockfile '%.250s'"
+msgstr "nelze otevřít/vytvořit zámek pro spouštěče (%.250s)"
+
+#: lib/dpkg/trigdeferred.c
+msgid "triggers area"
+msgstr "oblast spouštěčů"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open triggers deferred file '%.250s'"
+msgstr "nelze otevřít soubor s odloženými spouštěči „%.250s“"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to stat triggers deferred file '%.250s'"
+msgstr "nelze zavolat stat na soubor s odloženými spouštěči „%.250s“"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "unable to open/create new triggers deferred file '%.250s'"
+msgstr "nelze otevřít/vytvořit nový soubor s odloženými spouštěči „%.250s“"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"syntaktická chyba v souboru s odloženými spouštěči „%.250s“ na řádku %d "
+"znaku %zd „%s“"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
 msgstr ""
 "neplatné jméno balíku „%.250s“ v souboru s odloženými spouštěči „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "oříznutý soubor s odloženými spouštěči „%.250s“"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"syntaktická chyba v souboru s odloženými spouštěči „%.250s“ na znaku „%s“%s"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open/create triggers lockfile '%.250s'"
-msgstr "nelze otevřít/vytvořit zámek pro spouštěče (%.250s)"
-
-#: lib/dpkg/trigdeferred.l
-msgid "triggers area"
-msgstr "oblast spouštěčů"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open triggers deferred file '%.250s'"
-msgstr "nelze otevřít soubor s odloženými spouštěči „%.250s“"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to stat triggers deferred file '%.250s'"
-msgstr "nelze zavolat stat na soubor s odloženými spouštěči „%.250s“"
-
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "unable to open/create new triggers deferred file '%.250s'"
-msgstr "nelze otevřít/vytvořit nový soubor s odloženými spouštěči „%.250s“"
-
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "chyba při čtení souboru s odloženými spouštěči „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "nelze zapsat nový soubor s odloženými spouštěči „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "nelze zavřít nový soubor s odloženými spouštěči „%.250s“"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "nelze nainstalovat novou verzi souboru s odloženými spouštěči „%.250s“"
@@ -1421,10 +1448,9 @@ msgid "too-long line or missing newline in '%.250s'"
 msgstr "příliš dlouhý řádek nebo chybějící nový řádek v „%.250s“"
 
 #: lib/dpkg/utils.c
-#, fuzzy, c-format
-#| msgid "unexpected end of file in %.250s"
+#, c-format
 msgid "unexpected end of file reading '%.250s'"
-msgstr "neočekávaný konec souboru v %.250s"
+msgstr "neočekávaný konec souboru při čtení „%.250s“"
 
 #: lib/dpkg/varbuf.c
 msgid "error formatting string into varbuf variable"
@@ -1542,10 +1568,9 @@ msgstr ""
 "selhalo dereferencování nového cíle („%.250s“) symbolického odkazu „%.250s“"
 
 #: src/archives.c
-#, fuzzy, c-format
-#| msgid "cannot open archive part file '%.250s'"
+#, c-format
 msgid "newline not allowed in archive object name '%.255s'"
-msgstr "nelze otevřít část „%.250s“"
+msgstr "nový řádek není povolen v názvu objektu „%.255s“"
 
 #: src/archives.c
 #, c-format
@@ -1583,11 +1608,6 @@ msgstr ""
 #, c-format
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "archiv obsahoval objekt „%.255s“ neznámého typu 0x%x"
-
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "nelze volat stat na soubor „%s“"
 
 #: src/archives.c
 #, c-format
@@ -1777,27 +1797,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive vyžaduje alespoň jednu cestu"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "find pro dpkg --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "nelze provést fdopen na rouře od příkazu find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "chyba při čtení z roury příkazu find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "chyba při zavírání roury od příkazu find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "hledání --recursive vrátilo neošetřenou chybu %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "prohledáno, ale nebyl nalezen žádný balík (soubory vyhovující *.deb)"
 
@@ -1805,6 +1804,16 @@ msgstr "prohledáno, ale nebyl nalezen žádný balík (soubory vyhovující *.d
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s vyžaduje jako argument alespoň jeden soubor s balíkem"
+
+#: src/archives.c src/unpack.c
+#, c-format
+msgid "cannot access archive '%s'"
+msgstr "nelze přistoupit k archivu „%s“"
+
+#: src/archives.c
+#, c-format
+msgid "archive '%s' is not a regular file"
+msgstr "archiv „%s“ není obyčejný soubor"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -1983,10 +1992,8 @@ msgid "read error on stdin at conffile prompt"
 msgstr "chyba čtení na stdin při otázce na konfigurační soubory"
 
 #: src/configure.c
-#, fuzzy
-#| msgid "read error on stdin at conffile prompt"
 msgid "end of file on stdin at conffile prompt"
-msgstr "chyba čtení na stdin při otázce na konfigurační soubory"
+msgstr "konec souboru na stdin při otázce na konfigurační soubory"
 
 #: src/configure.c
 msgid "conffile difference visualizer"
@@ -2390,6 +2397,11 @@ msgstr ""
 "Před/poinstalační skripty balíku by měly vždy používat --package a --"
 "divert.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "nelze volat stat na soubor „%s“"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2745,10 +2757,45 @@ msgstr ""
 msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr "nelze splnit před-závislosti pro %.250s (vyžadováno pro %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "zastaralá volba „--%s“, použijte místo ní „--%s“"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s vyžaduje jedno jméno balíku"
+
+#: src/enquiry.c
+#, c-format
+msgid "package name '%s' is invalid: %s"
+msgstr "jméno balíku „%s“ není platné: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s vyžaduje jeden název spouštěče"
+
+#: src/enquiry.c
+#, c-format
+msgid "trigger name '%s' is invalid: %s"
+msgstr "název spouštěče „%s“ není platný: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <archname> argument"
+msgstr "--%s vyžaduje jedno jméno architektury"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr "jméno architektury „%s“ není platné: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <version> argument"
+msgstr "--%s akceptuje jeden argument <verze>"
+
+#: src/enquiry.c
+#, c-format
+msgid "version '%s' has bad syntax"
+msgstr "verze „%s“ má špatnou syntaxi"
 
 #: src/enquiry.c
 msgid ""
@@ -2762,13 +2809,7 @@ msgstr "--compare-versions špatná relace"
 #: src/enquiry.c
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
-msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-#| msgid "version '%s' has bad syntax: %s"
-msgid "version '%s' has bad syntax"
-msgstr "verze „%s“ má špatnou syntaxi: %s"
+msgstr "--%s použita se zastaralým relačním operátorem „%s“"
 
 #: src/errors.c
 #, c-format
@@ -2886,13 +2927,13 @@ msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje závěrečný nov
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value"
-msgstr "v řídícím souboru „%s“ chybí hodnota"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje hodnotu"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value separator"
-msgstr "v řídícím souboru „%s“ chybí oddělovač hodnot"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr "řídící soubor „%s“ balíku „%s“ neobsahuje oddělovač hodnoty"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2901,27 +2942,27 @@ msgstr "řídící soubor „%s“ balíku „%s“ obsahuje prázdné jméno so
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "nelze otevřít řídící soubor „%s“ balíku „%s“"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "nelze zjistit stav řídícího souboru „%s“ balíku „%s“"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "'%s' file for package '%s' is not a regular file"
-msgstr "soubor „%s“ balíku „%s“ není běžným souborem"
+msgid "control file '%s' for package '%s' is not a regular file"
+msgstr "řídící soubor „%s“ balíku „%s“ není běžným souborem"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "nelze číst řídící soubor „%s“ balíku „%s“"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "nelze zavřít řídící soubor „%s“ balíku „%s“"
 
 #: src/help.c
@@ -3032,43 +3073,7 @@ msgid "Debian '%s' package management program version %s.\n"
 msgstr "Debian „%s“ - program pro správu balíků verze %s.\n"
 
 #: src/main.c
-#, fuzzy, c-format
-#| msgid ""
-#| "Commands:\n"
-#| "  -i|--install       <.deb file name> ... | -R|--recursive "
-#| "<directory> ...\n"
-#| "  --unpack           <.deb file name> ... | -R|--recursive "
-#| "<directory> ...\n"
-#| "  -A|--record-avail  <.deb file name> ... | -R|--recursive "
-#| "<directory> ...\n"
-#| "  --configure        <package> ... | -a|--pending\n"
-#| "  --triggers-only    <package> ... | -a|--pending\n"
-#| "  -r|--remove        <package> ... | -a|--pending\n"
-#| "  -P|--purge         <package> ... | -a|--pending\n"
-#| "  -V|--verify <package> ...        Verify the integrity of package(s).\n"
-#| "  --get-selections [<pattern> ...] Get list of selections to stdout.\n"
-#| "  --set-selections                 Set package selections from stdin.\n"
-#| "  --clear-selections               Deselect every non-essential package.\n"
-#| "  --update-avail [<Packages-file>] Replace available packages info.\n"
-#| "  --merge-avail [<Packages-file>]  Merge with info from file.\n"
-#| "  --clear-avail                    Erase existing available info.\n"
-#| "  --forget-old-unavail             Forget uninstalled unavailable pkgs.\n"
-#| "  -s|--status <package> ...        Display package status details.\n"
-#| "  -p|--print-avail <package> ...   Display available version details.\n"
-#| "  -L|--listfiles <package> ...     List files 'owned' by package(s).\n"
-#| "  -l|--list [<pattern> ...]        List packages concisely.\n"
-#| "  -S|--search <pattern> ...        Find package(s) owning file(s).\n"
-#| "  -C|--audit [<package> ...]       Check for broken package(s).\n"
-#| "  --add-architecture <arch>        Add <arch> to the list of "
-#| "architectures.\n"
-#| "  --remove-architecture <arch>     Remove <arch> from the list of "
-#| "architectures.\n"
-#| "  --print-architecture             Print dpkg architecture.\n"
-#| "  --print-foreign-architectures    Print allowed foreign architectures.\n"
-#| "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
-#| "  --force-help                     Show help on forcing.\n"
-#| "  -Dh|--debug=help                 Show help on debugging.\n"
-#| "\n"
+#, c-format
 msgid ""
 "Commands:\n"
 "  -i|--install       <.deb file name> ... | -R|--recursive <directory> ...\n"
@@ -3102,6 +3107,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3112,6 +3118,7 @@ msgstr ""
 "  --unpack          <.deb soubor> … | -R|--recursive <adresář> …\n"
 "  -A|--record-avail <.deb soubor> … | -R|--recursive <adresář> …\n"
 "  --configure       <balík> … | -a|--pending\n"
+"  --triggers-only   <balík> … | -a|--pending\n"
 "  -r|--remove       <balík> … | -a|--pending\n"
 "  -P|--purge        <balík> … | -a|--pending\n"
 "  -V|--verify <balík> …            ověří integritu balíku\n"
@@ -3130,10 +3137,14 @@ msgstr ""
 "  -l|--list [<vzor> …]             stručný seznam balíků\n"
 "  -S|--search <vzor> …             nalezne balík, který vlastní soubor(y)\n"
 "  -C|--audit [<balík> …]           vyhledá porušené balíky\n"
+"  --yet-to-unpack                  vypíše balíky vybrané k instalaci\n"
+"  --predep-package                 vypíše předzávislosti k rozbalení\n"
 "  --add-architecture <arch>        přidá <arch> do seznamu architektur\n"
 "  --remove-architecture <arch>     odstraní <arch> ze seznamu architektur\n"
 "  --print-architecture             vypíše dpkg architekturu\n"
 "  --print-foreign-architectures    vypíše povolené cizí architektury\n"
+"  --assert-<vlastnost>             předpokládá podporu dané vlastnosti\n"
+"  --validate-<věc> <řetězec>       ověří <řetězec> dané <věci>\n"
 "  --compare-versions <a> <op> <b>  porovná čísla verzí - viz níže\n"
 "  --force-help                     zobrazí nápovědu pro donucování\n"
 "  -Dh|--debug=help                 zobrazí nápovědu pro ladění\n"
@@ -3151,31 +3162,27 @@ msgstr ""
 "\n"
 
 #: src/main.c
-#, fuzzy, c-format
-#| msgid ""
-#| "For internal use: dpkg --assert-support-predepends | --predep-package |\n"
-#| "  --assert-working-epoch | --assert-long-filenames | --assert-multi-"
-#| "conrep |\n"
-#| "  --assert-multi-arch | --assert-versioned-provides.\n"
-#| "\n"
+#, c-format
 msgid ""
 "Assertable features: support-predepends, working-epoch, long-filenames,\n"
 "  multi-conrep, multi-arch, versioned-provides.\n"
 "\n"
 msgstr ""
-"Pro vnitřní potřebu: dpkg --assert-support-predepends | --predep-package |\n"
-"  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep "
-"|\n"
-"  --assert-multi-arch | --assert-versioned-provides.\n"
+"Předpokládatelné vlastnosti: support-predepends, working-epoch, \n"
+"  long-filenames, multi-conrep, multi-arch, versioned-provides.\n"
 "\n"
 
 #: src/main.c
-#, fuzzy, c-format
-#| msgid ""
-#| "Use dpkg -b|--build|-c|--contents|-e|--control|-I|--info|-f|--field|\n"
-#| " -x|--extract|-X|--vextract|--fsys-tarfile  on archives (type %s --"
-#| "help).\n"
-#| "\n"
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
+"Ověřitelné věci: pkgname, archname, trigname, version.\n"
+"\n"
+
+#: src/main.c
+#, c-format
 msgid ""
 "Use dpkg with -b, --build, -c, --contents, -e, --control, -I, --info,\n"
 "  -f, --field, -x, --extract, -X, --vextract, --ctrl-tarfile, --fsys-"
@@ -3183,8 +3190,9 @@ msgid ""
 "on archives (type %s --help).\n"
 "\n"
 msgstr ""
-"Na archivy použijte dpkg -b|--build|-c|--contents|-e|--control|-I|--info|\n"
-"-f|--field| -x|--extract|-X|--vextract|--fsys-tarfile  (napište %s --help).\n"
+"Na archivy použijte dpkg -b, --build, -c, --contents, -e, --control,\n"
+"  -I, --info, -f, --field,  -x, --extract, -X, --vextract,\n"
+"  --fsys-tarfile  (napište %s --help).\n"
 "\n"
 
 #: src/main.c
@@ -3346,6 +3354,10 @@ msgstr "přepíše adresář balíku souborem z jiného balíku"
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "při rozbalování nepoužije bezpečné V/V operace"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr "nepřejde do speciálního chrootu"
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3559,13 +3571,12 @@ msgstr ""
 #: src/main.c
 #, c-format
 msgid "unknown force/refuse option '%.*s'"
-msgstr "neznámá force/refuse volba „%.*s“"
+msgstr "neznámá donucovací volba „%.*s“"
 
 #: src/main.c
-#, fuzzy, c-format
-#| msgid "obsolete force/refuse option '%s'\n"
+#, c-format
 msgid "obsolete force/refuse option '%s'"
-msgstr "zastaralá force/refuse volba „%s“\n"
+msgstr "zastaralá donucovací volba „%s“"
 
 #: src/main.c
 #, c-format
@@ -3573,14 +3584,17 @@ msgid "couldn't open '%i' for stream"
 msgstr "nelze otevřít „%i“ pro proud"
 
 #: src/main.c
-#, fuzzy, c-format
-#| msgid "unexpected eof before end of line %d"
+#, c-format
 msgid "unexpected end of file before end of line %d"
 msgstr "neočekávaný konec souboru před koncem řádku %d"
 
 #: src/main.c src/querycmd.c src/statcmd.c dpkg-deb/main.c dpkg-split/main.c
 msgid "need an action option"
 msgstr "nutno zadat akci"
+
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr "nelze nastavit ID primární skupiny na root"
 
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
@@ -3705,6 +3719,11 @@ msgstr " závisí na "
 msgid "; however:\n"
 msgstr "; avšak:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "%s nevyhovuje žádný balík"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3739,11 +3758,6 @@ msgstr "Architektura"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Popis"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "%s nevyhovuje žádný balík"
 
 #: src/querycmd.c
 #, c-format
@@ -4011,8 +4025,7 @@ msgid "cannot remove old config file '%.250s' (= '%.250s')"
 msgstr "nelze odstranit starý konfigurační soubor „%.250s“ (= „%.250s“)"
 
 #: src/remove.c
-#, fuzzy, c-format
-#| msgid "cannot read config file dir `%.250s' (from `%.250s')"
+#, c-format
 msgid "cannot read config file directory '%.250s' (from '%.250s')"
 msgstr "nelze číst adresář konfiguračních souborů „%.250s“ (z „%.250s“)"
 
@@ -4094,10 +4107,9 @@ msgid "... it looks like that went OK"
 msgstr "… vypadá to, že se vše povedlo"
 
 #: src/select.c
-#, fuzzy, c-format
-#| msgid "unexpected end of line in package name at line %d"
+#, c-format
 msgid "unexpected end of file in package name at line %d"
-msgstr "neočekávaný konec řádku ve jménu balíku na řádku %d"
+msgstr "neočekávaný konec souboru ve jménu balíku na řádku %d"
 
 #: src/select.c
 #, c-format
@@ -4105,10 +4117,9 @@ msgid "unexpected end of line in package name at line %d"
 msgstr "neočekávaný konec řádku ve jménu balíku na řádku %d"
 
 #: src/select.c
-#, fuzzy, c-format
-#| msgid "unexpected end of line after package name at line %d"
+#, c-format
 msgid "unexpected end of file after package name at line %d"
-msgstr "neočekávaný konec řádku za jménem balíku na řádku %d"
+msgstr "neočekávaný konec souboru za jménem balíku na řádku %d"
 
 #: src/select.c
 #, c-format
@@ -4127,8 +4138,8 @@ msgstr "nepovolené jméno balíku na řádku %d: %.250s"
 
 #: src/select.c
 #, c-format
-msgid "package not in database at line %d: %.250s"
-msgstr "balík není v databázi na řádku %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
+msgstr "balík není v databázi dostupných na řádku %d: %.250s"
 
 #: src/select.c
 #, c-format
@@ -4142,10 +4153,12 @@ msgstr "chyba při čtení ze standardního vstupu"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "nalezeny neznámé balíky; to může znamenat, že je databáze\n"
-"dostupných balíků zastaralá a je nutné ji aktualizovat"
+"dostupných balíků zastaralá a je nutné ji aktualizovat;\n"
+"více naleznete na <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 
 #: src/selinux.c
 msgid "cannot open security status notification channel"
@@ -4206,16 +4219,14 @@ msgid "stripping trailing /"
 msgstr "odstraňuje se koncové /"
 
 #: src/statcmd.c
-#, fuzzy, c-format
-#| msgid "control file '%s' does not exist"
+#, c-format
 msgid "user '%s' does not exist"
-msgstr "control soubor „%s“ neexistuje"
+msgstr "uživatel „%s“ neexistuje"
 
 #: src/statcmd.c
-#, fuzzy, c-format
-#| msgid "control file '%s' does not exist"
+#, c-format
 msgid "group '%s' does not exist"
-msgstr "control soubor „%s“ neexistuje"
+msgstr "skupina „%s“ neexistuje"
 
 #: src/statcmd.c
 #, c-format
@@ -4251,22 +4262,19 @@ msgid "--update is useless for --remove"
 msgstr "pro --remove je --update zbytečné"
 
 #: src/statdb.c
-#, fuzzy, c-format
-#| msgid "invalid status"
+#, c-format
 msgid "invalid statoverride uid %s"
-msgstr "neplatný stav"
+msgstr "neplatné uid %s ve statoverride"
 
 #: src/statdb.c
-#, fuzzy, c-format
-#| msgid "dpkg-statoverride: %s"
+#, c-format
 msgid "invalid statoverride gid %s"
-msgstr "dpkg-statoverride: %s"
+msgstr "neplatné gid %s ve statoverride"
 
 #: src/statdb.c
-#, fuzzy, c-format
-#| msgid "dpkg-statoverride: %s"
+#, c-format
 msgid "invalid statoverride mode %s"
-msgstr "dpkg-statoverride: %s"
+msgstr "neplatný režim %s ve statoverride"
 
 #: src/statdb.c
 msgid "failed to open statoverride file"
@@ -4489,6 +4497,34 @@ msgstr "úspěšně\n"
 msgid "unable to create temporary directory"
 msgstr "nelze vytvořit dočasný adresář"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"před-závislostní problém v %s obsahujícím %s:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "před-závislostní problém - neinstaluji %.250s"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "ignoruji před-závislostní problém!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Dekonfiguruje se %s (%s), aby mohl být odstraněn %s (%s) …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Dekonfiguruje se %s (%s) …\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4553,89 +4589,6 @@ msgstr "nelze instalovat nový info soubor „%.250s“ jako „%.250s“"
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Poznamenávám zmizení balíku %s, který byl úplně nahrazen.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "nelze přistoupit k archivu"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "získání řídících informací o balíku"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Zaznamenány informace o %s z %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "architektura balíku (%s) se neshoduje se systémem (%s)"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"před-závislostní problém v %s obsahujícím %s:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "před-závislostní problém - neinstaluji %.250s"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "ignoruji před-závislostní problém!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Připravuje se nahrazení %s …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Dekonfiguruje se %s (%s), aby mohl být odstraněn %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Dekonfiguruje se %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Rozbaluje se %s (%s) …\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Rozbaluje se %s (%s) přes (%s) …\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "rozbalení balíku"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "chyba při čtení tar výstupu z dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "poškozený systémový tar soubor - poškozený balík"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "nelze zrušit potenciální koncové nuly z dpkg-deb: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr "nelze zjistit stav starého souboru „%.250s“, tudíž jej nemažu: %s"
 
@@ -4668,6 +4621,57 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "nelze bezpečně odstranit starý soubor „%.250s“: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Poznamenávám zmizení balíku %s, který byl úplně nahrazen.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "získání řídících informací o balíku"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Zaznamenány informace o %s z %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "architektura balíku (%s) se neshoduje se systémem (%s)"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Připravuje se nahrazení %s …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Rozbaluje se %s (%s) …\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Rozbaluje se %s (%s) přes (%s) …\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "rozbalení balíku"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "chyba při čtení tar výstupu z dpkg-deb"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "poškozený systémový tar soubor - poškozený balík"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "nelze zrušit potenciální koncové nuly z dpkg-deb: %s"
 
 #: src/update.c
 #, c-format
@@ -4710,19 +4714,17 @@ msgstr "zastaralá volba „--%s“, nedostupné balíky jsou čištěny automat
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "nelze zjistit stav souboru „%.250s“"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "selhal zápis jména souboru do roury s tarem (%s)"
 
 #: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "newline in field name '%.*s'"
-msgid "newline not allowed in pathname '%s'"
-msgstr "nový řádek v položce „%.*s“"
+msgid "control member"
+msgstr "řídící část"
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "selhal zápis jména souboru do roury s tarem (%s)"
+msgid "newline not allowed in pathname '%s'"
+msgstr "nový řádek není povolen v cestě „%s“"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4801,6 +4803,10 @@ msgid "package name has characters that aren't lowercase alphanums or '-+.'"
 msgstr "jméno balíku se skládá ze znaků, které nejsou malými písmeny ani `-+.'"
 
 #: dpkg-deb/build.c
+msgid "package architecture is missing or empty"
+msgstr "architektura balíku chybí, nebo je prázdná"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "„%s“ obsahuje uživatelem definovanou hodnotu Priority „%s“"
@@ -4819,14 +4825,17 @@ msgid "unable to check for existence of archive '%.250s'"
 msgstr "nelze zkontrolovat existenci archivu „%.250s“"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "compressing data member"
 msgid "compressing tar member"
-msgstr "komprimuje se datová část"
+msgstr "komprimuje se tar"
 
 #: dpkg-deb/build.c
 msgid "<compress> from tar -cf"
 msgstr "<komprese> z tar -cf"
+
+#: dpkg-deb/build.c dpkg-split/split.c
+#, c-format
+msgid "unable to parse timestamp '%.255s'"
+msgstr "nelze syntakticky zpracovat časový údaj „%.255s“"
 
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
@@ -4843,13 +4852,13 @@ msgstr "nekontroluji obsah řídící oblasti"
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
-msgstr "dpkg-deb: vytvářím neznámý balík v „%s“.\n"
+msgid "building an unknown package in '%s'."
+msgstr "vytvářím neznámý balík v „%s“."
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
-msgstr "dpkg-deb: vytvářím balík „%s“ v „%s“.\n"
+msgid "building package '%s' in '%s'."
+msgstr "vytvářím balík „%s“ v „%s“."
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4857,17 +4866,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "selhalo vytvoření dočasného souboru (%s)"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "řídící část"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "selhalo smazání dočasného souboru (%s), %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "komprimuje se řídící část"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4893,24 +4894,15 @@ msgstr "nelze zkopírovat „%s“ do archivu „%s“: %s"
 msgid "shell command to move files"
 msgstr "shellový příkaz pro přesun souborů"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "neočekávaný konec souboru v %s na %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "chyba při čtení %s ze souboru %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "chyba při čtení archivu „%.255s“"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "na archivu selhalo volání fstat()"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -4983,7 +4975,7 @@ msgstr "velikost řídící části archivu"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "archiv má chybně formátovanou délku řídící části „%s“"
 
 #: dpkg-deb/extract.c
@@ -5078,7 +5070,7 @@ msgstr ""
 #: dpkg-deb/extract.c
 #, c-format
 msgid "--%s does not support (yet) reading the .deb from standard input"
-msgstr ""
+msgstr "--%s (zatím) nepodporuje čtení .deb ze standarního vstupu"
 
 #: dpkg-deb/info.c
 #, c-format
@@ -5134,8 +5126,8 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     není prostý soubor        %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
-msgstr "(v řídícím archivu chybí soubor „control“!)\n"
+msgid "no 'control' file in control archive!"
+msgstr "v řídícím archivu chybí soubor „control“!"
 
 #: dpkg-deb/main.c
 #, c-format
@@ -5198,9 +5190,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5208,7 +5197,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5221,14 +5210,12 @@ msgstr ""
 "      --showformat=<formát> použije pro --show alternativní formát\n"
 "      --deb-format=<formát> vybere formát archivu\n"
 "                            povolené hodnoty: 0.939000, 2.0 (výchozí)\n"
-"  --old                     starý alias pro „--deb-format=0.939000“\n"
-"  --new                     starý alias pro „--deb-format=2.0“\n"
 "  --nocheck                 potlačí kontrolu souboru control (vytváření\n"
 "                              chybných balíků)\n"
 "  --uniform-compression     použije stejné parametry komprese na vše\n"
 "  -z#                       při vytváření nastaví míru komprese\n"
 "  -Z<typ>                   při vytváření nastaví typ komprese\n"
-"                              povolené hodnoty: gzip, xz, bzip2, none\n"
+"                              povolené hodnoty: gzip, xz, none\n"
 "  -S<strategie>             při vytváření nastaví strategii komprese\n"
 "                              povolené hodnoty: none, extreme (xz);\n"
 "                              filtered, huffman, rle, fixed (gzip)\n"
@@ -5282,12 +5269,12 @@ msgstr "neznámý typ komprese „%s“!"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "zastaralý typ komprese „%s“; použijte xz"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "zastaralý typ komprese „%s“; použijte xz nebo gzip"
 
 #: dpkg-deb/main.c
@@ -5320,7 +5307,7 @@ msgstr "soubor „%.250s“ je poškozen - %.250s chybí"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "soubor „%.250s“ je poškozen - chybí nový řádek za %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "chyba při čtení %.250s"
@@ -5431,11 +5418,6 @@ msgstr "soubor „%.250s“ je poškozen - chybný počet částí pro uvozené 
 #, c-format
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr "soubor „%.250s“ je poškozen - chybná velikost uvozené části"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "nelze zjistit fstat části souboru „%.250s“"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5611,11 +5593,6 @@ msgid "Type dpkg-split --help for help."
 msgstr "Pro zobrazení nápovědy napište dpkg-split --help."
 
 #: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "neočekávaný konec souboru v %.250s"
-
-#: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
 msgstr "velikost části je buď příliš veliká, nebo nekladná"
 
@@ -5735,7 +5712,7 @@ msgstr "získání hodnoty položky"
 
 #: dpkg-split/split.c
 msgid "<dpkg-deb --info pipe>"
-msgstr ""
+msgstr "<dpkg-deb --info roura>"
 
 #: dpkg-split/split.c
 #, c-format
@@ -5869,17 +5846,9 @@ msgstr ""
 "  --version                zobrazí verzi\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr "chyba"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr "Pro nápovědu o používání programu použijte „%s --help“."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "varování"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6016,16 +5985,13 @@ msgid "unable to flush file '%s'"
 msgstr "nelze vyprázdnit soubor „%s“"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "Current 'best' version is '%s'."
+#, c-format
 msgid "  link best version is %s"
-msgstr "Momentální „nejlepší“ verze je „%s“."
+msgstr "  odkazovaná nejlepší verze je %s"
 
 #: utils/update-alternatives.c
-#, fuzzy
-#| msgid "No versions available."
 msgid "  link best version not available"
-msgstr "Nejsou k dispozici žádné verze."
+msgstr "  odkazovaná nejlepší verze není k dispozici"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6037,16 +6003,14 @@ msgid "  link currently absent"
 msgstr "  odkaz momentálně chybí"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  %.250s is %s.\n"
+#, c-format
 msgid "  link %s is %s"
-msgstr "  %.250s je %s.\n"
+msgstr "  odkaz %s je %s"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  slave %s: %s"
+#, c-format
 msgid "  slave %s is %s"
-msgstr "  závislost %s: %s"
+msgstr "  závislost %s je %s"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6083,11 +6047,9 @@ msgid "Status"
 msgstr "Stav"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid ""
-#| "Press enter to keep the current choice[*], or type selection number: "
+#, c-format
 msgid "Press <enter> to keep the current choice[*], or type selection number: "
-msgstr "Pro aktuální možnost[*] stiskněte enter, jinak zadejte číslo: "
+msgstr "Pro aktuální možnost[*] stiskněte <enter>, jinak zadejte číslo: "
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6347,6 +6309,54 @@ msgstr "automatické aktualizace %s/%s jsou zakázány, ponechávám bez změn"
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“"
 
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "zastaralá volba „--%s“, použijte místo ní „--%s“"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "v řídícím souboru „%s“ chybí hodnota"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "v řídícím souboru „%s“ chybí oddělovač hodnot"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "nelze zjistit fstat části souboru „%.250s“"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "neočekávaný konec souboru v %.250s"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: chyba: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: vnitřní chyba: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: varování: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "oříznutý soubor s odloženými spouštěči „%.250s“"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "find pro dpkg --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "nelze provést fdopen na rouře od příkazu find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "chyba při čtení z roury příkazu find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "chyba při zavírání roury od příkazu find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "hledání --recursive vrátilo neošetřenou chybu %i"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "nelze zjistit stav souboru „%.250s“"
+
+#~ msgid "compressing control member"
+#~ msgstr "komprimuje se řídící část"
+
 #~ msgid "Call %s."
 #~ msgstr "Volá se %s."
 
@@ -6385,9 +6395,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "„%s“ obsahuje uživatelem definovanou položku „%s“"
-
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s akceptuje jeden argument"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "nelze otevřít část „control“"
@@ -6429,9 +6436,6 @@ msgstr "k automatickým aktualizacím se vrátíte příkazem „%s --auto %s“
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Rozbaluje se náhrada %.250s …\n"
-
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "neplatné celé číslo pro -%c: „%.250s“"
 
 #~ msgid "priority is out of range: %s clamped to %ld"
 #~ msgstr "priorita je mimo rozsah: %s ořezána na %ld"

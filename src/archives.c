@@ -52,6 +52,7 @@
 #include <dpkg/subproc.h>
 #include <dpkg/command.h>
 #include <dpkg/file.h>
+#include <dpkg/treewalk.h>
 #include <dpkg/tarfn.h>
 #include <dpkg/options.h>
 #include <dpkg/triglib.h>
@@ -75,28 +76,68 @@ fd_writeback_init(int fd)
 #endif
 }
 
-static struct obstack tar_obs;
-static bool tarobs_init = false;
+static struct obstack tar_pool;
+static bool tar_pool_init = false;
 
 /**
- * Ensure the obstack is properly initialized.
+ * Allocate memory from the tar memory pool.
  */
-static void ensureobstackinit(void) {
-
-  if (!tarobs_init) {
-    obstack_init(&tar_obs);
-    tarobs_init = true;
+static void *
+tar_pool_alloc(size_t size)
+{
+  if (!tar_pool_init) {
+    obstack_init(&tar_pool);
+    tar_pool_init = true;
   }
+
+  return obstack_alloc(&tar_pool, size);
 }
 
 /**
- * Destroy the obstack.
+ * Free memory from the tar memory pool.
  */
-static void destroyobstack(void) {
-  if (tarobs_init) {
-    obstack_free(&tar_obs, NULL);
-    tarobs_init = false;
+static void
+tar_pool_free(void *ptr)
+{
+  obstack_free(&tar_pool, ptr);
+}
+
+/**
+ * Release the tar memory pool.
+ */
+static void
+tar_pool_release(void)
+{
+  if (tar_pool_init) {
+    obstack_free(&tar_pool, NULL);
+    tar_pool_init = false;
   }
+}
+
+struct fileinlist *
+tar_filenamenode_queue_push(struct filenamenode_queue *queue,
+                            struct filenamenode *namenode)
+{
+  struct fileinlist *node;
+
+  node = tar_pool_alloc(sizeof(*node));
+  node->namenode = namenode;
+  node->next = NULL;
+
+  *queue->tail = node;
+  queue->tail = &node->next;
+
+  return node;
+}
+
+static void
+tar_filenamenode_queue_pop(struct filenamenode_queue *queue,
+                           struct fileinlist **tail_prev,
+                           struct fileinlist *node)
+{
+  tar_pool_free(node);
+  queue->tail = tail_prev;
+  *tail_prev = NULL;
 }
 
 /**
@@ -187,14 +228,10 @@ md5hash_prev_conffile(struct pkginfo *pkg, char *oldhash, const char *oldname,
   for (otherpkg = &pkg->set->pkg; otherpkg; otherpkg = otherpkg->arch_next) {
     if (otherpkg == pkg)
       continue;
-    /* The hash in the Conffiles is only meaningful if the package
-     * configuration has been at least tried. */
-    if (otherpkg->status < PKG_STAT_UNPACKED)
-      continue;
     /* If we are reinstalling, even if the other package is only unpacked,
      * we can always make use of the Conffiles hash value from an initial
      * installation, if that happened at all. */
-    if (otherpkg->status == PKG_STAT_UNPACKED &&
+    if (otherpkg->status <= PKG_STAT_UNPACKED &&
         dpkg_version_compare(&otherpkg->installed.version,
                              &otherpkg->configversion) != 0)
       continue;
@@ -498,16 +535,19 @@ tarobject_matches(struct tarcontext *tc,
     return;
   case TAR_FILETYPE_SYMLINK:
     /* Symlinks to existing dirs have already been dealt with, only
-     * reamin real symlinks where we can compare the target. */
+     * remain real symlinks where we can compare the target. */
     if (!S_ISLNK(stab->st_mode))
       break;
     linkname = m_malloc(stab->st_size + 1);
     linksize = readlink(fn_old, linkname, stab->st_size + 1);
     if (linksize < 0)
       ohshite(_("unable to read link '%.255s'"), fn_old);
-    else if (linksize != stab->st_size)
+    else if (linksize > stab->st_size)
       ohshit(_("symbolic link '%.250s' size has changed from %jd to %zd"),
-             fn_old, stab->st_size, linksize);
+             fn_old, (intmax_t)stab->st_size, linksize);
+    else if (linksize < stab->st_size)
+      warning(_("symbolic link '%.250s' size has changed from %jd to %zd"),
+             fn_old, (intmax_t)stab->st_size, linksize);
     linkname[linksize] = '\0';
     if (strcmp(linkname, te->linkname) == 0) {
       free(linkname);
@@ -565,28 +605,6 @@ void setupfnamevbs(const char *filename) {
 
   debug(dbg_eachfiledetail, "setupvnamevbs main='%s' tmp='%s' new='%s'",
         fnamevb.buf, fnametmpvb.buf, fnamenewvb.buf);
-}
-
-struct fileinlist *addfiletolist(struct tarcontext *tc,
-				 struct filenamenode *namenode) {
-  struct fileinlist *nifd;
-
-  nifd= obstack_alloc(&tar_obs, sizeof(struct fileinlist));
-  nifd->namenode= namenode;
-  nifd->next = NULL;
-  *tc->newfilesp = nifd;
-  tc->newfilesp = &nifd->next;
-  return nifd;
-}
-
-static void
-remove_file_from_list(struct tarcontext *tc, struct tar_entry *ti,
-                      struct fileinlist **oldnifd,
-                      struct fileinlist *nifd)
-{
-  obstack_free(&tar_obs, nifd);
-  tc->newfilesp = oldnifd;
-  *oldnifd = NULL;
 }
 
 static bool
@@ -654,8 +672,6 @@ tarobject(void *ctx, struct tar_entry *ti)
   struct pkgset *divpkgset;
   struct pkginfo *otherpkg;
 
-  ensureobstackinit();
-
   tar_entry_update_from_system(ti);
 
   /* Perform some sanity checks on the tar entry. */
@@ -665,8 +681,9 @@ tarobject(void *ctx, struct tar_entry *ti)
   /* Append to list of files.
    * The trailing ‘/’ put on the end of names in tarfiles has already
    * been stripped by tar_extractor(). */
-  oldnifd= tc->newfilesp;
-  nifd= addfiletolist(tc, findnamenode(ti->name, 0));
+  oldnifd = tc->newfiles_queue->tail;
+  nifd = tar_filenamenode_queue_push(tc->newfiles_queue,
+                                     findnamenode(ti->name, 0));
   nifd->namenode->flags |= fnnf_new_inarchive;
 
   debug(dbg_eachfile,
@@ -830,12 +847,13 @@ tarobject(void *ctx, struct tar_entry *ti)
       switch (otherpkg->clientdata->replacingfilesandsaid) {
       case 2:
         keepexisting = true;
+        /* Fall through. */
       case 1:
         continue;
       }
 
       /* Is the package with the conflicting file in the “config files only”
-       * state? If so it must be a config file and we can silenty take it
+       * state? If so it must be a config file and we can silently take it
        * over. */
       if (otherpkg->status == PKG_STAT_CONFIGFILES)
         continue;
@@ -853,14 +871,7 @@ tarobject(void *ctx, struct tar_entry *ti)
              conff = conff->next) {
           if (!conff->obsolete)
             continue;
-          if (stat(conff->name, &stabtmp)) {
-            if (errno == ENOENT || errno == ENOTDIR || errno == ELOOP)
-              continue;
-            else
-              ohshite(_("cannot stat file '%s'"), conff->name);
-          }
-          if (stabtmp.st_dev == stab.st_dev &&
-              stabtmp.st_ino == stab.st_ino)
+          if (strcmp(conff->name, nifd->namenode->name) == 0)
             break;
         }
         if (conff) {
@@ -909,7 +920,7 @@ tarobject(void *ctx, struct tar_entry *ti)
   if (keepexisting) {
     if (nifd->namenode->flags & fnnf_new_conff)
       nifd->namenode->flags |= fnnf_obs_conff;
-    remove_file_from_list(tc, ti, oldnifd, nifd);
+    tar_filenamenode_queue_pop(tc->newfiles_queue, oldnifd, nifd);
     tarobject_skip_entry(tc, ti);
     return 0;
   }
@@ -1015,9 +1026,12 @@ tarobject(void *ctx, struct tar_entry *ti)
       r = readlink(fnamevb.buf, symlinkfn.buf, symlinkfn.size);
       if (r < 0)
         ohshite(_("unable to read link '%.255s'"), ti->name);
-      else if (r != stab.st_size)
+      else if (r > stab.st_size)
         ohshit(_("symbolic link '%.250s' size has changed from %jd to %zd"),
-               fnamevb.buf, stab.st_size, r);
+               fnamevb.buf, (intmax_t)stab.st_size, r);
+      else if (r < stab.st_size)
+        warning(_("symbolic link '%.250s' size has changed from %jd to %zd"),
+               fnamevb.buf, (intmax_t)stab.st_size, r);
       varbuf_trunc(&symlinkfn, r);
       varbuf_end_str(&symlinkfn);
       if (symlink(symlinkfn.buf,fnametmpvb.buf))
@@ -1410,14 +1424,15 @@ void cu_cidir(int argc, void **argv) {
 }
 
 void cu_fileslist(int argc, void **argv) {
-  destroyobstack();
+  tar_pool_release();
 }
 
 int
 archivefiles(const char *const *argv)
 {
-  const char *volatile thisarg;
   const char *const *volatile argp;
+  const char **volatile arglist = NULL;
+  int i;
   jmp_buf ejbuf;
   enum modstatdb_rw msdbflags;
 
@@ -1440,69 +1455,58 @@ archivefiles(const char *const *argv)
   log_message("startup archives %s", cipaction->olong);
 
   if (f_recursive) {
-    int pi[2], nfiles, c, i, rc;
-    pid_t pid;
-    FILE *pf;
-    static struct varbuf findoutput;
-    const char **arglist;
-    char *p;
+    const char *const *ap;
+    int nfiles = 0;
 
     if (!*argv)
       badusage(_("--%s --recursive needs at least one path argument"),cipaction->olong);
 
-    m_pipe(pi);
-    pid = subproc_fork();
-    if (pid == 0) {
-      struct command cmd;
-      const char *const *ap;
+    for (ap = argv; *ap; ap++) {
+      struct treeroot *tree;
+      struct treenode *node;
 
-      m_dup2(pi[1],1); close(pi[0]); close(pi[1]);
+      tree = treewalk_open((const char *)*ap, TREEWALK_FOLLOW_LINKS, NULL);
 
-      command_init(&cmd, FIND, _("find for dpkg --recursive"));
-      command_add_args(&cmd, FIND, "-L", NULL);
+      while ((node = treewalk_next(tree))) {
+        const char *nodename;
 
-      for (ap = argv; *ap; ap++) {
-        if (strchr(FIND_EXPRSTARTCHARS,(*ap)[0])) {
-          command_add_arg(&cmd, str_fmt("./%s", *ap));
-        } else {
-          command_add_arg(&cmd, (const char *)*ap);
-        }
+        if (!S_ISREG(treenode_get_mode(node)))
+          continue;
+
+        /* Check if it looks like a .deb file. */
+        nodename = treenode_get_pathname(node);
+        if (strcmp(nodename + strlen(nodename) - 4, ".deb") != 0)
+          continue;
+
+        arglist = m_realloc(arglist, sizeof(char *) * (nfiles + 2));
+        arglist[nfiles++] = m_strdup(nodename);
       }
 
-      command_add_args(&cmd, "-name", "*.deb", "-type", "f", "-print0", NULL);
-
-      command_exec(&cmd);
+      treewalk_close(tree);
     }
-    close(pi[1]);
-
-    nfiles= 0;
-    pf= fdopen(pi[0],"r");  if (!pf) ohshite(_("failed to fdopen find's pipe"));
-    varbuf_reset(&findoutput);
-    while ((c= fgetc(pf)) != EOF) {
-      varbuf_add_char(&findoutput, c);
-      if (!c) nfiles++;
-    }
-    if (ferror(pf)) ohshite(_("error reading find's pipe"));
-    if (fclose(pf)) ohshite(_("error closing find's pipe"));
-    rc = subproc_reap(pid, "find", SUBPROC_RETERROR);
-    if (rc != 0)
-      ohshit(_("find for --recursive returned unhandled error %i"), rc);
 
     if (!nfiles)
       ohshit(_("searched, but found no packages (files matching *.deb)"));
 
-    arglist= m_malloc(sizeof(char*)*(nfiles+1));
-    p = findoutput.buf;
-    for (i = 0; i < nfiles; i++) {
-      arglist[i] = p;
-      while (*p++ != '\0') ;
-    }
-    arglist[i] = NULL;
+    arglist[nfiles] = NULL;
     argp= arglist;
   } else {
     if (!*argv) badusage(_("--%s needs at least one package archive file argument"),
                          cipaction->olong);
     argp= argv;
+  }
+
+  /* Perform some sanity checks on the passed archives. */
+  for (i = 0; argp[i]; i++) {
+    struct stat st;
+
+    /* We need the filename to exist. */
+    if (stat(argp[i], &st) < 0)
+      ohshite(_("cannot access archive '%s'"), argp[i]);
+
+    /* We cannot work with anything that is not a regular file. */
+    if (!S_ISREG(st.st_mode))
+      ohshit(_("archive '%s' is not a regular file"), argp[i]);
   }
 
   currenttime = time(NULL);
@@ -1522,18 +1526,18 @@ archivefiles(const char *const *argv)
   ensure_diversions();
   ensure_statoverrides(STATDB_PARSE_NORMAL);
 
-  while ((thisarg = *argp++) != NULL) {
+  for (i = 0; argp[i]; i++) {
     if (setjmp(ejbuf)) {
       pop_error_context(ehflag_bombout);
       if (abort_processing)
         break;
       continue;
     }
-    push_error_context_jump(&ejbuf, print_error_perarchive, thisarg);
+    push_error_context_jump(&ejbuf, print_error_perarchive, argp[i]);
 
     dpkg_selabel_load();
 
-    process_archive(thisarg);
+    process_archive(argp[i]);
     onerr_abort++;
     m_output(stdout, _("<standard output>"));
     m_output(stderr, _("<standard error>"));
@@ -1543,6 +1547,8 @@ archivefiles(const char *const *argv)
   }
 
   dpkg_selabel_close();
+
+  free(arglist);
 
   switch (cipaction->arg_int) {
   case act_install:
@@ -1622,20 +1628,4 @@ wanttoinstall(struct pkginfo *pkg)
       return false;
     }
   }
-}
-
-struct fileinlist *
-filenamenode_queue_push(struct filenamenode_queue *queue,
-                        struct filenamenode *namenode)
-{
-  struct fileinlist *node;
-
-  node = m_malloc(sizeof(*node));
-  node->next = NULL;
-  node->namenode = namenode;
-
-  *queue->tail = node;
-  queue->tail = &node->next;
-
-  return node;
 }

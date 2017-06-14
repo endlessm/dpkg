@@ -31,7 +31,7 @@
 #include <dpkg/dpkg.h>
 #include <dpkg/dpkg-db.h>
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 #include <selinux/selinux.h>
 #include <selinux/avc.h>
 #include <selinux/label.h>
@@ -39,14 +39,14 @@
 
 #include "main.h"
 
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 static struct selabel_handle *sehandle;
 #endif
 
 void
 dpkg_selabel_load(void)
 {
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 	static int selinux_enabled = -1;
 
 	if (selinux_enabled < 0) {
@@ -76,7 +76,7 @@ dpkg_selabel_load(void)
 	}
 
 	sehandle = selabel_open(SELABEL_CTX_FILE, NULL, 0);
-	if (sehandle == NULL)
+	if (sehandle == NULL && security_getenforce() == 1)
 		ohshite(_("cannot get security labeling handle"));
 #endif
 }
@@ -84,7 +84,7 @@ dpkg_selabel_load(void)
 void
 dpkg_selabel_set_context(const char *matchpath, const char *path, mode_t mode)
 {
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 	security_context_t scontext = NULL;
 	int ret;
 
@@ -110,13 +110,13 @@ dpkg_selabel_set_context(const char *matchpath, const char *path, mode_t mode)
 		        path);
 
 	freecon(scontext);
-#endif /* WITH_SELINUX */
+#endif /* WITH_LIBSELINUX */
 }
 
 void
 dpkg_selabel_close(void)
 {
-#ifdef WITH_SELINUX
+#ifdef WITH_LIBSELINUX
 	if (sehandle == NULL)
 		return;
 

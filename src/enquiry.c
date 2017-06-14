@@ -3,7 +3,7 @@
  * enquiry.c - status enquiry and listing options
  *
  * Copyright © 1995,1996 Ian Jackson <ijackson@chiark.greenend.org.uk>
- * Copyright © 2006, 2008-2015 Guillem Jover <guillem@debian.org>
+ * Copyright © 2006, 2008-2016 Guillem Jover <guillem@debian.org>
  * Copyright © 2011 Linaro Limited
  * Copyright © 2011 Raphaël Hertzog <hertzog@debian.org>
  *
@@ -40,6 +40,7 @@
 #include <dpkg/arch.h>
 #include <dpkg/pkg-array.h>
 #include <dpkg/pkg-show.h>
+#include <dpkg/triglib.h>
 #include <dpkg/string.h>
 #include <dpkg/options.h>
 
@@ -273,7 +274,7 @@ unpackchk(const char *const *argv)
 {
   int totalcount, sects;
   struct sectionentry *sectionentries, *se, **sep;
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg;
   const char *thissect;
   char buf[20];
@@ -287,8 +288,8 @@ unpackchk(const char *const *argv)
   totalcount= 0;
   sectionentries = NULL;
   sects= 0;
-  it = pkg_db_iter_new();
-  while ((pkg = pkg_db_iter_next_pkg(it))) {
+  iter = pkg_db_iter_new();
+  while ((pkg = pkg_db_iter_next_pkg(iter))) {
     if (!yettobeunpacked(pkg, &thissect)) continue;
     for (se= sectionentries; se && strcasecmp(thissect,se->name); se= se->next);
     if (!se) {
@@ -304,27 +305,27 @@ unpackchk(const char *const *argv)
     }
     se->count++; totalcount++;
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
 
   if (totalcount == 0)
     return 0;
 
   if (totalcount <= 12) {
-    it = pkg_db_iter_new();
-    while ((pkg = pkg_db_iter_next_pkg(it))) {
+    iter = pkg_db_iter_new();
+    while ((pkg = pkg_db_iter_next_pkg(iter))) {
       if (!yettobeunpacked(pkg, NULL))
         continue;
       describebriefly(pkg);
     }
-    pkg_db_iter_free(it);
+    pkg_db_iter_free(iter);
   } else if (sects <= 12) {
     for (se= sectionentries; se; se= se->next) {
       sprintf(buf,"%d",se->count);
       printf(_(" %d in %s: "),se->count,se->name);
       width= 70-strlen(se->name)-strlen(buf);
       while (width > 59) { putchar(' '); width--; }
-      it = pkg_db_iter_new();
-      while ((pkg = pkg_db_iter_next_pkg(it))) {
+      iter = pkg_db_iter_new();
+      while ((pkg = pkg_db_iter_next_pkg(iter))) {
         const char *pkgname;
 
         if (!yettobeunpacked(pkg,&thissect)) continue;
@@ -335,7 +336,7 @@ unpackchk(const char *const *argv)
         if (width < 4) { printf(" ..."); break; }
         printf(" %s", pkgname);
       }
-      pkg_db_iter_free(it);
+      pkg_db_iter_free(iter);
       putchar('\n');
     }
   } else {
@@ -458,7 +459,7 @@ predeppackage(const char *const *argv)
 {
   static struct varbuf vb;
 
-  struct pkgiterator *it;
+  struct pkgiterator *iter;
   struct pkginfo *pkg = NULL, *startpkg, *trypkg;
   struct dependency *dep;
   struct deppossi *possi, *provider;
@@ -471,8 +472,8 @@ predeppackage(const char *const *argv)
   clear_istobes();
 
   dep = NULL;
-  it = pkg_db_iter_new();
-  while (!dep && (pkg = pkg_db_iter_next_pkg(it))) {
+  iter = pkg_db_iter_new();
+  while (!dep && (pkg = pkg_db_iter_next_pkg(iter))) {
     /* Ignore packages user doesn't want. */
     if (pkg->want != PKG_WANT_INSTALL)
       continue;
@@ -490,7 +491,7 @@ predeppackage(const char *const *argv)
     pkg->clientdata->istobe = PKG_ISTOBE_NORMAL;
     /* If dep is NULL we go and get the next package. */
   }
-  pkg_db_iter_free(it);
+  pkg_db_iter_free(iter);
 
   if (!dep)
     return 1; /* Not found. */
@@ -575,14 +576,6 @@ printarch(const char *const *argv)
 }
 
 int
-printinstarch(const char *const *argv)
-{
-  warning(_("obsolete option '--%s'; please use '--%s' instead"),
-          "print-installation-architecture", "print-architecture");
-  return printarch(argv);
-}
-
-int
 print_foreign_arches(const char *const *argv)
 {
   struct dpkg_arch *arch;
@@ -600,6 +593,70 @@ print_foreign_arches(const char *const *argv)
   }
 
   m_output(stdout, _("<standard output>"));
+
+  return 0;
+}
+
+int
+validate_pkgname(const char *const *argv)
+{
+  const char *emsg;
+
+  if (!argv[0] || argv[1])
+    badusage(_("--%s takes one <pkgname> argument"), cipaction->olong);
+
+  emsg = pkg_name_is_illegal(argv[0]);
+  if (emsg)
+    ohshit(_("package name '%s' is invalid: %s"), argv[0], emsg);
+
+  return 0;
+}
+
+int
+validate_trigname(const char *const *argv)
+{
+  const char *emsg;
+
+  if (!argv[0] || argv[1])
+    badusage(_("--%s takes one <trigname> argument"), cipaction->olong);
+
+  emsg = trig_name_is_illegal(argv[0]);
+  if (emsg)
+    ohshit(_("trigger name '%s' is invalid: %s"), argv[0], emsg);
+
+  return 0;
+}
+
+int
+validate_archname(const char *const *argv)
+{
+  const char *emsg;
+
+  if (!argv[0] || argv[1])
+    badusage(_("--%s takes one <archname> argument"), cipaction->olong);
+
+  emsg = dpkg_arch_name_is_illegal(argv[0]);
+  if (emsg)
+    ohshit(_("architecture name '%s' is invalid: %s"), argv[0], emsg);
+
+  return 0;
+}
+
+int
+validate_version(const char *const *argv)
+{
+  struct dpkg_version version;
+  struct dpkg_error err;
+
+  if (!argv[0] || argv[1])
+    badusage(_("--%s takes one <version> argument"), cipaction->olong);
+
+  if (parseversion(&version, argv[0], &err) < 0) {
+    dpkg_error_print(&err, _("version '%s' has bad syntax"), argv[0]);
+    dpkg_error_destroy(&err);
+
+    return 1;
+  }
 
   return 0;
 }

@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 45;
+use Test::More tests => 70;
 
 use Dpkg::Arch qw(get_host_arch);
 use Dpkg::Version;
@@ -29,6 +29,25 @@ is(deps_concat(''), '', 'Concatenate an empty string');
 is(deps_concat('', undef), '', 'Concatenate empty string with undef');
 is(deps_concat('dep-a', undef, 'dep-b'), 'dep-a, dep-b',
    'Concatenate two strings with intermixed undef');
+
+sub test_dep_parse_option {
+    my %options = @_;
+
+    eval {
+        my $dep_croak = deps_parse('pkg', %options);
+    };
+    my $options = join ' ', map { "$_=$options{$_}" } keys %options;
+    ok(defined $@, "Parse with bogus arch options $options");
+}
+
+test_dep_parse_option(host_arch => 'all');
+test_dep_parse_option(host_arch => 'any');
+test_dep_parse_option(host_arch => 'linux-any');
+test_dep_parse_option(host_arch => 'unknown-arch');
+test_dep_parse_option(build_arch => 'all');
+test_dep_parse_option(build_arch => 'any');
+test_dep_parse_option(build_arch => 'linux-any');
+test_dep_parse_option(build_arch => 'unknown-arch');
 
 my $field_multiline = ' , , libgtk2.0-common (= 2.10.13-1)  , libatk1.0-0 (>=
 1.13.2), libc6 (>= 2.5-5), libcairo2 (>= 1.4.0), libcupsys2 (>= 1.2.7),
@@ -55,13 +74,28 @@ my $dep_or2 = deps_parse('x|y|a|b|c (<= 0.5)|c (>=1.5)|d|e');
 is($dep_or1->implies($dep_or2), 1, 'Implication between OR 1/2');
 is($dep_or2->implies($dep_or1), undef, 'Implication between OR 2/2');
 
+my $dep_ma_host = deps_parse('libcairo2');
 my $dep_ma_any = deps_parse('libcairo2:any');
-my $dep_ma_native = deps_parse('libcairo2');
-my $dep_ma_native2 = deps_parse('libcairo2:native', build_dep => 1);
-is($dep_ma_native->implies($dep_ma_any), 1, 'foo -> foo:any');
-is($dep_ma_native2->implies($dep_ma_any), 1, 'foo:native -> foo:any');
-is($dep_ma_any->implies($dep_ma_native), undef, 'foo:any !-> foo');
-is($dep_ma_any->implies($dep_ma_native2), undef, 'foo:any !-> foo:native');
+my $dep_ma_build = deps_parse('libcairo2:native', build_dep => 1);
+my $dep_ma_explicit = deps_parse('libcairo2:amd64');
+is($dep_ma_host->implies($dep_ma_any), undef, 'foo !-> foo:any');
+is($dep_ma_build->implies($dep_ma_any), undef, 'foo:native !-> foo:any');
+is($dep_ma_explicit->implies($dep_ma_any), undef, 'foo:<arch> !-> foo:any');
+is($dep_ma_any->implies($dep_ma_host), undef, 'foo:any !-> foo');
+is($dep_ma_any->implies($dep_ma_build), undef, 'foo:any !-> foo:native');
+is($dep_ma_any->implies($dep_ma_explicit), undef, 'foo:any !-> foo:<arch>');
+is($dep_ma_host->implies($dep_ma_host), 1, 'foo -> foo');
+is($dep_ma_any->implies($dep_ma_any), 1, 'foo:any -> foo:any');
+is($dep_ma_build->implies($dep_ma_build), 1, 'foo:native -> foo:native');
+is($dep_ma_explicit->implies($dep_ma_explicit), 1, 'foo:<arch>-> foo:<arch>');
+
+my $field_tests = 'self, @, @builddeps@';
+$SIG{__WARN__} = sub {};
+my $dep_tests_fail = deps_parse($field_tests);
+is($dep_tests_fail, undef, 'normal deps with @ in pkgname');
+delete $SIG{__WARN__};
+my $dep_tests_pass = deps_parse($field_tests, tests_dep => 1);
+is($dep_tests_pass->output(), $field_tests, 'tests deps with @ in pkgname');
 
 my $field_arch = 'libc6 (>= 2.5) [!alpha !hurd-i386], libc6.1 [alpha], libc0.1 [hurd-i386]';
 my $dep_i386 = deps_parse($field_arch, reduce_arch => 1, host_arch => 'i386');
@@ -182,15 +216,56 @@ $dep_red->simplify_deps($facts, $dep_opposite);
 is($dep_red->output(), 'abc, two', 'Simplification respect order');
 is("$dep_red", $dep_red->output(), 'Stringification == output()');
 
+my $dep_profiles = deps_parse('dupe <stage1 cross>, dupe <stage1 cross>');
+$dep_profiles->simplify_deps($facts);
+is($dep_profiles->output(), 'dupe <stage1 cross>',
+   'Simplification respects duplicated profiles');
+
+$dep_profiles = deps_parse('tool <!cross>, tool <stage1 cross>');
+$dep_profiles->simplify_deps($facts);
+# XXX: Ideally this would get simplified to "tool <!cross> <stage1 cross>".
+is($dep_profiles->output(), 'tool <!cross>, tool <stage1 cross>',
+   'Simplification respects profiles');
+
+$dep_profiles = deps_parse('libfoo-dev:native <!stage1>, libfoo-dev <!stage1 cross>', build_dep => 1);
+$dep_profiles->simplify_deps($facts);
+is($dep_profiles->output(),
+   'libfoo-dev:native <!stage1>, libfoo-dev <!stage1 cross>',
+   'Simplification respects archqualifiers and profiles');
+
+my $dep_version = deps_parse('pkg, pkg (= 1.0)');
+$dep_version->simplify_deps($facts);
+is($dep_version->output(), 'pkg (= 1.0)', 'Simplification merges versions');
+
 my $dep_empty1 = deps_parse('');
 is($dep_empty1->output(), '', 'Empty dependency');
 
 my $dep_empty2 = deps_parse(' , , ', union => 1);
 is($dep_empty2->output(), '', "' , , ' is also an empty dependency");
 
+# Check sloppy but acceptable dependencies
+
+my $dep_sloppy_version = deps_parse('package (=   1.0  )');
+is($dep_sloppy_version->output(), 'package (= 1.0)', 'sloppy version restriction');
+
+my $dep_sloppy_arch = deps_parse('package [  alpha    ]');
+is($dep_sloppy_arch->output(), 'package [alpha]', 'sloppy arch restriction');
+
+my $dep_sloppy_profile = deps_parse('package <  !profile    >   <  other  >');
+is($dep_sloppy_profile->output(), 'package <!profile> <other>',
+   'sloppy profile restriction');
+
 $SIG{__WARN__} = sub {};
+
+my $dep_bad_version = deps_parse('package (= 1.0) (>= 2.0)');
+is($dep_bad_version, undef, 'Bogus repeated version restriction');
+
+my $dep_bad_arch = deps_parse('package [alpha] [amd64]');
+is($dep_bad_arch, undef, 'Bogus repeated arch restriction');
+
 my $dep_bad_multiline = deps_parse("a, foo\nbar, c");
-ok(!defined($dep_bad_multiline), 'invalid dependency split over multiple line');
+is($dep_bad_multiline, undef, 'invalid dependency split over multiple line');
+
 delete $SIG{__WARN__};
 
 my $dep_iter = deps_parse('a, b:armel, c | d:armhf, d:mips (>> 1.2)');

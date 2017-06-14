@@ -51,8 +51,12 @@ sub init_options {
     } else {
 	$self->{options}{diff_ignore_regex} = '(?:^|/)debian/source/local-.*$';
     }
-    push @{$self->{options}{tar_ignore}}, 'debian/source/local-options',
-         'debian/source/local-patch-header';
+    $self->{options}{diff_ignore_regex} .= '|(?:^|/)debian/files(?:\.new)?$';
+    push @{$self->{options}{tar_ignore}},
+         'debian/source/local-options',
+         'debian/source/local-patch-header',
+         'debian/files',
+         'debian/files.new';
     $self->{options}{sourcestyle} //= 'X';
     $self->{options}{skip_debianization} //= 0;
     $self->{options}{ignore_bad_version} //= 0;
@@ -62,6 +66,66 @@ sub init_options {
     $self->{options}{compression} //= 'gzip';
     $self->{options}{comp_level} //= compression_get_property('gzip', 'default_level');
     $self->{options}{comp_ext} //= compression_get_property('gzip', 'file_ext');
+}
+
+my @module_cmdline = (
+    {
+        name => '-sa',
+        help => N_('auto select original source'),
+        when => 'build',
+    }, {
+        name => '-sk',
+        help => N_('use packed original source (unpack and keep)'),
+        when => 'build',
+    }, {
+        name => '-sp',
+        help => N_('use packed original source (unpack and remove)'),
+        when => 'build',
+    }, {
+        name => '-su',
+        help => N_('use unpacked original source (pack and keep)'),
+        when => 'build',
+    }, {
+        name => '-sr',
+        help => N_('use unpacked original source (pack and remove)'),
+        when => 'build',
+    }, {
+        name => '-ss',
+        help => N_('trust packed and unpacked original sources are same'),
+        when => 'build',
+    }, {
+        name => '-sn',
+        help => N_('there is no diff, do main tarfile only'),
+        when => 'build',
+    }, {
+        name => '-sA, -sK, -sP, -sU, -sR',
+        help => N_('like -sa, -sk, -sp, -su, -sr but may overwrite'),
+        when => 'build',
+    }, {
+        name => '--abort-on-upstream-changes',
+        help => N_('abort if generated diff has upstream files changes'),
+        when => 'build',
+    }, {
+        name => '-sp',
+        help => N_('leave original source packed in current directory'),
+        when => 'extract',
+    }, {
+        name => '-su',
+        help => N_('do not copy original source to current directory'),
+        when => 'extract',
+    }, {
+        name => '-sn',
+        help => N_('unpack original source tree too'),
+        when => 'extract',
+    }, {
+        name => '--skip-debianization',
+        help => N_('do not apply debian diff to upstream sources'),
+        when => 'extract',
+    },
+);
+
+sub describe_cmdline_options {
+    return @module_cmdline;
 }
 
 sub parse_cmdline_option {
@@ -104,10 +168,13 @@ sub do_extract {
 
     # V1.0 only supports gzip compression
     my ($tarfile, $difffile);
+    my $tarsign;
     foreach my $file ($self->get_files()) {
 	if ($file =~ /^(?:\Q$basename\E\.orig|\Q$basenamerev\E)\.tar\.gz$/) {
             error(g_('multiple tarfiles in v1.0 source package')) if $tarfile;
             $tarfile = $file;
+        } elsif ($file =~ /^\Q$basename\E\.orig\.tar\.gz\.asc$/) {
+            $tarsign = $file;
 	} elsif ($file =~ /^\Q$basenamerev\E\.diff\.gz$/) {
 	    $difffile = $file;
 	} else {
@@ -129,7 +196,11 @@ sub do_extract {
         my $expectprefix = $newdirectory;
         $expectprefix .= '.orig';
 
-        erasedir($newdirectory);
+        if ($self->{options}{no_overwrite_dir} and -e $newdirectory) {
+            error(g_('unpack target exists: %s'), $newdirectory);
+        } else {
+            erasedir($newdirectory);
+        }
         if (-e $expectprefix) {
             rename($expectprefix, "$newdirectory.tmp-keep")
                 or syserr(g_("unable to rename '%s' to '%s'"), $expectprefix,
@@ -282,6 +353,7 @@ sub do_build {
     }
 
     my ($tarname, $tardirname, $tardirbase);
+    my $tarsign;
     if ($sourcestyle ne 'n') {
 	my ($origdirname, $origdirbase) = fileparse($origdir);
 
@@ -294,6 +366,7 @@ sub do_build {
         $tardirname = $origdirname;
 
 	$tarname = $origtargz || "$basename.orig.tar.gz";
+	$tarsign = "$tarname.asc";
 	unless ($tarname =~ /\Q$basename\E\.orig\.tar\.gz/) {
 	    warning(g_('.orig.tar name %s is not <package>_<upstreamversion>' .
 	               '.orig.tar (wanted %s)'),
@@ -304,9 +377,9 @@ sub do_build {
     if ($sourcestyle eq 'n') {
         $self->{options}{ARGV} = []; # ensure we have no error
         Dpkg::Source::Package::V3::Native::do_build($self, $dir);
-    } elsif ($sourcestyle =~ m/[nurUR]/) {
+    } elsif ($sourcestyle =~ m/[urUR]/) {
         if (stat($tarname)) {
-            unless ($sourcestyle =~ m/[nUR]/) {
+            unless ($sourcestyle =~ m/[UR]/) {
 		error(g_("tarfile '%s' already exists, not overwriting, " .
 		         'giving up; use -sU or -sR to override'), $tarname);
             }
@@ -336,6 +409,9 @@ sub do_build {
     }
 
     $self->add_file($tarname) if $tarname;
+    # XXX: Re-enable once a stable dpkg supports extracting upstream signatures
+    # for source 1.0 format, either in 1.17.x or 1.18.x.
+    #$self->add_file($tarsign) if $tarsign and -e $tarsign;
 
     if ($sourcestyle =~ m/[kpKP]/) {
         if (stat($origdir)) {

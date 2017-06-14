@@ -16,10 +16,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 148;
+use Test::More;
+use Test::Dpkg qw(:needs :paths);
 
 use Cwd;
-use IO::String;
+
+test_needs_module('IO::String');
+
+plan tests => 148;
 
 use Dpkg::Path qw(find_command);
 
@@ -29,19 +33,23 @@ my $tmp;
 my @tmp;
 my %tmp;
 
-my $srcdir = $ENV{srcdir} || '.';
-my $datadir = $srcdir . '/t/Dpkg_Shlibs';
+my $datadir = test_get_data_path('t/Dpkg_Shlibs');
 
 my @librarypaths;
 
-Dpkg::Shlibs::add_library_dir('/test-b');
-@librarypaths = Dpkg::Shlibs::get_library_paths();
-is($librarypaths[0], '/test-b', 'add_library_dir() does not get lost');
+{
+    # XXX: Keep as long as we support the deprecated LD_LIBRARY_PATH.
+    local $ENV{LD_LIBRARY_PATH} = '/test-env';
 
-Dpkg::Shlibs::add_library_dir('/test-a');
-@librarypaths = Dpkg::Shlibs::get_library_paths();
-is_deeply([ @librarypaths[0, 1] ] , [ '/test-a', '/test-b' ],
-          'add_library_dir() prepends');
+    Dpkg::Shlibs::add_library_dir('/test-a');
+    @librarypaths = Dpkg::Shlibs::get_library_paths();
+    is($librarypaths[0], '/test-a', 'add_library_dir() does not get lost');
+
+    Dpkg::Shlibs::add_library_dir('/test-b');
+    @librarypaths = Dpkg::Shlibs::get_library_paths();
+    is_deeply([ @librarypaths[0, 1] ] , [ '/test-a', '/test-b' ],
+              'add_library_dir() prepends');
+}
 
 Dpkg::Shlibs::blank_library_paths();
 
@@ -49,14 +57,14 @@ Dpkg::Shlibs::blank_library_paths();
 # is usually a relative path, so let's temporarily switch directory.
 # XXX: An alternative would be to make parse_ldso_conf relative path aware.
 my $cwd = cwd();
-chdir($srcdir);
+test_needs_srcdir_switch();
 Dpkg::Shlibs::parse_ldso_conf('t/Dpkg_Shlibs/ld.so.conf');
 chdir($cwd);
 
 @librarypaths = Dpkg::Shlibs::get_library_paths();
 is_deeply(\@librarypaths,
-          [ qw(/nonexistant32 /nonexistant/lib64
-               /usr/local/lib /nonexistant/lib128) ], 'parsed library paths');
+          [ qw(/nonexistent32 /nonexistent/lib64
+               /usr/local/lib /nonexistent/lib128) ], 'parsed library paths');
 
 use_ok('Dpkg::Shlibs::Objdump');
 
@@ -491,7 +499,7 @@ is_deeply($sym, Dpkg::Shlibs::Symbol->new(symbol => 'symbol11_optional@Base',
 		  symbol_templ => 'symbol11_optional@Base',
 		  minver => '1.1', dep_id => 1, deprecated => 0,
 		  tags => { optional => undef }, tagorder => [ 'optional' ]),
-	    'reappered optional symbol gets undeprecated + minver');
+	    'reappeared optional symbol gets undeprecated + minver');
 is( scalar($sym_file->get_lost_symbols($sym_file_dup) +
            $sym_file->get_new_symbols($sym_file_dup)), 0, 'reappeared optional symbol: neither NEW nor LOST');
 

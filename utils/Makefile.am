@@ -24,10 +24,15 @@ endif
 update_alternatives_SOURCES = \
 	update-alternatives.c
 
+update_alternatives_CPPFLAGS = \
+	-DALT_TMP_EXT=\".dpkg-tmp\" \
+	-DADMINDIR_ENVVAR=\"DPKG_ADMINDIR\" \
+	$(AM_CPPFLAGS)
+
 update_alternatives_LDADD = \
 	../lib/compat/libcompat.la \
 	$(LIBINTL) \
-	$(UA_LIBS)
+	$(nil)
 
 sbin_PROGRAMS =
 
@@ -39,7 +44,9 @@ start_stop_daemon_SOURCES = \
 
 start_stop_daemon_LDADD = \
 	../lib/compat/libcompat.la \
-	$(SSD_LIBS)
+	$(PS_LIBS) \
+	$(KVM_LIBS) \
+	$(nil)
 endif
 
 install-data-local:
@@ -52,7 +59,7 @@ endif
 uninstall-local:
 	rm -f $(DESTDIR)$(sysconfdir)/alternatives/README
 
-TEST_ENV_VARS = DPKG_DATADIR=$(top_srcdir)
+TEST_ENV_VARS = DPKG_DATADIR=$(top_srcdir)/data
 
 test_tmpdir = t.tmp
 test_scripts = \

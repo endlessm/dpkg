@@ -1,14 +1,14 @@
 # Dutch translation of dpkg.
-# Copyright (C) YEAR Dpkg Developers
+# Copyright © 1994-2016 Dpkg Developers
 # This file is distributed under the same license as the dpkg package.
-# Frans Spiesschaert <Frans.Spiesschaert@yucom.be>, 2015.
+# Frans Spiesschaert <Frans.Spiesschaert@yucom.be>, 2015, 2016, 2017.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dpkg 1.18.2\n"
+"Project-Id-Version: dpkg 1.18.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
-"PO-Revision-Date: 2015-10-02 14:43+0200\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
+"PO-Revision-Date: 2017-02-11 17:49+0100\n"
 "Last-Translator: Frans Spiesschaert <Frans.Spiesschaert@yucom.be>\n"
 "Language-Team: Debian Dutch l10n Team <debian-l10n-dutch@lists.debian.org>\n"
 "Language: nl\n"
@@ -17,6 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.6\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "kan status van archief niet opvragen"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "kan niet lezen uit archief '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "kan '%.255s' niet aanmaken"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, c-format
+msgid "unable to close file '%s'"
+msgstr "kan bestand '%s' niet sluiten"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -143,8 +163,8 @@ msgstr "onverwacht einde van bestand of stroom"
 msgid "failed to seek"
 msgstr "zoekbewerking mislukte"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, c-format
 msgid "unable to execute %s (%s)"
 msgstr "%s (%s) kan niet uitgevoerd worden"
@@ -306,11 +326,6 @@ msgstr "kan map `%.255s' met bijwerkingen niet doorzoeken"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "kon ingebouwd bijwerkingenbestand %.255s niet verwijderen"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "kan '%.255s' niet aanmaken"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -426,8 +441,7 @@ msgstr "kan map '%s' niet synchroniseren"
 msgid "unable to open directory '%s'"
 msgstr "kan map '%s' niet openen"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, c-format
 msgid "unable to open file '%s'"
 msgstr "kan bestand '%s' niet openen"
@@ -437,12 +451,6 @@ msgstr "kan bestand '%s' niet openen"
 #, c-format
 msgid "unable to sync file '%s'"
 msgstr "kan bestand '%s' niet synchroniseren"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, c-format
-msgid "unable to close file '%s'"
-msgstr "kan bestand '%s' niet sluiten"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -460,22 +468,17 @@ msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr ""
 "het schrijven van databaserecord %s over '%.50s' naar '%.250s' is mislukt"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: onherstelbare fatale fout; er wordt gestopt:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
+msgstr "fout"
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: buiten de foutcontext; er wordt gestopt:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
@@ -483,18 +486,12 @@ msgid "out of memory for new error context"
 msgstr "geen geheugen meer voor een nieuwe foutcontext"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
-msgstr ""
-"%s: fout tijdens opruimen:\n"
-" %s\n"
+msgid "error while cleaning up"
+msgstr "fout tijdens opruimen"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: too many nested errors during error recovery!!\n"
-msgstr "%s: te veel geneste fouten tijdens foutherstel!!\n"
+msgid "too many nested errors during error recovery"
+msgstr "te veel geneste fouten tijdens foutherstel"
 
 #: lib/dpkg/ehandle.c
 msgid "out of memory for new cleanup entry"
@@ -505,14 +502,16 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "geen geheugen meer voor een nieuw opschoningsitem met veel argumenten"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s: error: %s\n"
-msgstr "%s: fout: %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr "onherstelbare fatale fout; er wordt gestopt"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d:%s: interne fout: %s\n"
+msgid "outside error context, aborting"
+msgstr "buiten de foutcontext; er wordt gestopt"
+
+#: lib/dpkg/ehandle.c
+msgid "internal error"
+msgstr "interne fout"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -603,7 +602,7 @@ msgstr "verouderd veld '%s' of '%s' gebruikt"
 
 #: lib/dpkg/fields.c
 #, c-format
-msgid "value for '%s' field has malformatted line '%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "waarde voor veld '%s' heeft een verkeerd opgemaakte regel '%.*s'"
 
 #: lib/dpkg/fields.c
@@ -900,6 +899,11 @@ msgstr "ongeldig geheel getal voor --%s: '%.250s'"
 
 #: lib/dpkg/options.c
 #, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "ongeldig getal voor -%c: '%.250s'"
+
+#: lib/dpkg/options.c
+#, c-format
 msgid "obsolete option '--%s'"
 msgstr "verouderde optie '--%s'"
 
@@ -1140,6 +1144,10 @@ msgid "version string has embedded spaces"
 msgstr "de tekenreeks met het versienummer bevat spaties"
 
 #: lib/dpkg/parsehelp.c
+msgid "epoch in version is empty"
+msgstr "epoch in versienummer is leeg"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "epoch in versienummer is geen nummer"
 
@@ -1154,6 +1162,14 @@ msgstr "epoch in versienummer is te groot"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "er komt niets na de dubbele punt in het versienummer"
+
+#: lib/dpkg/parsehelp.c
+msgid "revision number is empty"
+msgstr "het revisienummer is leeg"
+
+#: lib/dpkg/parsehelp.c
+msgid "version number is empty"
+msgstr "het versienummer is leeg"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1198,6 +1214,11 @@ msgstr "afsluitende accolade ontbreekt"
 msgid "(no description available)"
 msgstr "(geen beschrijving beschikbaar)"
 
+#: lib/dpkg/pkg-show.c
+#, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "versie '%s' heeft verkeerde syntaxis: %s"
+
 #: lib/dpkg/pkg-spec.c
 #, c-format
 msgid "illegal package name in specifier '%s%s%s': %s"
@@ -1208,10 +1229,9 @@ msgstr "ongeldige pakketnaam in aanduiding '%s%s%s': %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "ongeldige architectuurnaam in aanduiding '%s:%s': %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: waarschuwing: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "waarschuwing"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1244,7 +1264,7 @@ msgstr "%s (subproces): %s\n"
 msgid "fork failed"
 msgstr "afsplitsen van nieuw proces is mislukt"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "subproces %s gaf een foutwaarde %d terug"
@@ -1273,65 +1293,77 @@ msgstr "subproces %s is mislukt met wachtstatuscode %d"
 msgid "wait for subprocess %s failed"
 msgstr "wachten op subproces %s is mislukt"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-"ongeldige pakketnaam '%.250s' in bestand '%.250s' met uitgestelde triggers"
+msgid "cannot stat pathname '%s'"
+msgstr "kan de status van padnaam '%s' niet opvragen"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "afgekapt bestand '%.250s' met uitgestelde triggers"
+msgid "cannot open directory '%s'"
+msgstr "kan map '%s' niet openen"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/treewalk.c
 #, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"syntaxisfout in bestand '%.250s' met uitgestelde triggers bij teken '%s'%s"
+msgid "treewalk root %s is not a directory"
+msgstr "hoofdmap %s voor het doorlopen van de boomstructuur is geen map"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr "kan grendelbestand '%.250s' voor triggers niet openen/aanmaken"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 msgid "triggers area"
 msgstr "triggergebied"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "kan bestand '%.250s' met uitgestelde triggers niet openen"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr "kan status van bestand '%.250s' met uitgestelde triggers niet opvragen"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr ""
 "kan nieuw bestand '%.250s' met uitgestelde triggers niet openen/aanmaken"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"syntaxisfout in bestand '%.250s' met uitgestelde triggers bij regel %d teken "
+"%zd '%s'"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+"ongeldige pakketnaam '%.250s' in bestand '%.250s' met uitgestelde triggers"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "fout bij lezen van bestand '%.250s' met uitgestelde triggers"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr ""
 "kan niet schrijven naar nieuw bestand '%.250s' met uitgestelde triggers"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "kan nieuw bestand '%.250s' met uitgestelde triggers niet sluiten"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr "kan nieuw bestand '%.250s' met uitgestelde triggers niet installeren"
@@ -1624,11 +1656,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "archief bevatte object '%.255s' van het onbekende type 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, c-format
-msgid "cannot stat file '%s'"
-msgstr "kan de status van bestand '%s' niet opvragen"
-
 #: src/archives.c
 #, c-format
 msgid "Replacing files in old package %s (%s) ...\n"
@@ -1827,27 +1854,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive heeft op zijn minst één pad als argument nodig"
 
 #: src/archives.c
-msgid "find for dpkg --recursive"
-msgstr "find voor dpkg --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "het openen van de pijp van find met fdopen is mislukt"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "fout bij het lezen van de pijp van find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "fout bij het sluiten van de pijp van find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "find voor --recursive gaf fout %i, die niet verwerkt wordt"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr ""
 "er werd gezocht, maar er zijn geen pakketten gevonden (bestanden die "
@@ -1857,6 +1863,16 @@ msgstr ""
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s heeft op zijn minst één pakketarchiefbestand als argument nodig"
+
+#: src/archives.c src/unpack.c
+#, c-format
+msgid "cannot access archive '%s'"
+msgstr "krijg geen toegang tot archief '%s'"
+
+#: src/archives.c
+#, c-format
+msgid "archive '%s' is not a regular file"
+msgstr "archief '%s' is geen gewoon bestand"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2450,6 +2466,11 @@ msgstr ""
 "De preinst/postrm-scripts van pakketten moeten altijd --package en --divert "
 "opgeven.\n"
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, c-format
+msgid "cannot stat file '%s'"
+msgstr "kan de status van bestand '%s' niet opvragen"
+
 #: src/divertcmd.c
 #, c-format
 msgid "error checking '%s'"
@@ -2813,16 +2834,51 @@ msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr ""
 "kan niet voldoen aan voor-vereisten voor %.250s (gewenst wegens %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "verouderde optie '--%s'; gelieve in plaats ervan '--%s' te gebruiken"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s aanvaardt één <pkgname> als argument"
+
+#: src/enquiry.c
+#, c-format
+msgid "package name '%s' is invalid: %s"
+msgstr "pakketnaam '%s' is niet geldig: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s aanvaardt één <trigname> als argument"
+
+#: src/enquiry.c
+#, c-format
+msgid "trigger name '%s' is invalid: %s"
+msgstr "triggernaam '%s' is niet geldig: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <archname> argument"
+msgstr "--%s aanvaardt één <archname> als argument"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr "architectuurnaam '%s' is niet geldig: %s"
+
+#: src/enquiry.c
+#, c-format
+msgid "--%s takes one <version> argument"
+msgstr "--%s aanvaardt één <version> als argument"
+
+#: src/enquiry.c
+#, c-format
+msgid "version '%s' has bad syntax"
+msgstr "versie '%s' heeft verkeerde syntaxis"
 
 #: src/enquiry.c
 msgid ""
 "--compare-versions takes three arguments: <version> <relation> <version>"
 msgstr ""
-"--compare-versions verwacht drie argumenten: <versie> <relatie> <versie>"
+"--compare-versions gebruikt drie argumenten: <versie> <relatie> <versie>"
 
 #: src/enquiry.c
 msgid "--compare-versions bad relation"
@@ -2832,11 +2888,6 @@ msgstr "--compare-versions foute relatie"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr "--%s werd gebruikt met verouderde relatieoperator '%s'"
-
-#: src/enquiry.c
-#, c-format
-msgid "version '%s' has bad syntax"
-msgstr "versie '%s' heeft verkeerde syntaxis"
 
 #: src/errors.c
 #, c-format
@@ -2962,13 +3013,15 @@ msgstr "controlebestand '%s' voor pakket '%s' heeft geen afsluitend regeleinde"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value"
-msgstr "er ontbreekt een waarde in het controlebestand '%s'"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr "controlebestand '%s' voor pakket '%s' heeft een ontbrekende waarde"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "control file '%s' missing value separator"
-msgstr "er ontbreekt een waardescheidingsteken in controlebestand '%s'"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"controlebestand '%s' voor pakket '%s' heeft een ontbrekend "
+"waardescheidingsteken"
 
 #: src/filesdb-hash.c
 #, c-format
@@ -2977,27 +3030,27 @@ msgstr "controlebestand '%s' voor pakket '%s' bevat een lege bestandsnaam"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "kan controlebestand '%s' voor pakket '%s' niet openen"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "kan status niet opvragen van controlebestand '%s' voor pakket '%s'"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "'%s' file for package '%s' is not a regular file"
-msgstr "bestand '%s' voor pakket '%s' is geen gewoon bestand"
+msgid "control file '%s' for package '%s' is not a regular file"
+msgstr "controlebestand '%s' voor pakket '%s' is geen gewoon bestand"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr "kan controlebestand '%s' voor pakket '%s' niet lezen"
 
 #: src/filesdb-hash.c
 #, c-format
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "kan controlebestand '%s' voor pakket '%s' niet sluiten"
 
 #: src/help.c
@@ -3139,6 +3192,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3148,35 +3202,37 @@ msgstr ""
 "  -i|--install      <.deb-bestandsnaam> ... | -R|--recursive <map> ...\n"
 "  --unpack          <.deb-bestandsnaam> ... | -R|--recursive <map> ...\n"
 "  -A|--record-avail <.deb-bestandsnaam> ... | -R|--recursive <map> ...\n"
-"  --configure       <pakketnaam>        ... | -a|--pending\n"
-"  --triggers-only   <pakketnaam>        ... | -a|--pending\n"
-"  -r|--remove |     <pakketnaam>        ... | -a|--pending\n"
-"  -P|--purge        <pakketnaam>        ... | -a|--pending\n"
-"  -V|--verify  <pakketnaam>  ...   Controleer integriteit van pakket(ten).\n"
+"  --configure       <pakket> ... | -a|--pending\n"
+"  --triggers-only   <pakket> ... | -a|--pending\n"
+"  -r|--remove       <pakket> ... | -a|--pending\n"
+"  -P|--purge        <pakket> ... | -a|--pending\n"
+"  -V|--verify  <pakket>  ...       Controleer integriteit van pakket(ten).\n"
 "  --get-selections [<patroon> ...] Toon lijst van selecties op stdout.\n"
 "  --set-selections                 Stel pakketselecties in vanuit stdin.\n"
 "  --clear-selections               Deselecteer elk niet-essentieel pakket.\n"
-"  --update-avail <Pakketbestand>   Vervang info over beschikbare pakketten.\n"
-"  --merge-avail <Pakketbestand>    Voeg samen met info uit bestand.\n"
-"  --clear-avail        Verwijder huidige info over beschikbaarheid.\n"
-"  --forget-old-unavail Vergeet niet-geïnstalleerde niet-beschikbare "
-"pakketten.\n"
-"  -s|--status <pakketnaam> ...      Toon de statusinfo van pakket.\n"
-"  -p|--print-avail <pakketnaam> ... Toon info over beschikbare versie.\n"
-"  -L|--listfiles <pakketnaam> ...   Toon bestanden die 'van' pakket zijn.\n"
-"  -l|--list [<patroon> ...]         Geef lijst van pakketten bondig weer.\n"
-"  -S|--search <patroon> ...  Vind pakket(ten) die bestand(en) bevatten.\n"
-"  -C|--audit                 Zoek naar defect(e) pakket(ten).\n"
-"  --yet-to-unpack            Lijst voor installatie geselecteerde pakketten "
-"op.\n"
-"  --predep-package           Lijst uit te pakken voorvereisten op.\n"
-"  --add-architecture <arch>      Voeg <arch> toe aan lijst van "
+"  --update-avail [<Packages-best>] Vervang info over beschikbare pakketten.\n"
+"  --merge-avail [<Packages-best>]  Voeg samen met info uit bestand.\n"
+"  --clear-avail                    Verwijder huidige info over "
+"beschikbaarheid.\n"
+"  --forget-old-unavail             Vergeet niet-geïnstalleerde\n"
+"                                     niet-beschikbare pakketten.\n"
+"  -s|--status <pakket> ...         Toon de statusinfo van pakket.\n"
+"  -p|--print-avail <pakket> ...    Toon info over beschikbare versie.\n"
+"  -L|--listfiles <pakket> ...      Toon bestanden die 'van' pakket zijn.\n"
+"  -l|--list [<patroon> ...]        Geef lijst van pakketten bondig weer.\n"
+"  -S|--search <patroon> ...        Vind pakket(ten) die bestand(en) "
+"bevatten.\n"
+"  -C|--audit [<pakket> ...]        Zoek naar defect(e) pakket(ten).\n"
+"  --yet-to-unpack                  Som voor installatie geselecteerde\n"
+"                                     pakketten op.\n"
+"  --predep-package                 Som uit te pakken voorvereisten op.\n"
+"  --add-architecture <arch>        Voeg <arch> toe aan lijst van "
 "architecturen.\n"
-"  --remove-architecture <arch>   Verwijder <arch> uit lijst van "
-"architecturen.\n"
+"  --remove-architecture <arch>     Verwijder <arch> uit architecturenlijst.\n"
 "  --print-architecture             Toon dpkg-architectuur.\n"
 "  --print-foreign-architectures    Toon toegelaten vreemde architecturen.\n"
-"  --assert-<feature>               Bevestig de vermelde functionaliteit.\n"
+"  --assert-<functionaliteit>       Bevestig de vermelde functionaliteit.\n"
+"  --validate-<ding> <tekenreeks>   Valideer een <tekenreeks> van <ding>.\n"
 "  --compare-versions <a> <op> <b>  Vergelijk versienummers - zie onder.\n"
 "  --force-help                     Toon hulp over forceren.\n"
 "  -Dh|--debug=help                 Toon hulp over debuggen.\n"
@@ -3203,6 +3259,15 @@ msgstr ""
 "Functionaliteit die kan bevestigd worden: support-predepends, working-"
 "epoch,\n"
 "  long-filenames, multi-conrep, multi-arch, versioned-provides.\n"
+"\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
+"Valideerbare zaken zijn: pkgname, archname, trigname, version.\n"
 "\n"
 
 #: src/main.c
@@ -3268,29 +3333,35 @@ msgstr ""
 "  --path-include=<patroon> Voeg patroon terug toe na een eerdere "
 "uitsluiting.\n"
 "  -O|--selected-only       Sla pakketten over die niet geselecteerd\n"
-"                           werden voor installatie/opwaardering.\n"
+"                             werden voor installatie/opwaardering.\n"
 "  -E|--skip-same-version   Sla pakketten over met dezelfde versie\n"
-"                           als de geïnstalleerde.\n"
+"                             als de geïnstalleerde.\n"
 "  -G|--refuse-downgrade    Sla pakketten over met oudere versie\n"
-"                           dan de geïnstalleerde.\n"
+"                             dan de geïnstalleerde.\n"
 "  -B|--auto-deconfigure    Installeer zelfs als het een ander pakket "
 "vernielt.\n"
 "  --[no-]triggers          Forceer of sla volgende triggerverwerking over.\n"
-"  --verify-format=<formaat> Controleer outputformaat (ondersteunt: 'rpm').\n"
-"  --no-debsig       Verifieer geen digitale handtekeningen op pakketten.\n"
-"  --no-act|--dry-run|--simulate  Meld wat dpkg zou doen, zonder het te "
-"doen.\n"
-"  -D|--debug=<octaal>       Activeer debug - zie -Dhelp of --debug=help.\n"
-"  --status-fd <n>  Zend info over statuswijzigingen naar bestandsindicator "
-"<n>.\n"
-"  --status-logger=<commando> Zend info over statuswijzigingen\n"
+"  --verify-format=<indeling>\n"
+"                           Indeling van verify-uitvoer (ondersteund: "
+"'rpm').\n"
+"  --no-debsig              Verifieer geen digitale handtekeningen op "
+"pakketten.\n"
+"  --no-act|--dry-run|--simulate\n"
+"                           Meld wat dpkg zou doen, zonder het te doen.\n"
+"  -D|--debug=<octaal>      Activeer debug - zie -Dhelp of --debug=help.\n"
+"  --status-fd <n>          Zend info over statuswijzigingen\n"
+"                             naar bestandsindicator <n>.\n"
+"  --status-logger=<commando>\n"
+"                           Zend info over statuswijzigingen\n"
 "                             naar stdin van <commando>.\n"
-"  --log=<bestandsnaam> Log statusveranderingen en acties naar "
-"<bestandsnaam>.\n"
-"  --ignore-depends=<pakket>,...   Negeer vereisten bij <pakket>.\n"
-"  --force-...                     Negeer problemen (zie --force-help).\n"
-"  --no-force-...|--refuse-...     Stop bij problemen.\n"
-"  --abort-after <n>               Breek af na <n> fouten.\n"
+"  --log=<bestandsnaam>     Log statusveranderingen en\n"
+"                             acties naar <bestandsnaam>.\n"
+"  --ignore-depends=<pakket>,...\n"
+"                           Negeer vereisten bij <pakket>.\n"
+"  --force-...              Negeer problemen (zie --force-help).\n"
+"  --no-force-...|--refuse-...\n"
+"                           Stop bij problemen.\n"
+"  --abort-after <n>        Breek af na <n> fouten.\n"
 "\n"
 
 #: src/main.c
@@ -3305,10 +3376,10 @@ msgid ""
 "\n"
 msgstr ""
 "Vergelijkingsoperatoren voor --compare-versions zijn:\n"
-"  lt le eq ne ge gt      (versieloos komt eerder dan gelijk welke versie);\n"
-" lt-nl le-nl ge-nl gt-nl (versieloos komt later dan gelijk welke versie);\n"
-" < << <= = >= >> > (enkel voor compat. met de syntaxis van control-"
-"bestanden).\n"
+"  lt le eq ne ge gt       (versieloos komt eerder dan gelijk welke versie);\n"
+"  lt-nl le-nl ge-nl gt-nl (versieloos komt later dan gelijk welke versie);\n"
+"  < << <= = >= >> >       (enkel voor compatibiliteit\n"
+"                            met de syntaxis van control-bestanden).\n"
 "\n"
 
 #: src/main.c
@@ -3384,6 +3455,10 @@ msgstr "Overschrijf een map van een pakket met een bestand uit een ander"
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
 msgstr "Voer geen veilige I/O-bewerkingen uit bij het uitpakken"
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr "Chroot niet naar de omgeving van een pakketonderhouder-script"
 
 #: src/main.c
 msgid "Always use the new config files, don't prompt"
@@ -3625,6 +3700,10 @@ msgstr "onverwacht bestandseinde voor regeleinde %d"
 msgid "need an action option"
 msgstr "heb een actie-optie nodig"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr "kan primaire groeps-ID niet instellen op root"
+
 #: src/main.c src/script.c
 msgid "unable to setenv for subprocesses"
 msgstr "kan setenv niet instellen voor subproces"
@@ -3749,6 +3828,11 @@ msgstr " is afhankelijk van "
 msgid "; however:\n"
 msgstr "; maar:\n"
 
+#: src/querycmd.c src/select.c
+#, c-format
+msgid "no packages found matching %s"
+msgstr "geen pakketten gevonden die overeenkomen met %s"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -3782,11 +3866,6 @@ msgstr "Architectuur"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Omschrijving"
-
-#: src/querycmd.c src/select.c
-#, c-format
-msgid "no packages found matching %s"
-msgstr "geen pakketten gevonden die overeenkomen met %s"
 
 #: src/querycmd.c
 #, c-format
@@ -3909,17 +3988,20 @@ msgid ""
 "\n"
 msgstr ""
 "Commando's:\n"
-"  -s|--status <pakketnaam> ...      Toon details van pakketstatus.\n"
-"  -p|--print-avail <pakketnaam> ... Toon details van beschikbare versie.\n"
-"  -L|--listfiles <pakketnaam> ...   Lijst bestanden 'van' het pakket op.\n"
-"  -l|--list [<patroon> ...]         Lijst de pakketten beknopt op.\n"
-"  -W|--show [<patroon> ...]   Toon de informatie over de pakketten.\n"
-"  -S|--search <patroon> ...   Zoek pakket(ten) die bestand(en) bevatten.\n"
-"     --control-list <pakket>  Lijst het controlebestand v/h pakket op.\n"
+"  -s|--status <pakketnaam> ... Toon details van pakketstatus.\n"
+"  -p|--print-avail <pakketnaam> ...\n"
+"                               Toon details van beschikbare versie.\n"
+"  -L|--listfiles <pakketnaam> ...\n"
+"                               Som bestanden 'van' het pakket op.\n"
+"  -l|--list [<patroon> ...]    Som de pakketten beknopt op.\n"
+"  -W|--show [<patroon> ...]    Toon de informatie over de pakketten.\n"
+"  -S|--search <patroon> ...    Zoek pakket(ten) die bestand(en) bevatten.\n"
+"     --control-list <pakket>   Toon de lijst van controlebestanden v/h "
+"pakket.\n"
 "     --control-show <pakket> <bestand>\n"
-"                              Toon de inhoud van het controlebestand.\n"
+"                               Toon de inhoud van het controlebestand.\n"
 "  -c|--control-path <pakket> [<bestand>]\n"
-"                              Toon het pad van het controlebestand.\n"
+"                               Toon het pad van het controlebestand.\n"
 "\n"
 
 #: src/querycmd.c
@@ -3933,8 +4015,9 @@ msgid ""
 msgstr ""
 "Opties:\n"
 "  --admindir=<map>     Gebruik <map> in plaats van %s.\n"
-"  --load-avail         Gebruik beschikbaar bestand bij --show en --list.\n"
-"  -f|--showformat=<formaat> Gebruik alternatief formaat voor --show\n"
+"  --load-avail         Gebruik bestand available bij --show en --list.\n"
+"  -f|--showformat=<indeling>\n"
+"                       Gebruik alternatieve indeling voor --show\n"
 "\n"
 
 #: src/querycmd.c dpkg-deb/main.c
@@ -3950,9 +4033,9 @@ msgid ""
 "which\n"
 "  case left alignment will be used.\n"
 msgstr ""
-"Formaat-syntaxis:\n"
-"  Een formaat is een tekenreeks die voor elk pakket getoond zal worden.\n"
-"  Het formaat mag de standaard 'escape'-sequenties bevatten:\n"
+"Syntaxis voor een indeling:\n"
+"  Een indeling is een tekenreeks die gebruikt wordt voor de uitvoer over\n"
+"  elk pakket. De indeling mag de standaard 'escape'-sequenties bevatten:\n"
 "  \\n (nieuwe regel), \\r (wagenterugloop), \\\\ (gewone backslash).\n"
 "  Pakketinformatie kan ingevoegd worden door met variabelen te\n"
 "  refereren naar pakketvelden via de ${var[;breedte]} syntaxis.\n"
@@ -4183,8 +4266,10 @@ msgstr "ongeldige pakketnaam op regel %d: %.250s"
 
 #: src/select.c
 #, c-format
-msgid "package not in database at line %d: %.250s"
-msgstr "pakket niet in database op regel %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
+msgstr ""
+"pakket op regel %d: %.250s komt niet voor in status-bestand noch in "
+"available-bestand (database van beschikbare pakketten)"
 
 #: src/select.c
 #, c-format
@@ -4198,11 +4283,13 @@ msgstr "leesfout op standaardinvoer"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 "onbekende pakketten gevonden; dit kan betekenen dat de database van "
 "beschikbare\n"
-"pakketten verouderd is en bijgewerkt moet worden door een frontend"
+"pakketten verouderd is en bijgewerkt moet worden door een frontend;\n"
+"gelieve de FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ> te raadplegen"
 
 #: src/selinux.c
 msgid "cannot open security status notification channel"
@@ -4562,6 +4649,36 @@ msgstr "geslaagd\n"
 msgid "unable to create temporary directory"
 msgstr "aanmaken van een tijdelijke map is mislukt"
 
+#: src/unpack.c
+#, c-format
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"betreffende %s dat %s bevat, voor-vereistenprobleem:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "voor-vereistenprobleem - %.250s wordt niet geïnstalleerd"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "voor-vereistenprobleem wordt genegeerd!"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr ""
+"Bezig met de-configureren van %s (%s), zodat %s (%s) verwijderd kan "
+"worden ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Bezig met de-configureren van %s (%s) ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -4629,92 +4746,6 @@ msgstr "kan nieuw infobestand '%.250s' niet installeren als '%.250s'"
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Verdwijning van %s is opgemerkt; het werd totaal vervangen.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "krijg geen toegang tot archief"
-
-#: src/unpack.c
-msgid "package control information extraction"
-msgstr "controle-informatie wordt uit het pakket geëxtraheerd"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Informatie over %s uit %s is opgenomen.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "pakketarchitectuur (%s) komt niet overeen met het systeem (%s)"
-
-#: src/unpack.c
-#, c-format
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"betreffende %s dat %s bevat, voor-vereistenprobleem:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "voor-vereistenprobleem - %.250s wordt niet geïnstalleerd"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "voor-vereistenprobleem wordt genegeerd!"
-
-#: src/unpack.c
-#, c-format
-msgid "Preparing to unpack %s ...\n"
-msgstr "Uitpakken van %s wordt voorbereid...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr ""
-"Bezig met de-configureren van %s (%s), zodat %s (%s) verwijderd kan "
-"worden ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Bezig met de-configureren van %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Bezig met uitpakken van %s (%s) ...\n"
-
-#: src/unpack.c
-#, c-format
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Bezig met uitpakken van %s (%s) over (%s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr "uitpakken van archief met het bestandssysteem van het pakket"
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "fout bij lezen van de tar-uitvoer van dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr ""
-"beschadigd tar-bestand met het bestandssysteem - beschadigd pakketarchief"
-
-#: src/unpack.c
-#, c-format
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "kan eventuele nakomende nullen van dpkg-deb niet vernietigen: %s"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
 "kon status niet opvragen van het oude bestand '%.250s', dus wordt het niet "
@@ -4749,6 +4780,58 @@ msgstr ""
 #, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "kan het oude bestand '%.250s' niet veilig verwijderen: %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Verdwijning van %s is opgemerkt; het werd totaal vervangen.)\n"
+
+#: src/unpack.c
+msgid "package control information extraction"
+msgstr "controle-informatie wordt uit het pakket geëxtraheerd"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Informatie over %s uit %s is opgenomen.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "pakketarchitectuur (%s) komt niet overeen met het systeem (%s)"
+
+#: src/unpack.c
+#, c-format
+msgid "Preparing to unpack %s ...\n"
+msgstr "Uitpakken van %s wordt voorbereid...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Bezig met uitpakken van %s (%s) ...\n"
+
+#: src/unpack.c
+#, c-format
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Bezig met uitpakken van %s (%s) over (%s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr "uitpakken van archief met het bestandssysteem van het pakket"
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "fout bij lezen van de tar-uitvoer van dpkg-deb"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr ""
+"beschadigd tar-bestand met het bestandssysteem - beschadigd pakketarchief"
+
+#: src/unpack.c
+#, c-format
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "kan eventuele nakomende nullen van dpkg-deb niet vernietigen: %s"
 
 #: src/update.c
 #, c-format
@@ -4794,18 +4877,17 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "kan status van bestandsnaam '%.250s' niet opvragen"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "schrijven van bestandsnaam naar de 'tar'-pijp (%s) is mislukt"
+
+#: dpkg-deb/build.c
+msgid "control member"
+msgstr "controle-element"
 
 #: dpkg-deb/build.c
 #, c-format
 msgid "newline not allowed in pathname '%s'"
 msgstr "nieuwe regel is niet toegestaan in padnaam '%s'"
-
-#: dpkg-deb/build.c
-#, c-format
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "schrijven van bestandsnaam naar de 'tar'-pijp (%s) is mislukt"
 
 #: dpkg-deb/build.c
 msgid "data member"
@@ -4888,6 +4970,10 @@ msgstr ""
 "pakketnaam heeft tekens die geen kleine letters of cijfers of '-+.' zijn"
 
 #: dpkg-deb/build.c
+msgid "package architecture is missing or empty"
+msgstr "pakketarchitectuur ontbreekt of is leeg"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' bevat zelf gedefinieerde 'Priority'-waarde '%s'"
@@ -4905,14 +4991,17 @@ msgid "unable to check for existence of archive '%.250s'"
 msgstr "kan het bestaan van het archief '%.250s' niet verifiëren"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "compressing data member"
 msgid "compressing tar member"
-msgstr "data-element wordt gecomprimeerd"
+msgstr "tar-element wordt gecomprimeerd"
 
 #: dpkg-deb/build.c
 msgid "<compress> from tar -cf"
 msgstr "<compress> van tar -cf"
+
+#: dpkg-deb/build.c dpkg-split/split.c
+#, c-format
+msgid "unable to parse timestamp '%.255s'"
+msgstr "kan tijdsaanduiding '%.255s' niet ontleden"
 
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
@@ -4929,13 +5018,13 @@ msgstr "de inhoud van het controlegebied wordt niet geverifieerd"
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
-msgstr "dpkg-deb: een onbekend pakket aan het bouwen in '%s'.\n"
+msgid "building an unknown package in '%s'."
+msgstr "een onbekend pakket wordt gebouwd in '%s'."
 
 #: dpkg-deb/build.c
 #, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
-msgstr "dpkg-deb: pakket '%s' in '%s' aan het bouwen.\n"
+msgid "building package '%s' in '%s'."
+msgstr "pakket '%s' wordt gebouwd in '%s'."
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4943,17 +5032,9 @@ msgid "failed to make temporary file (%s)"
 msgstr "aanmaken van tijdelijk bestand (%s) is mislukt"
 
 #: dpkg-deb/build.c
-msgid "control member"
-msgstr "controle-element"
-
-#: dpkg-deb/build.c
 #, c-format
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "koppeling verwijderen van tijdelijk bestand (%s) is mislukt, %s"
-
-#: dpkg-deb/build.c
-msgid "compressing control member"
-msgstr "controle-element wordt gecomprimeerd"
 
 #: dpkg-deb/build.c
 #, c-format
@@ -4979,24 +5060,15 @@ msgstr "kan '%s' niet naar archief '%s' kopiëren: %s"
 msgid "shell command to move files"
 msgstr "shell-opdracht om bestanden te verplaatsen"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "onverwacht bestandseinde in %s op %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "fout bij lezen van %s uit bestand %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "kan niet lezen uit archief '%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "kan status van archief niet opvragen"
 
 #: dpkg-deb/extract.c
 msgid "archive magic version number"
@@ -5076,7 +5148,7 @@ msgstr "grootte van het controle-element van het archief"
 
 #: dpkg-deb/extract.c
 #, c-format
-msgid "archive has malformatted control member size '%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr ""
 "de grootte van het controle-element van het archief is opgegeven in een "
 "verkeerd formaat '%s'"
@@ -5233,8 +5305,8 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     geen gewoon bestand      %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
-msgstr "(geen 'control'-bestand in controlearchief!)\n"
+msgid "no 'control' file in control archive!"
+msgstr "geen 'control'-bestand in controlearchief!"
 
 #: dpkg-deb/main.c
 #, c-format
@@ -5296,9 +5368,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5306,7 +5375,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5316,19 +5385,17 @@ msgstr ""
 "Opties:\n"
 "  -v, --verbose                Activeer uitvoerige uitvoer.\n"
 "  -D, --debug                  Activeer debugging-uitvoer.\n"
-"      --showformat=<formaat>   Gebruik alternatief formaat voor --show.\n"
+"      --showformat=<formaat>   Gebruik alternatieve indeling voor --show.\n"
 "      --deb-format=<formaat>   Selecteer archiefformaat.\n"
 "                                 Toegelaten waarden: 0.939000, 2.0 "
 "(standaard).\n"
-"      --old                    Oude alias voor '--deb-format=0.939000'.\n"
-"      --new                    Oude alias voor '--deb-format=2.0'.\n"
 "      --nocheck                Onderdruk check van 'control'-bestand\n"
 "                                 (bouwt ongeldige pakketten)\n"
 "      --uniform-compression    Gebruik de compressieparameters\n"
 "                                 voor alle elementen.\n"
 "  -z#                          Stel compressieniveau in bij het bouwen.\n"
 "  -Z<type>                     Stel het compressietype in bij het bouwen.\n"
-"                                 Toegelaten types: gzip, xz, bzip2, none.\n"
+"                                 Toegelaten types: gzip, xz, none.\n"
 "  -S<strategie>                Stel de compressiestrategie in bij het "
 "bouwen.\n"
 "                                 Toegelaten waarden: none; extreme (xz);\n"
@@ -5384,12 +5451,12 @@ msgstr "onbekend compressietype `%s'!"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz instead"
+msgid "obsolete compression type '%s'; use xz instead"
 msgstr "verouderd compressietype '%s'; gebruik liever xz"
 
 #: dpkg-deb/main.c
 #, c-format
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "verouderd compressietype '%s'; gebruik liever xz of gzip"
 
 #: dpkg-deb/main.c
@@ -5422,7 +5489,7 @@ msgstr "bestand '%.250s' is beschadigd - %.250s ontbreekt"
 msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr "bestand '%.250s' is beschadigd - ontbrekende nieuwe regel na %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "fout bij lezen van %.250s"
@@ -5541,11 +5608,6 @@ msgstr ""
 msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "bestand '%.250s' is beschadigd - grootte is fout voor opgegeven deelnummer"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "kan status van deelbestand '%.250s' niet opvragen"
 
 #: dpkg-split/info.c
 #, c-format
@@ -5700,7 +5762,7 @@ msgstr ""
 "    --depotdir <map>             Gebruik <map> in plaats van %s/%s.\n"
 "    -S|--partsize <grootte>      In Kb; (voor -s is de standaard 450).\n"
 "    -o|--output <bestand>        Bestandsnaam, voor -j (standaard is\n"
-"                                  <pakket>_<versie>_<architectuur>.deb).\n"
+"                                   <pakket>_<versie>_<architectuur>.deb).\n"
 "    -Q|--npquiet                 Stille verwerking als -a geen deel is.\n"
 "    --msdos                      Genereer type 8.3 bestandsnamen.\n"
 "\n"
@@ -5721,11 +5783,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Typ dpkg-split --help voor hulp."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "onverwacht bestandseinde in %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -5926,7 +5983,7 @@ msgstr ""
 "  --get-selections      toon hoofdnamen van alternatieven en hun status.\n"
 "  --set-selections      lees status van alternatieven van standaard-input.\n"
 "  --config <naam>       toon alle alternatieven voor de groep <naam>\n"
-"                        en vraag de gebruiker welke gebruikt moet worden.\n"
+"                          en vraag de gebruiker welke gebruikt moet worden.\n"
 "  --set <naam> <pad>    stel <pad> in als alternatief voor <naam>.\n"
 "  --all                 voer --config uit voor alle alternatieven.\n"
 "\n"
@@ -5972,32 +6029,23 @@ msgid ""
 "  --version                show the version.\n"
 msgstr ""
 "Opties:\n"
-"  --altdir <map>           wijzig de map met alternatieven.\n"
-"  --admindir <map>         wijzig de administratieve map.\n"
-"  --log <bestand>          wijzig het logbestand.\n"
-"  --force                  laat bestanden vervangen door alternatieven.\n"
-"  --skip-auto              sla in automatische modus prompt over bij "
-"correct\n"
-"                           geconfigureerde alternatieven (enkel voor --"
+"  --altdir <map>       wijzig de map met alternatieven.\n"
+"  --admindir <map>     wijzig de administratieve map.\n"
+"  --log <bestand>      wijzig het logbestand.\n"
+"  --force              laat bestanden vervangen door alternatieven.\n"
+"  --skip-auto          sla in automatische modus prompt over bij correct\n"
+"                         geconfigureerde alternatieven (enkel voor --"
 "config)\n"
-"  --verbose                luidruchtige verwerking, meer uitvoer.\n"
-"  --quiet                  stille verwerking, minimale uitvoer.\n"
-"  --help                   toon deze hulptekst.\n"
-"  --version                toon de versie.\n"
-
-#: utils/update-alternatives.c
-msgid "error"
-msgstr "fout"
+"  --verbose            luidruchtige verwerking, meer uitvoer.\n"
+"  --quiet              stille verwerking, minimale uitvoer.\n"
+"  --help               toon deze hulptekst.\n"
+"  --version            toon de versie.\n"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
 "Gebruik '%s --help' voor informatie over het gebruik van het programma."
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "waarschuwing"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6055,26 +6103,26 @@ msgstr ""
 
 #: utils/update-alternatives.c
 msgid "slave name"
-msgstr "secundaire naam"
+msgstr "slaafnaam"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "duplicate slave name %s"
-msgstr "dubbele secundaire naam %s"
+msgstr "dubbele slaafnaam %s"
 
 #: utils/update-alternatives.c
 msgid "slave link"
-msgstr "secundaire koppeling %s"
+msgstr "slaafkoppeling %s"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "slave link same as main link %s"
-msgstr "secundaire koppeling is hetzelfde als de hoofdkoppeling %s"
+msgstr "slaafkoppeling is hetzelfde als de hoofdkoppeling %s"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "duplicate slave link %s"
-msgstr "dubbele secundaire koppeling %s"
+msgstr "dubbele slaafkoppeling %s"
 
 #: utils/update-alternatives.c
 msgid "master file"
@@ -6100,7 +6148,7 @@ msgstr "prioriteit"
 
 #: utils/update-alternatives.c
 msgid "slave file"
-msgstr "secundair bestand"
+msgstr "slaafbestand"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6127,7 +6175,7 @@ msgstr "hoofdkoppeling"
 #: utils/update-alternatives.c
 #, c-format
 msgid "discarding obsolete slave link %s (%s)"
-msgstr "verouderde secundaire koppeling %s wordt weggegooid (%s)."
+msgstr "verouderde slaafkoppeling %s wordt weggegooid (%s)."
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6135,16 +6183,13 @@ msgid "unable to flush file '%s'"
 msgstr "kan bestand '%s' niet doorspoelen"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "Current 'best' version is '%s'."
+#, c-format
 msgid "  link best version is %s"
-msgstr "Huidige 'beste' versie is '%s'."
+msgstr "  koppeling beste versie is %s"
 
 #: utils/update-alternatives.c
-#, fuzzy
-#| msgid "No versions available."
 msgid "  link best version not available"
-msgstr "Geen versies beschikbaar."
+msgstr "  koppeling beste versie niet beschikbaar"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6156,16 +6201,14 @@ msgid "  link currently absent"
 msgstr "  koppeling is momenteel afwezig"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  %.250s is %s.\n"
+#, c-format
 msgid "  link %s is %s"
-msgstr "  %.250s is %s.\n"
+msgstr "  koppeling %s is %s"
 
 #: utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "  slave %s: %s"
+#, c-format
 msgid "  slave %s is %s"
-msgstr "  secundaire %s: %s"
+msgstr "  slaaf %s is %s"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6175,7 +6218,7 @@ msgstr "%s - prioriteit %d"
 #: utils/update-alternatives.c
 #, c-format
 msgid "  slave %s: %s"
-msgstr "  secundaire %s: %s"
+msgstr "  slaaf %s: %s"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6213,7 +6256,7 @@ msgstr ""
 #: utils/update-alternatives.c
 #, c-format
 msgid "There is no program which provides %s."
-msgstr "Er is geen programma dat %s voorziet"
+msgstr "Er is geen programma dat %s voorziet."
 
 #: utils/update-alternatives.c
 msgid "Nothing to configure."
@@ -6228,7 +6271,7 @@ msgstr ""
 #: utils/update-alternatives.c
 #, c-format
 msgid "not replacing %s with a link"
-msgstr "%s wordt niet vervangen door een koppelling"
+msgstr "%s wordt niet vervangen door een koppeling"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6252,19 +6295,19 @@ msgstr "%s wordt niet verwijderd omdat het geen symbolische koppeling is"
 #: utils/update-alternatives.c
 #, c-format
 msgid "alternative %s for %s not registered; not removing"
-msgstr "alternatief %s voor %s is niet geregistreerd, wordt niet verwijderd"
+msgstr "alternatief %s voor %s is niet geregistreerd. Wordt niet verwijderd"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "removing manually selected alternative - switching %s to auto mode"
 msgstr ""
-"handmatig geselecteerd alternatief wordt verwijderd - %s wordt omgeschakeld "
-"naar automatische modus"
+"handmatig geselecteerd alternatief wordt verwijderd - %s wordt omgezet naar "
+"automatische modus"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "alternative %s for %s not registered; not setting"
-msgstr "alternatief %s voor %s is niet geregistreerd; wordt niet ingesteld"
+msgstr "alternatief %s voor %s is niet geregistreerd. Wordt niet ingesteld"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6290,7 +6333,7 @@ msgstr "automatische keuze van %s wordt ingesteld"
 #: utils/update-alternatives.c
 #, c-format
 msgid "renaming %s slave link from %s to %s"
-msgstr "secundaire koppeling %s wordt hernoemd van %s naar %s"
+msgstr "slaafkoppeling %s wordt hernoemd van %s naar %s"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6312,7 +6355,7 @@ msgstr "%s wordt gebruikt om in de handmatige modus in %s (%s) te voorzien."
 msgid "updating alternative %s because link group %s has changed slave links"
 msgstr ""
 "alternatief %s wordt bijgewerkt omdat koppelingsgroep %s gewijzigde "
-"secundaire koppelingen bevat"
+"slaafkoppelingen bevat"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6332,7 +6375,7 @@ msgstr ""
 #: utils/update-alternatives.c
 #, c-format
 msgid "Alternative %s unchanged because choice %s is not available."
-msgstr "Alternatief %s niet gewijzigd want keuze %s is niet beschikbaar."
+msgstr "Alternatief %s is niet gewijzigd want keuze %s is niet beschikbaar."
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6371,7 +6414,7 @@ msgstr ""
 #: utils/update-alternatives.c
 #, c-format
 msgid "alternative %s can't be master: it is a slave of %s"
-msgstr "alternatief %s kan geen primair zijn: het is een secundair van %s"
+msgstr "alternatief %s kan geen primair zijn: het is een slaaf van %s"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6387,20 +6430,18 @@ msgstr "het pad %s van het alternatief bestaat niet"
 #, c-format
 msgid "alternative %s can't be slave of %s: it is a master alternative"
 msgstr ""
-"alternatief %s kan geen secundair van %s zijn: het is een primair alternatief"
+"alternatief %s kan geen slaaf van %s zijn: het is een primair alternatief"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "alternative %s can't be slave of %s: it is a slave of %s"
-msgstr ""
-"alternatief %s kan geen secundair van %s zijn: het is een secundair van %s"
+msgstr "alternatief %s kan geen slaaf van %s zijn: het is een slaaf van %s"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "alternative link %s is already managed by %s (slave of %s)"
 msgstr ""
-"de verwijzing van alternatief %s wordt reeds door %s beheerd (secundair van "
-"%s)"
+"de verwijzing van alternatief %s wordt reeds door %s beheerd (slaaf van %s)"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6444,12 +6485,12 @@ msgstr "--slave heeft <link> <naam> <pad> nodig"
 #: utils/update-alternatives.c
 #, c-format
 msgid "name %s is both primary and slave"
-msgstr "de naam %s is zowel primair als secundair"
+msgstr "de naam %s is zowel primair als slaaf"
 
 #: utils/update-alternatives.c
 #, c-format
 msgid "link %s is both primary and slave"
-msgstr "de koppeling %s is zowel primair als secundair"
+msgstr "de koppeling %s is zowel primair als slaaf"
 
 #: utils/update-alternatives.c
 #, c-format
@@ -6484,8 +6525,57 @@ msgstr ""
 #, c-format
 msgid "to return to automatic updates use '%s --auto %s'"
 msgstr ""
-"om automatische opwaarderingen terug in te schakelen kunt u '%s --auto %s' "
+"om automatische opwaarderingen weer in te schakelen kunt u '%s --auto %s' "
 "gebruiken."
+
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr ""
+#~ "verouderde optie '--%s'; gelieve in plaats ervan '--%s' te gebruiken"
+
+#~ msgid "control file '%s' missing value"
+#~ msgstr "er ontbreekt een waarde in het controlebestand '%s'"
+
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "er ontbreekt een waardescheidingsteken in controlebestand '%s'"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "kan status van deelbestand '%.250s' niet opvragen"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "onverwacht bestandseinde in %.250s"
+
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: fout: %s\n"
+
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d:%s: interne fout: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: waarschuwing: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "afgekapt bestand '%.250s' met uitgestelde triggers"
+
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "find voor dpkg --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "het openen van de pijp van find met fdopen is mislukt"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "fout bij het lezen van de pijp van find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "fout bij het sluiten van de pijp van find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "find voor --recursive gaf fout %i, die niet verwerkt wordt"
+
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "kan status van bestandsnaam '%.250s' niet opvragen"
+
+#~ msgid "compressing control member"
+#~ msgstr "controle-element wordt gecomprimeerd"
 
 #~ msgid "Call %s."
 #~ msgstr "Aanroepen van %s."
@@ -6522,7 +6612,6 @@ msgstr ""
 #~ msgstr "chdir naar `/' om op te ruimen is mislukt"
 
 #, fuzzy
-#~| msgid "Cannot get ENOENT value from %s: %s"
 #~ msgid "cannot extract package field value from '%s': %s"
 #~ msgstr "Kan geen ENOENT-waarde krijgen van %s: %s"
 
@@ -6532,11 +6621,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "waarschuwing, `%s' bevat zelf gedefiniëerd veld `%s'\n"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s verwacht geen argumenten"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "kan onderdeel `control' niet openen"
@@ -6560,7 +6644,6 @@ msgstr ""
 #~ msgstr "waarde voor `config-version'-veld niet toegestaan in deze context"
 
 #, fuzzy
-#~| msgid "error in Config-Version string `%.250s': %.250s"
 #~ msgid "error in Config-Version string '%.250s'"
 #~ msgstr "fout in 'Config-Version'-string `%.250s': %.250s"
 
@@ -6585,11 +6668,6 @@ msgstr ""
 #~ msgstr "Uitpakken van vervangende %.250s ...\n"
 
 #, fuzzy
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "ongeldig getal voor --%s: `%.250s'"
-
-#, fuzzy
-#~| msgid "--add needs four arguments"
 #~ msgid "--%s needs at two arguments"
 #~ msgstr "--add heeft een vier argumenten nodig"
 
@@ -6616,7 +6694,6 @@ msgstr ""
 #~ msgstr "%s: compressie"
 
 #, fuzzy
-#~| msgid "%d files and directories currently installed.)\n"
 #~ msgid "a value different from 'any' is currently not allowed"
 #~ msgstr "%d bestanden en mappen geïnstalleerd.)\n"
 
@@ -6639,7 +6716,6 @@ msgstr ""
 #~ msgstr "data"
 
 #, fuzzy
-#~| msgid "missing package"
 #~ msgid "split package part"
 #~ msgstr "ontbrekende pakketnaam"
 
@@ -6721,10 +6797,6 @@ msgstr ""
 #~ msgstr "kan nieuwe infobestand `%.250s' niet installeren als `%.250s'"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "Copyright (C) 1995 Ian Jackson.\n"
-#~| "Copyright (C) 2000,2001 Wichert Akkerman."
 #~ msgid ""
 #~ "Copyright (C) 1995 Ian Jackson.\n"
 #~ "Copyright (C) 2000,2001 Wichert Akkerman.\n"
@@ -6735,7 +6807,6 @@ msgstr ""
 #~ "Copyright (C) 2000,2001 Wichert Akkerman."
 
 #, fuzzy
-#~| msgid "cannot open GPL file"
 #~ msgid "cannot create new %s file"
 #~ msgstr "kan GPL-bestand niet openen "
 
@@ -6804,10 +6875,6 @@ msgstr ""
 #~ msgstr "Copyright (C) 1994-1996 Ian Jackson.\n"
 
 #, fuzzy
-#~| msgid ""
-#~| "\n"
-#~| "Copyright (C) 1995 Ian Jackson.\n"
-#~| "Copyright (C) 2000,2001 Wichert Akkerman."
 #~ msgid ""
 #~ "Copyright (C) 1995 Ian Jackson.\n"
 #~ "Copyright (C) 2000-2002 Wichert Akkerman.\n"
@@ -6822,17 +6889,14 @@ msgstr ""
 #~ msgstr "slaaf %s: %s"
 
 #, fuzzy
-#~| msgid "cannot stat old name `%s': %s"
 #~ msgid "cannot stat %s: %s"
 #~ msgstr "kan de status van de oude naam '%s' niet opvragen: %s"
 
 #, fuzzy
-#~| msgid "%s: copying %s to %s failed, giving up: %s"
 #~ msgid "scan of %s failed: %s"
 #~ msgstr "%s: kopiëren van %s naar %s is mislukt, poging wordt opgegeven: %s"
 
 #, fuzzy
-#~| msgid "failed to exec %s"
 #~ msgid "failed to execute %s: %s"
 #~ msgstr "kan %s niet uitvoeren"
 
@@ -6853,12 +6917,10 @@ msgstr ""
 #~ msgstr "kan %s niet sluiten: %s"
 
 #, fuzzy
-#~| msgid "unable to write %s: %s"
 #~ msgid "cannot write %s: %s"
 #~ msgstr "kan %s niet verwijderen: %s"
 
 #, fuzzy
-#~| msgid "unable to rename %s to %s: %s"
 #~ msgid "unable to rename file '%s' to '%s'"
 #~ msgstr "kan %s niet hernoemen naar %s: %s"
 
@@ -7106,7 +7168,6 @@ msgstr ""
 #~ msgstr "koptekst-informatielid"
 
 #, fuzzy
-#~| msgid "skipped member data from %s"
 #~ msgid "skipped control area from %s"
 #~ msgstr "lid data van %s overgeslagen"
 
@@ -7118,12 +7179,10 @@ msgstr ""
 #~ msgstr "info_spew"
 
 #, fuzzy
-#~| msgid "failed to exec dpkg-deb to extract control information"
 #~ msgid "failed to exec dpkg-deb to extract field value"
 #~ msgstr "kan dpkg-deb niet uitvoeren om besturingsinformatie te extraheren"
 
 #, fuzzy
-#~| msgid "unable to create %s: %s"
 #~ msgid "unable to stat %s: %s"
 #~ msgstr "kan %s niet aanmaken: %s"
 
@@ -7208,7 +7267,6 @@ msgstr ""
 #~ msgstr "%d fouten in besturingsbestand"
 
 #, fuzzy
-#~| msgid "unable to read %s: %s"
 #~ msgid "can't readdir %s: %s"
 #~ msgstr "kan %s niet lezen: %s"
 

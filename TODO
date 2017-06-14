@@ -16,13 +16,6 @@ TODO
  * Triage as much bugs as possible to get the bug count below 300 ;) and
    merge as much patches as possible.
 
- * Create dedicated manual pages for .changes and .dsc documenting the
-   format of the files. (deb-foo might not be apprioriate as those are
-   not inside of the .deb file, but changes(5) seems too generic.)
-   Explain that backwards incompatible change involve a major version bump
-   (1.x => 2.x) while minor version bump will be used for backwards
-   compatible extension (e.g. new fields).
-
  * Code cleanup / bug fixes:
    - Get rid of static variables inside functions.
    - Coalesce hash and checksum functions.
@@ -35,12 +28,12 @@ TODO
    - Do more unused header include removal.
    - Add needed includes to all header files.
    - Get rid of useless "unsigned" modifiers.
-   - Use internerr instead of assert, and print more meaninful messages.
+   - Use internerr instead of assert, and print more meaningful messages.
    - Use enums for currently hardcoded literals (replacingfilesandsaid,
      filetriggers_edited, etc).
    - Do not use nfmalloc (and friends) for non in-core db memory.
    - Call nffreeall on exit (need to detangle nfmalloc from non-db first).
-   - Add a size parameter to the buffer api to avoid some useless
+   - Add a size parameter to the buffer API to avoid some useless
      pipe+fork+copy.
    - Handle instdir '/' separator consistently.
    - Check if caching selinux context for second call is possible.
@@ -67,7 +60,7 @@ TODO
    - Check https://d-i.alioth.debian.org/spellcheck/level5/index.html
 
  * Discuss and implement
-   http://www.hadrons.org/~guillem/debian/docs/origin.proposal
+   https://www.hadrons.org/~guillem/debian/docs/origin.proposal
 
  * Deprecate --force-not-root flag (remove modstatdb_rw rootneeded flags).
 
@@ -91,9 +84,6 @@ TODO
 
  * We should set our own obstack_alloc_failed_handler.
 
- * Remove compatibility symlinks
-   /usr/sbin/{update-alternatives,dpkg-divert,dpkg-statoverride}.
-
 ------------------------------------------------------------------------------
 
 Old TODO entries from Scott:
@@ -111,9 +101,9 @@ dpkg
 
 Fix:
 <joeyh_> package a conflicted with old versions of package b. package b
-      conficted with old versions of package a. I had the old versions of both
+      conflicted with old versions of package a. I had the old versions of both
       installed, and told dpkg to install the new versions of a and b
-      simulantaneously. It refused.
+      simultaneously. It refused.
 
 dselect:
 * support Enhances

@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.17.0\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:48+0200\n"
 "Last-Translator: quad-nrg.net <yodesy@quad-nrg.net>\n"
 "Language-Team: Greek <debian-l10n-greek@lists.debian.org>\n"
@@ -22,6 +22,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "απέτυχε η fstat στην αρχειοθήκη"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "αδύνατο το άνοιγμα της αρχειοθήκης `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "αδύνατη η δημιουργία `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, fuzzy, c-format
+msgid "unable to close file '%s'"
+msgstr "αδύνατη η εκκένωση στο vnsprintf"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -166,8 +186,8 @@ msgstr "απρόσμενο τέλος αρχείου στο %.250s"
 msgid "failed to seek"
 msgstr "απέτυχε η εκτέλεση της tar"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to execute %s (%s)"
 msgstr "αδύνατη η εκτέλεση %s"
@@ -341,11 +361,6 @@ msgstr "αδύνατη η σάρωση του καταλόγου ενημερώ�
 msgid "failed to remove incorporated update file %.255s"
 msgstr "αποτυχία αφαίρεσης του συγχωνευμένου αρχείου ενημέρωσης %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "αδύνατη η δημιουργία `%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -466,8 +481,7 @@ msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.2
 msgid "unable to open directory '%s'"
 msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.250s'"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to open file '%s'"
 msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.250s'"
@@ -477,12 +491,6 @@ msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.2
 #, fuzzy, c-format
 msgid "unable to sync file '%s'"
 msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.250s'"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, fuzzy, c-format
-msgid "unable to close file '%s'"
-msgstr "αδύνατη η εκκένωση στο vnsprintf"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -499,17 +507,14 @@ msgstr "αδύνατος ο ορισμός του buffering στο αρχείο 
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "αποτυχία εγγραφής %s καταχώρησης σχετικά με `%.50s' στο `%.250s'"
 
-#: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
-" %s\n"
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+msgid "error"
 msgstr ""
 
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: outside error context, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
 
@@ -520,18 +525,19 @@ msgid "out of memory for new error context"
 msgstr "η νέα εκκαθαριστική καταχώρηση βρέθηκε εκτός μνήμης"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: σφάλμα κατά τον καθαρισμό:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
+#, fuzzy
 #| msgid "dpkg: too many nested errors during error recovery !!\n"
-msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "dpkg: πάρα πολλά φωλιασμένα σφάλματα κατά την ανάκτηση σφαλμάτων !!\n"
 
 #: lib/dpkg/ehandle.c
@@ -543,16 +549,20 @@ msgid "out of memory for new cleanup entry with many arguments"
 msgstr "η νέα εκκαθαριστική καταχώρηση με αρκετά ορίσματα βρέθηκε εκτός μνήμης"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s: error: %s\n"
+msgid "unrecoverable fatal error, aborting"
 msgstr ""
-"%s: σφάλμα κατά τον καθαρισμό:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%d: εσωτερικό σφάλμα `%s'\n"
+#, fuzzy
+#| msgid "Multiple overrides for \"%s\", aborting"
+msgid "outside error context, aborting"
+msgstr "Πολλαπλά override για το \"%s\", τερματισμός"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error - bad mode `%s'"
+msgid "internal error"
+msgstr "εσωτερικό σφάλμα - ακατάλληλος τρόπος `%s'"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -656,8 +666,8 @@ msgstr "χρησιμοποιήθηκε παρωχημένο πεδίο `Revision
 
 #: lib/dpkg/fields.c
 #, fuzzy, c-format
-#| msgid "value for `conffiles' has malformatted line `%.*s'"
-msgid "value for '%s' field has malformatted line '%.*s'"
+#| msgid "value for `conffiles' has malformed line `%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "η τιμή για το `conffiles' περιέχει κακοδιαμορφωμένη γραμμή `%.*s'"
 
 #: lib/dpkg/fields.c
@@ -962,6 +972,11 @@ msgstr "μη έγκυρος ακέραιος για --%s: `%.250s'"
 
 #: lib/dpkg/options.c
 #, fuzzy, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "μη έγκυρος ακέραιος για --%s: `%.250s'"
+
+#: lib/dpkg/options.c
+#, fuzzy, c-format
 msgid "obsolete option '--%s'"
 msgstr "Προειδοποίηση: επιλογή εκτός χρήσης `--%s'\n"
 
@@ -1200,6 +1215,12 @@ msgid "version string has embedded spaces"
 msgstr "η συμβολοσειρά έκδοσης περιέχει ενσωματωμένα κενά"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is not number"
+msgid "epoch in version is empty"
+msgstr "η εποχή στην έκδοση δεν είναι αριθμός"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "η εποχή στην έκδοση δεν είναι αριθμός"
 
@@ -1218,6 +1239,18 @@ msgstr "η εποχή στην έκδοση δεν είναι αριθμός"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "δεν υπάρχει τίποτα μετά το κώλον (:) στον αριθμό έκδοσης"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "το αλφαριθμητικό της έκδοσης είναι κενό"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "το αλφαριθμητικό της έκδοσης είναι κενό"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1269,6 +1302,11 @@ msgstr "λείπει altname"
 msgid "(no description available)"
 msgstr "(χωρίς διαθέσιμη περιγραφή)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "dpkg: η έκδοση '%s' έχει κακή σύνταξη: %s\n"
+
 #: lib/dpkg/pkg-spec.c
 #, fuzzy, c-format
 #| msgid "illegal package name in awaited trigger `%.255s': %s"
@@ -1281,12 +1319,10 @@ msgstr "μη έγκυρο όνομα πακέτου για τον αναμενό
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "μη έγκυρο όνομα πακέτου για τον αναμενόμενο trigger `%.255s': %s"
 
-#: lib/dpkg/report.c
-#, fuzzy, c-format
-msgid "%s: warning: %s\n"
-msgstr ""
-"%s: σφάλμα κατά τον καθαρισμό:\n"
-" %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+#, fuzzy
+msgid "warning"
+msgstr "εγκατάλειψη"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1317,7 +1353,7 @@ msgstr "%s (υποδιεργασία): %s\n"
 msgid "fork failed"
 msgstr "αποτυχία διχάλωσης"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "η υποδιεργασία %s επέστρεψε κατάσταση λάθους %d"
@@ -1347,70 +1383,84 @@ msgstr "η υποδιεργασία %s απέτυχε με κωδικό κατά
 msgid "wait for subprocess %s failed"
 msgstr "η αναμονή για %s απέτυχε"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-"μη έγκυρο όνομα πακέτου `%.250s' στους triggers καθυστερεί το αρχείο `%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat old name `%s': %s"
+msgid "cannot stat pathname '%s'"
+msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "\"κουτσουρεμένοι\" triggers ανέστειλλαν το αρχείο `%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "αδύνατη η ανίχνευση του καταλόγου `%.255s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"σφάλμα σύνταξης στους triggers καθυστερεί το αρχείο `%.250s' στον χαρακτήρα `"
-"%s'%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+msgid "treewalk root %s is not a directory"
+msgstr "αδύνατη η ανάγνωση πληροφοριών καταλόγου"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr ""
 "αδύναμία ανοίγματος/δημιουργίας του αρχείου κλειδώματος των trigger `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy
 #| msgid "triggered"
 msgid "triggers area"
 msgstr "triggered"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "αδύνατο το άνοιγμα του αρχείου σε αναστολή λόγω trigger `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr ""
 "αδύνατος ο προσδιορισμός κατάστασης του αρχείου σε αναστολή λόγω trigger `"
 "%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr ""
 "αδύνατo το άνοιγμα/δημιουργία νέου αρχείου σε αναστολή λόγω trigger `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"σφάλμα σύνταξης στους triggers καθυστερεί το αρχείο `%.250s' στον χαρακτήρα `"
+"%s'%s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+"μη έγκυρο όνομα πακέτου `%.250s' στους triggers καθυστερεί το αρχείο `%.250s'"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "σφάλμα ανάγνωσης του αρχείου σε αναστολή λόγω trigger `% 250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr "αδύνατη η εγγραφή του νέου σε αναστολή λόγω trigger αρχείου  `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr "αδύνατο το κλείσιμο του νέου σε αναστολή λόγω trigger αρχείου `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr ""
@@ -1707,12 +1757,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "το αρχείο περιείχε το αντικείμενο `%.255s' άγνωστου τύπου 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "cannot stat file '%s'"
-msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
-
 #: src/archives.c
 #, fuzzy, c-format
 #| msgid "Replacing files in old package %s ...\n"
@@ -1937,28 +1981,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive χρειάζεται τουλάχιστον ένα όρισμα μονοπατιού"
 
 #: src/archives.c
-#, fuzzy
-msgid "find for dpkg --recursive"
-msgstr "αδύνατη η εκτέλεση της find με --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "αδύνατο το άνοιγμα της σωλήνωσης της find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "αδύνατη η ανάγνωση από τη σωλήνωση της find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "αδύνατο το κλείσιμο της σωλήνωσης της find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "η εκτέλεση της find με --recursive επέστρεψε απρόσμενο σφάλμα %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr ""
 "έγινε αναζήτηση, δε βρέθηκε κανένα πακέτα (αρχεία που ταιριάζουν *.deb)"
@@ -1967,6 +1989,17 @@ msgstr ""
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s χρειάζεται τουλάχιστον ένα αρχείο πακέτου ως παράμετρο"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "αδύνατη η πρόσβαση στην αρχειοθήκη"
+
+#: src/archives.c
+#, fuzzy, c-format
+msgid "archive '%s' is not a regular file"
+msgstr "προειδοποίηση, το αρχείο ρυθμίσεων `%s' δεν είναι κοινό αρχείο\n"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2629,6 +2662,12 @@ msgid ""
 "divert.\n"
 msgstr ""
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, fuzzy, c-format
+#| msgid "cannot stat old name `%s': %s"
+msgid "cannot stat file '%s'"
+msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
+
 #: src/divertcmd.c
 #, fuzzy, c-format
 #| msgid "error checking `%s': %s"
@@ -3007,10 +3046,51 @@ msgstr ""
 "αδιέξοδο η ικανοποίηση των προεξαρτήσεων για το %.250s (ζητήθηκε λόγω του "
 "%.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, fuzzy, c-format
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "Προειδοποίηση: επιλογή εκτός χρήσης `--%s'\n"
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s χρειάζεται τουλάχιστον ένα όρισμα ονόματος πακέτου"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "Package `%s' is not installed.\n"
+msgid "package name '%s' is invalid: %s"
+msgstr "Το πακέτο `%s' δεν είναι εγκατεστημένο.\n"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s χρειάζεται τουλάχιστον ένα όρισμα ονόματος πακέτου"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "το όνομα του trigger περιέχει μη έγκυρο χαρακτήρα"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s χρειάζεται τουλάχιστον ένα όρισμα ονόματος πακέτου"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr ""
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "η --%s δεν παίρνει ορίσματα"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax"
+msgstr "dpkg: η έκδοση '%s' έχει κακή σύνταξη: %s\n"
 
 #: src/enquiry.c
 msgid ""
@@ -3025,11 +3105,6 @@ msgstr "--compare-versions κακή συσχέτιση"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-msgid "version '%s' has bad syntax"
-msgstr "dpkg: η έκδοση '%s' έχει κακή σύνταξη: %s\n"
 
 #: src/errors.c
 #, fuzzy, c-format
@@ -3169,15 +3244,15 @@ msgstr ""
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "control file '%s' missing value"
-msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr ""
+"το αρχείο λίστας αρχείων για το πακέτο `%.250s' περιέχει κενό όνομα αρχείου"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "control file '%s' missing value separator"
-msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"το αρχείο λίστας αρχείων για το πακέτο `%.250s' περιέχει κενό όνομα αρχείου"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
@@ -3189,24 +3264,24 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to open files list file for package `%.250s'"
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "αδύνατο το άνοιγμα της λίστας αρχείων για το πακέτο `%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "αδύνατο το άνοιγμα της λίστας αρχείων για το πακέτο `%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr ""
 "το αρχείο λίστας αρχείων για το πακέτο `%.250s' περιέχει κενό όνομα αρχείου"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "cannot read config file dir `%.250s' (from `%.250s')"
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr ""
 "αδύνατη η ανάγνωση του καταλόγου των αρχείων ρυθμίσεων του `%.250s' (από `"
 "%.250s')"
@@ -3214,7 +3289,7 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "error closing files list file for package `%.250s'"
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "σφάλμα κλεισίματος αρχείου λίστας αρχείων για το πακέτο `%.250s'"
 
 #: src/help.c
@@ -3384,6 +3459,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3454,6 +3530,13 @@ msgstr ""
 "Για εσωτερική χρήση: dpkg --assert-support-predepends | --predep-package |\n"
 "  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep.\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3687,6 +3770,10 @@ msgid "Do not perform safe I/O operations when unpacking"
 msgstr ""
 
 #: src/main.c
+msgid "Do not chroot into maintainer script environment"
+msgstr ""
+
+#: src/main.c
 msgid "Always use the new config files, don't prompt"
 msgstr ""
 
@@ -3915,6 +4002,10 @@ msgstr "απρόσμενο eof πριν το τέλος της γραμμής %d
 msgid "need an action option"
 msgstr "χρειάζεται μια επιλογή ενέργειας"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 #, fuzzy
 msgid "unable to setenv for subprocesses"
@@ -4044,6 +4135,12 @@ msgstr " εξαρτάται από "
 msgid "; however:\n"
 msgstr ". Ωστόσο:\n"
 
+#: src/querycmd.c src/select.c
+#, fuzzy, c-format
+#| msgid "No packages found matching %s.\n"
+msgid "no packages found matching %s"
+msgstr "Δε βρέθηκαν πακέτα που να ταιριάζουν με %s.\n"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -4079,12 +4176,6 @@ msgstr ""
 #: src/querycmd.c
 msgid "Description"
 msgstr "Περιγραφή"
-
-#: src/querycmd.c src/select.c
-#, fuzzy, c-format
-#| msgid "No packages found matching %s.\n"
-msgid "no packages found matching %s"
-msgstr "Δε βρέθηκαν πακέτα που να ταιριάζουν με %s.\n"
 
 #: src/querycmd.c
 #, c-format
@@ -4523,7 +4614,7 @@ msgstr "μη αποδεκτό όνομα πακέτου στη γραμμή %d: 
 #: src/select.c
 #, fuzzy, c-format
 #| msgid "illegal package name at line %d: %.250s"
-msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "μη αποδεκτό όνομα πακέτου στη γραμμή %d: %.250s"
 
 #: src/select.c
@@ -4538,7 +4629,8 @@ msgstr "σφάλμα ανάγνωσης στην πρότυπη είσοδο (st
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 
 #: src/selinux.c
@@ -4950,6 +5042,40 @@ msgstr "επιτυχής\n"
 msgid "unable to create temporary directory"
 msgstr "απέτυχε η δημιουργία ονόματος προσωρινού καταλόγου "
 
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid ""
+#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
+#| "%s"
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"dpkg: σχετικά με το %s που περιέχει %s, πρόβλημα προεξάρτησης:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "πρόβλημα προεξάρτησης - δε θα εγκατασταθεί %.250s"
+
+#: src/unpack.c
+#, fuzzy
+msgid "ignoring pre-dependency problem!"
+msgstr "dpkg: προειδοποίηση - αγνοείται το πρόβλημα προεξάρτησης !\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s, to allow removal of %s ...\n"
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Απορρύθμιση του %s, για να επιτραπεί η αφαίρεση του %s ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s ...\n"
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Απορρύθμιση του %s ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "conffile name '%s' is too long, or missing final newline"
@@ -5016,103 +5142,6 @@ msgid "unable to install new info file '%.250s' as '%.250s'"
 msgstr "αδύνατη η εγκατάσταση νέου αρχείου πληροφοριών `%.250s' ως `%.250s'"
 
 #: src/unpack.c
-#, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr ""
-"(Σημειώνεται η εξαφάνιση του %s, το οποίο έχει αντικατασταθεί πλήρως)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "αδύνατη η πρόσβαση στην αρχειοθήκη"
-
-#: src/unpack.c
-#, fuzzy
-#| msgid "control information length"
-msgid "package control information extraction"
-msgstr "έλεχγος μήκους πληροφοριών"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Καταγράφτηκαν πληροφορίες ελέγχου για το %s από %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr ""
-"η αρχιτεκτονική του πακέτου (%s) δεν ταιριάζει με αυτή του συστήματος (%s)"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid ""
-#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
-#| "%s"
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"dpkg: σχετικά με το %s που περιέχει %s, πρόβλημα προεξάρτησης:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "πρόβλημα προεξάρτησης - δε θα εγκατασταθεί %.250s"
-
-#: src/unpack.c
-#, fuzzy
-msgid "ignoring pre-dependency problem!"
-msgstr "dpkg: προειδοποίηση - αγνοείται το πρόβλημα προεξάρτησης !\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Preparing to replace %s %s (using %s) ...\n"
-msgid "Preparing to unpack %s ...\n"
-msgstr "Προετοιμασία για αντικατάσταση %s %s (χρησιμοποιώντας το %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s, to allow removal of %s ...\n"
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Απορρύθμιση του %s, για να επιτραπεί η αφαίρεση του %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s ...\n"
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Απορρύθμιση του %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Γίνεται αποσυμπίεση %s (από %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Γίνεται αποσυμπίεση %s (από %s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr ""
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "σφάλμα κατά την ανάγνωση της εξόδου της tar από το dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "κατεστραμμένη αρχειοθήκη tar - κατεστραμμένη αρχειοθήκη πακέτου"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "dpkg-deb: zap possible trailing zeros"
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "dpkg-deb: διαγραφή πιθανών μηδενικών στο τέλος"
-
-#: src/unpack.c
 #, fuzzy, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
@@ -5150,6 +5179,65 @@ msgstr ""
 #, fuzzy, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "dpkg: προειδοποίηση - αδύνατον να %s το παλιό αρχείο `%%.250s':%%s\n"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr ""
+"(Σημειώνεται η εξαφάνιση του %s, το οποίο έχει αντικατασταθεί πλήρως)\n"
+
+#: src/unpack.c
+#, fuzzy
+#| msgid "control information length"
+msgid "package control information extraction"
+msgstr "έλεχγος μήκους πληροφοριών"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Καταγράφτηκαν πληροφορίες ελέγχου για το %s από %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr ""
+"η αρχιτεκτονική του πακέτου (%s) δεν ταιριάζει με αυτή του συστήματος (%s)"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Preparing to replace %s %s (using %s) ...\n"
+msgid "Preparing to unpack %s ...\n"
+msgstr "Προετοιμασία για αντικατάσταση %s %s (χρησιμοποιώντας το %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Γίνεται αποσυμπίεση %s (από %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Γίνεται αποσυμπίεση %s (από %s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr ""
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "σφάλμα κατά την ανάγνωση της εξόδου της tar από το dpkg-deb"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "κατεστραμμένη αρχειοθήκη tar - κατεστραμμένη αρχειοθήκη πακέτου"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "dpkg-deb: zap possible trailing zeros"
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "dpkg-deb: διαγραφή πιθανών μηδενικών στο τέλος"
 
 #: src/update.c
 #, fuzzy, c-format
@@ -5195,20 +5283,21 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.250s'"
+#| msgid "failed to write filename to tar pipe (data)"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "απέτυχε η εγγραφή του ονόματος αρχείου στη σωλήνωση της tar (data)"
+
+#: dpkg-deb/build.c
+#, fuzzy
+#| msgid "control area"
+msgid "control member"
+msgstr "έλεγχος περιοχής"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "νέα γραμμή στο όνομα πεδίου `%.*s'"
-
-#: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "failed to write filename to tar pipe (data)"
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "απέτυχε η εγγραφή του ονόματος αρχείου στη σωλήνωση της tar (data)"
 
 #: dpkg-deb/build.c
 #, fuzzy
@@ -5295,6 +5384,13 @@ msgstr ""
 "ή `-+'."
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package architecture (%s) does not match system (%s)"
+msgid "package architecture is missing or empty"
+msgstr ""
+"η αρχιτεκτονική του πακέτου (%s) δεν ταιριάζει με αυτή του συστήματος (%s)"
+
+#: dpkg-deb/build.c
 #, fuzzy, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr ""
@@ -5322,6 +5418,12 @@ msgstr "ανάμεσα στα μέλη"
 msgid "<compress> from tar -cf"
 msgstr ""
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "αδύνατη η δημιουργία `%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -5338,12 +5440,13 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "dpkg-deb: δημιουργία πακέτου `%s' στο `%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: δημιουργία πακέτου `%s' στο `%s'.\n"
 
 #: dpkg-deb/build.c
@@ -5353,22 +5456,10 @@ msgid "failed to make temporary file (%s)"
 msgstr "απέτυχε η δημιουργία του προσωρινού αρχείου tmpfile (data)"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "control member"
-msgstr "έλεγχος περιοχής"
-
-#: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "failed to unlink tmpfile (data), %s"
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "απέτυχε η διαγραφή του προσωρινού αρχείου tmpfile (data), %s"
-
-#: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "compressing control member"
-msgstr "έλεγχος περιοχής"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
@@ -5396,24 +5487,15 @@ msgstr "αδυναμία προσδιορισμού κατάστασης του 
 msgid "shell command to move files"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "απρόσμενο τέλος αρχείου του %s στο %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "σφάλμα ανάγνωσης του %s από το αρχείο %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "αδύνατο το άνοιγμα της αρχειοθήκης `%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "απέτυχε η fstat στην αρχειοθήκη"
 
 #: dpkg-deb/extract.c
 #, fuzzy
@@ -5505,8 +5587,8 @@ msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy, c-format
-#| msgid "archive has malformatted control length `%s'"
-msgid "archive has malformatted control member size '%s'"
+#| msgid "archive has malformed control length `%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "η αρχειοθήκη έχει κακοδιαμορφωμένο έλεγχο μήκους `%s'"
 
 #: dpkg-deb/extract.c
@@ -5674,7 +5756,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     όχι απλό αρχείο           %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(δεν υπάρχει αρχείο `control' στην αρχειοθήκη ελέγχου)\n"
 
 #: dpkg-deb/main.c
@@ -5748,9 +5832,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5758,7 +5839,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5838,14 +5919,15 @@ msgid "unknown compression type '%s'!"
 msgstr "άγνωστος τύπος συμπίεσης '%s'!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
-msgstr ""
+#, fuzzy, c-format
+#| msgid "unknown compression type `%s'!"
+msgid "obsolete compression type '%s'; use xz instead"
+msgstr "άγνωστος τύπος συμπίεσης '%s'!"
 
 #: dpkg-deb/main.c
 #, fuzzy, c-format
 #| msgid "unknown compression type `%s'!"
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "άγνωστος τύπος συμπίεσης '%s'!"
 
 #: dpkg-deb/main.c
@@ -5883,7 +5965,7 @@ msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr ""
 "το αρχείο `%.250s' είναι κατεστραμμένο - αγνοείται newline μετά το %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "σφάλμα κατά την ανάγνωση %.250s"
@@ -6016,11 +6098,6 @@ msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "το αρχείο `%.250s' είναι κατεστραμμένο - λάθος μέγεθος για συγκεκριμένο "
 "αριθμό τμήματος"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "αδύνατη η εκτέλεση της fstat στο αρχείο τμήματος `%.250s'"
 
 #: dpkg-split/info.c
 #, c-format
@@ -6221,11 +6298,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Δώστε dpkg-split --help για βοήθεια."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "απρόσμενο τέλος αρχείου στο %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -6543,18 +6615,9 @@ msgstr ""
 "  --version                εμφάνιση της έκδοσης.\n"
 
 #: utils/update-alternatives.c
-msgid "error"
-msgstr ""
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
-
-#: utils/update-alternatives.c
-#, fuzzy
-msgid "warning"
-msgstr "εγκατάλειψη"
 
 #: utils/update-alternatives.c
 #, fuzzy, c-format
@@ -7040,6 +7103,70 @@ msgstr ""
 "`update-alternatives --auto %s'."
 
 #, fuzzy
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "Προειδοποίηση: επιλογή εκτός χρήσης `--%s'\n"
+
+#, fuzzy
+#~| msgid "cannot stat old name `%s': %s"
+#~ msgid "control file '%s' missing value"
+#~ msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
+
+#, fuzzy
+#~| msgid "cannot stat old name `%s': %s"
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "αδυναμία προσδιορισμού κατάστασης του παλιού ονόματος `%s': %s"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "αδύνατη η εκτέλεση της fstat στο αρχείο τμήματος `%.250s'"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "απρόσμενο τέλος αρχείου στο %.250s"
+
+#, fuzzy
+#~ msgid "%s: error: %s\n"
+#~ msgstr ""
+#~ "%s: σφάλμα κατά τον καθαρισμό:\n"
+#~ " %s\n"
+
+#, fuzzy
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%d: εσωτερικό σφάλμα `%s'\n"
+
+#, fuzzy
+#~ msgid "%s: warning: %s\n"
+#~ msgstr ""
+#~ "%s: σφάλμα κατά τον καθαρισμό:\n"
+#~ " %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "\"κουτσουρεμένοι\" triggers ανέστειλλαν το αρχείο `%.250s'"
+
+#, fuzzy
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "αδύνατη η εκτέλεση της find με --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "αδύνατο το άνοιγμα της σωλήνωσης της find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "αδύνατη η ανάγνωση από τη σωλήνωση της find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "αδύνατο το κλείσιμο της σωλήνωσης της find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "η εκτέλεση της find με --recursive επέστρεψε απρόσμενο σφάλμα %i"
+
+#, fuzzy
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "αδύνατο το άνοιγμα του αρχείου πηγής `%.250s'"
+
+#, fuzzy
+#~| msgid "control area"
+#~ msgid "compressing control member"
+#~ msgstr "έλεγχος περιοχής"
+
+#, fuzzy
 #~ msgid "syntax error: invalid uid in statoverride file"
 #~ msgstr "σφάλμα στην εγκατάσταση του νέου statoverride: %s"
 
@@ -7080,11 +7207,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "προειδοποίηση, το `%s' περιέχει ορισμένο από το χρήστη πεδίο `%s'\n"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "η --%s δεν παίρνει ορίσματα"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "αδύνατο το άνοιγμα του τμήματος `control'"
@@ -7135,10 +7257,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Αποσυμπίεση του αντικαταστάτη %.250s ...\n"
-
-#, fuzzy
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "μη έγκυρος ακέραιος για --%s: `%.250s'"
 
 #, fuzzy
 #~| msgid "--add needs four arguments"
@@ -7992,9 +8110,6 @@ msgstr ""
 
 #~ msgid "cannot open statoverride: %s"
 #~ msgstr "αδυναμία ανοίγματος του αρχείου statoverride: %s"
-
-#~ msgid "Multiple overrides for \"%s\", aborting"
-#~ msgstr "Πολλαπλά override για το \"%s\", τερματισμός"
 
 #~ msgid "failed write during hashreport"
 #~ msgstr "αποτυχία εγγραφής κατά το hashreport"

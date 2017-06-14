@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dpkg 1.14.22\n"
 "Report-Msgid-Bugs-To: debian-dpkg@lists.debian.org\n"
-"POT-Creation-Date: 2015-12-25 13:29+0100\n"
+"POT-Creation-Date: 2017-05-17 13:17+0200\n"
 "PO-Revision-Date: 2015-04-07 09:47+0200\n"
 "Last-Translator: Marcos Alvarez Costales <marcos.alvarez.costales@gmail."
 "com>\n"
@@ -18,6 +18,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/dpkg/ar.c
+msgid "failed to fstat archive"
+msgstr "falló al efeutuar `fstat' sobro'l ficheru"
+
+#: lib/dpkg/ar.c
+#, c-format
+msgid "failed to read archive '%.255s'"
+msgstr "falló al lleer el ficheru `%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dbmodify.c
+#, c-format
+msgid "unable to create '%.255s'"
+msgstr "nun puede crease '%.255s'"
+
+#: lib/dpkg/ar.c lib/dpkg/dir.c src/divertcmd.c dpkg-split/join.c
+#: dpkg-split/queue.c utils/update-alternatives.c
+#, fuzzy, c-format
+msgid "unable to close file '%s'"
+msgstr "nun pue escosase vsnprintf"
 
 #: lib/dpkg/ar.c
 #, c-format
@@ -163,8 +183,8 @@ msgstr "fin de ficheru inesperáu en %.250s"
 msgid "failed to seek"
 msgstr "falló al executar tar"
 
-#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-deb/build.c
-#: dpkg-split/split.c utils/update-alternatives.c
+#: lib/dpkg/command.c lib/dpkg/path-remove.c src/unpack.c dpkg-split/split.c
+#: utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to execute %s (%s)"
 msgstr "nun se pudo executar %s"
@@ -337,11 +357,6 @@ msgstr "nun puede desaminase'l direutoriu d'anovaciones `%.255s'"
 msgid "failed to remove incorporated update file %.255s"
 msgstr "fallu al desaniciar el ficheru d'anovación incorporáu %.255s"
 
-#: lib/dpkg/dbmodify.c dpkg-deb/build.c
-#, c-format
-msgid "unable to create '%.255s'"
-msgstr "nun puede crease '%.255s'"
-
 #: lib/dpkg/dbmodify.c
 #, c-format
 msgid "unable to fill %.250s with padding"
@@ -463,8 +478,7 @@ msgstr "nun se puede abrir el ficheru fonte `%.250s'"
 msgid "unable to open directory '%s'"
 msgstr "nun se puede abrir el ficheru fonte `%.250s'"
 
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-split/split.c
-#: utils/update-alternatives.c
+#: lib/dpkg/dir.c src/divertcmd.c utils/update-alternatives.c
 #, fuzzy, c-format
 msgid "unable to open file '%s'"
 msgstr "nun se puede abrir el ficheru fonte `%.250s'"
@@ -474,12 +488,6 @@ msgstr "nun se puede abrir el ficheru fonte `%.250s'"
 #, fuzzy, c-format
 msgid "unable to sync file '%s'"
 msgstr "nun se puede abrir el ficheru fonte `%.250s'"
-
-#: lib/dpkg/dir.c src/divertcmd.c dpkg-deb/build.c dpkg-split/join.c
-#: dpkg-split/queue.c utils/update-alternatives.c
-#, fuzzy, c-format
-msgid "unable to close file '%s'"
-msgstr "nun pue escosase vsnprintf"
 
 #: lib/dpkg/dump.c
 #, c-format
@@ -496,26 +504,18 @@ msgstr "nun pue afitase'l buffering nel ficheru d'estáu"
 msgid "failed to write %s database record about '%.50s' to '%.250s'"
 msgstr "falló escribir el rexistru %s tocante a `%.50s' a `%.250s'"
 
+#: lib/dpkg/ehandle.c utils/update-alternatives.c
+#, fuzzy
+#| msgid "parse error"
+msgid "error"
+msgstr "parse error"
+
 #: lib/dpkg/ehandle.c
 #, c-format
 msgid ""
-"%s: unrecoverable fatal error, aborting:\n"
+"%s%s%s: %s%s:%s\n"
 " %s\n"
 msgstr ""
-"%s: error fatal non recuperable, encaboxando:\n"
-" %s\n"
-
-#: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid ""
-#| "%s: unrecoverable fatal error, aborting:\n"
-#| " %s\n"
-msgid ""
-"%s: outside error context, aborting:\n"
-" %s\n"
-msgstr ""
-"%s: error fatal non recuperable, encaboxando:\n"
-" %s\n"
 
 #: lib/dpkg/ehandle.c
 #, fuzzy
@@ -524,18 +524,19 @@ msgid "out of memory for new error context"
 msgstr "memoria escosada pa una nueva entrada de reorganización"
 
 #: lib/dpkg/ehandle.c
-#, c-format
-msgid ""
-"%s: error while cleaning up:\n"
-" %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: error while cleaning up:\n"
+#| " %s\n"
+msgid "error while cleaning up"
 msgstr ""
 "%s: fallu al reorganizar:\n"
 " %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
+#, fuzzy
 #| msgid "dpkg: too many nested errors during error recovery !!\n"
-msgid "%s: too many nested errors during error recovery!!\n"
+msgid "too many nested errors during error recovery"
 msgstr "dpkg: ¡¡abondos fallos añeraos durante la recuperación de error!!\n"
 
 #: lib/dpkg/ehandle.c
@@ -548,16 +549,30 @@ msgstr ""
 "memoria escosada pa la entrada de reorganización nueva con munchos argumentos"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid "%s: warning: %s\n"
-msgid "%s: error: %s\n"
-msgstr "%s: fallu al reorganizar: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "unrecoverable fatal error, aborting"
+msgstr ""
+"%s: error fatal non recuperable, encaboxando:\n"
+" %s\n"
 
 #: lib/dpkg/ehandle.c
-#, fuzzy, c-format
-#| msgid "%s:%s:%d: internal error: %s\n"
-msgid "%s:%s:%d:%s: internal error: %s\n"
-msgstr "%s:%s:%d: fallu internu: %s\n"
+#, fuzzy
+#| msgid ""
+#| "%s: unrecoverable fatal error, aborting:\n"
+#| " %s\n"
+msgid "outside error context, aborting"
+msgstr ""
+"%s: error fatal non recuperable, encaboxando:\n"
+" %s\n"
+
+#: lib/dpkg/ehandle.c
+#, fuzzy
+#| msgid "internal error - bad mode `%s'"
+msgid "internal error"
+msgstr "error internu - mou inválidu `%s'"
 
 #: lib/dpkg/fields.c
 #, c-format
@@ -661,8 +676,8 @@ msgstr "Usóse un campu `Revision' o `Package-Revision' obsoletu"
 
 #: lib/dpkg/fields.c
 #, fuzzy, c-format
-#| msgid "value for `conffiles' has malformatted line `%.*s'"
-msgid "value for '%s' field has malformatted line '%.*s'"
+#| msgid "value for `conffiles' has malformed line `%.*s'"
+msgid "value for '%s' field has malformed line '%.*s'"
 msgstr "el valor de `conffiles' tien una llinia mal formateada `%.*s'"
 
 #: lib/dpkg/fields.c
@@ -971,6 +986,11 @@ msgstr "enteru inválidu pa --%s: `%.250s'"
 
 #: lib/dpkg/options.c
 #, fuzzy, c-format
+msgid "invalid integer for -%c: '%.250s'"
+msgstr "enteru inválidu pa --%s: `%.250s'"
+
+#: lib/dpkg/options.c
+#, fuzzy, c-format
 #| msgid "obsolete option '--%s'\n"
 msgid "obsolete option '--%s'"
 msgstr "opción obsoleta '--%s'\n"
@@ -1220,6 +1240,12 @@ msgid "version string has embedded spaces"
 msgstr "la cadena de versión tien espacios nel so interior"
 
 #: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "epoch in version is not number"
+msgid "epoch in version is empty"
+msgstr "la época na versión nun ye un númberu"
+
+#: lib/dpkg/parsehelp.c
 msgid "epoch in version is not number"
 msgstr "la época na versión nun ye un númberu"
 
@@ -1238,6 +1264,18 @@ msgstr "la época na versión nun ye un númberu"
 #: lib/dpkg/parsehelp.c
 msgid "nothing after colon in version number"
 msgstr "nun hai res tres los dos puntos nel númberu de versión"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "revision number is empty"
+msgstr "la cadena de versión ta erma"
+
+#: lib/dpkg/parsehelp.c
+#, fuzzy
+#| msgid "version string is empty"
+msgid "version number is empty"
+msgstr "la cadena de versión ta erma"
 
 #: lib/dpkg/parsehelp.c
 msgid "version number does not start with digit"
@@ -1289,6 +1327,11 @@ msgstr "falta'l nome alternativu"
 msgid "(no description available)"
 msgstr "(ensin descripción disponible)"
 
+#: lib/dpkg/pkg-show.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax: %s"
+msgstr "dpkg: la versión `%s' tien una mala sintaxis: %s\n"
+
 #: lib/dpkg/pkg-spec.c
 #, fuzzy, c-format
 #| msgid "illegal package name in awaited trigger `%.255s': %s"
@@ -1301,10 +1344,9 @@ msgstr "nome de paquete illegal nel disparador esperáu `%.255s': %s"
 msgid "illegal architecture name in specifier '%s:%s': %s"
 msgstr "nome de paquete illegal nel disparador esperáu `%.255s': %s"
 
-#: lib/dpkg/report.c
-#, c-format
-msgid "%s: warning: %s\n"
-msgstr "%s: fallu al reorganizar: %s\n"
+#: lib/dpkg/report.c utils/update-alternatives.c
+msgid "warning"
+msgstr "avisu"
 
 #: lib/dpkg/strwide.c
 #, c-format
@@ -1335,7 +1377,7 @@ msgstr "%s (subprocesu): %s\n"
 msgid "fork failed"
 msgstr "falló en `fork'"
 
-#: lib/dpkg/subproc.c
+#: lib/dpkg/subproc.c src/unpack.c
 #, c-format
 msgid "subprocess %s returned error exit status %d"
 msgstr "el subprocesu %s devolvió el códigu de salida d'error %d"
@@ -1365,74 +1407,89 @@ msgstr "el soprocesu %s falló con códigu d'estáu d'espera %d"
 msgid "wait for subprocess %s failed"
 msgstr "el `wait' de %s falló"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
-msgstr ""
-"nome de paquete inválidu `%.250s' na llista de disparadores dereferenciaos `"
-"%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot stat old name `%s': %s"
+msgid "cannot stat pathname '%s'"
+msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "truncated triggers deferred file '%.250s'"
-msgstr "ficheru d'activadores dereferenciaos truncáu `%.250s'"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "cannot scan directory '%.255s'"
+msgid "cannot open directory '%s'"
+msgstr "nun se puede desaminar el direutoriu `%.255s'"
 
-#: lib/dpkg/trigdeferred.l
-#, c-format
-msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
-msgstr ""
-"fallu de sintaxis nel ficheru de disparadores dereferenciaos '%.250s' nel "
-"carauter '%s'%s"
+#: lib/dpkg/treewalk.c
+#, fuzzy, c-format
+#| msgid "control directory is not a directory"
+msgid "treewalk root %s is not a directory"
+msgstr "nun puede lleese'l direutoriu info"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create triggers lockfile '%.250s'"
 msgstr ""
 "nun puede abrise/criase'l ficheru de bloquéu de los disparadores `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, fuzzy
 #| msgid "triggered"
 msgid "triggers area"
 msgstr "disparáu"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open triggers deferred file '%.250s'"
 msgstr "nun puede abrise'l ficheru de disparadores dereferenciáu `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to stat triggers deferred file '%.250s'"
 msgstr ""
 "nun puede facese `stat' sobro'l ficheru dereferenciáu de disparadores `"
 "%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to open/create new triggers deferred file '%.250s'"
 msgstr ""
 "nun puede abrise/criase'l nuevu ficheru de disparadores dereferenciáu `"
 "%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
+#, fuzzy, c-format
+#| msgid "syntax error in triggers deferred file '%.250s' at character '%s'%s"
+msgid ""
+"syntax error in triggers deferred file '%.250s' at line %d character %zd '%s'"
+msgstr ""
+"fallu de sintaxis nel ficheru de disparadores dereferenciaos '%.250s' nel "
+"carauter '%s'%s"
+
+#: lib/dpkg/trigdeferred.c
+#, c-format
+msgid "invalid package name '%.250s' in triggers deferred file '%.250s'"
+msgstr ""
+"nome de paquete inválidu `%.250s' na llista de disparadores dereferenciaos `"
+"%.250s'"
+
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "error reading triggers deferred file '%.250s'"
 msgstr "fallu al lleer los disparadores del ficheru dereferenciáu `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to write new triggers deferred file '%.250s'"
 msgstr ""
 "nun puede abrise'l nuevu ficheru dereferenciáu de disparadores `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to close new triggers deferred file '%.250s'"
 msgstr ""
 "nun puede zarrase'l nuevu ficheru dereferenciáu de disparadores `%.250s'"
 
-#: lib/dpkg/trigdeferred.l
+#: lib/dpkg/trigdeferred.c
 #, c-format
 msgid "unable to install new triggers deferred file '%.250s'"
 msgstr ""
@@ -1724,12 +1781,6 @@ msgstr ""
 msgid "archive contained object '%.255s' of unknown type 0x%x"
 msgstr "l'archivu contenía un oxetu `%.255s' de triba desconocía 0x%x"
 
-#: src/archives.c src/divertcmd.c utils/update-alternatives.c
-#, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "cannot stat file '%s'"
-msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
-
 #: src/archives.c
 #, fuzzy, c-format
 #| msgid "Replacing files in old package %s ...\n"
@@ -1947,28 +1998,6 @@ msgid "--%s --recursive needs at least one path argument"
 msgstr "--%s --recursive necesita polo menos un argumentu camín"
 
 #: src/archives.c
-#, fuzzy
-msgid "find for dpkg --recursive"
-msgstr "falló la execución de find pa --recursive"
-
-#: src/archives.c
-msgid "failed to fdopen find's pipe"
-msgstr "falló facer fdopen nel tubu de find"
-
-#: src/archives.c
-msgid "error reading find's pipe"
-msgstr "error al lleer el tubu de find"
-
-#: src/archives.c
-msgid "error closing find's pipe"
-msgstr "error al zarrar el tubu de find"
-
-#: src/archives.c
-#, c-format
-msgid "find for --recursive returned unhandled error %i"
-msgstr "find pa --recursive devolvió l'error nun remanao %i"
-
-#: src/archives.c
 msgid "searched, but found no packages (files matching *.deb)"
 msgstr "guetao, pero nun s'alcontraron paquetes (ficheros que concasen *.deb)"
 
@@ -1976,6 +2005,18 @@ msgstr "guetao, pero nun s'alcontraron paquetes (ficheros que concasen *.deb)"
 #, c-format
 msgid "--%s needs at least one package archive file argument"
 msgstr "--%s necesita d'argumentu polo menos un ficheru d'archivu de paquete"
+
+#: src/archives.c src/unpack.c
+#, fuzzy, c-format
+#| msgid "cannot access archive"
+msgid "cannot access archive '%s'"
+msgstr "nun se puede acceder al ficheru"
+
+#: src/archives.c
+#, fuzzy, c-format
+#| msgid "conffile '%s' is not a plain file"
+msgid "archive '%s' is not a regular file"
+msgstr "conffile '%s' nun ye un ficheru planu"
 
 #: src/archives.c src/divertcmd.c src/enquiry.c src/main.c src/packages.c
 #: src/querycmd.c src/select.c src/statcmd.c src/trigcmd.c dpkg-deb/build.c
@@ -2649,6 +2690,12 @@ msgid ""
 "divert.\n"
 msgstr ""
 
+#: src/divertcmd.c utils/update-alternatives.c
+#, fuzzy, c-format
+#| msgid "cannot stat old name `%s': %s"
+msgid "cannot stat file '%s'"
+msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
+
 #: src/divertcmd.c
 #, fuzzy, c-format
 #| msgid "error checking `%s': %s"
@@ -3022,11 +3069,51 @@ msgid "cannot satisfy pre-dependencies for %.250s (wanted due to %.250s)"
 msgstr ""
 "nun pueden satisfacese les pre-dependencies pa %.250s (necesaries por %.250s)"
 
-#: src/enquiry.c dpkg-deb/main.c
+#: src/enquiry.c
 #, fuzzy, c-format
-#| msgid "obsolete option '--%s', please use '--%s' instead."
-msgid "obsolete option '--%s'; please use '--%s' instead"
-msgstr "opción obsoleta '--%s', por favor, usa nel so llugar '--%s'"
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <pkgname> argument"
+msgstr "--%s necesita polo menos un nome de paquete como argumentu"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "Package `%s' is not installed.\n"
+msgid "package name '%s' is invalid: %s"
+msgstr "El paquete `%s' nun ta instaláu.\n"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <trigname> argument"
+msgstr "--%s necesita polo menos un nome de paquete como argumentu"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "trigger name contains invalid character"
+msgid "trigger name '%s' is invalid: %s"
+msgstr "el nome del disparador contién carauteres inválidos"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s needs at least one package name argument"
+msgid "--%s takes one <archname> argument"
+msgstr "--%s necesita polo menos un nome de paquete como argumentu"
+
+#: src/enquiry.c
+#, c-format
+msgid "architecture name '%s' is invalid: %s"
+msgstr ""
+
+#: src/enquiry.c
+#, fuzzy, c-format
+#| msgid "--%s takes no arguments"
+msgid "--%s takes one <version> argument"
+msgstr "--%s nun toma dengún argumentu"
+
+#: src/enquiry.c
+#, fuzzy, c-format
+msgid "version '%s' has bad syntax"
+msgstr "dpkg: la versión `%s' tien una mala sintaxis: %s\n"
 
 #: src/enquiry.c
 msgid ""
@@ -3042,11 +3129,6 @@ msgstr "mala relación de --compare-versions"
 #, c-format
 msgid "--%s used with obsolete relation operator '%s'"
 msgstr ""
-
-#: src/enquiry.c
-#, fuzzy, c-format
-msgid "version '%s' has bad syntax"
-msgstr "dpkg: la versión `%s' tien una mala sintaxis: %s\n"
 
 #: src/errors.c
 #, fuzzy, c-format
@@ -3189,15 +3271,19 @@ msgstr ""
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "control file '%s' missing value"
-msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
+#| msgid "files list file for package '%.250s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value"
+msgstr ""
+"el ficheru de llista de ficheros del paquete '%.250s' contién una llinia "
+"final erma"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
-#| msgid "cannot stat old name `%s': %s"
-msgid "control file '%s' missing value separator"
-msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
+#| msgid "files list file for package '%.250s' is missing final newline"
+msgid "control file '%s' for package '%s' is missing value separator"
+msgstr ""
+"el ficheru de llista de ficheros del paquete '%.250s' contién una llinia "
+"final erma"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
@@ -3210,19 +3296,19 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to open files list file for package `%.250s'"
-msgid "cannot open '%s' control file for package '%s'"
+msgid "cannot open control file '%s' for package '%s'"
 msgstr "nun pue abrise'l ficheru de llista de ficheros del paquete `%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "unable to stat files list file for package '%.250s'"
-msgid "cannot stat '%s' control file for package '%s'"
+msgid "cannot stat control file '%s' for package '%s'"
 msgstr "nun pue abrise'l ficheru de llista de ficheros del paquete '%.250s'"
 
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "files list file for package '%.250s' is missing final newline"
-msgid "'%s' file for package '%s' is not a regular file"
+msgid "control file '%s' for package '%s' is not a regular file"
 msgstr ""
 "el ficheru de llista de ficheros del paquete '%.250s' contién una llinia "
 "final erma"
@@ -3230,7 +3316,7 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "cannot read config file dir `%.250s' (from `%.250s')"
-msgid "cannot read '%s' control file for package '%s'"
+msgid "cannot read control file '%s' for package '%s'"
 msgstr ""
 "nun puede lleese'l direutoriu del ficheru de configuración `%.250s'\n"
 "(a partir de `%.250s')"
@@ -3238,7 +3324,7 @@ msgstr ""
 #: src/filesdb-hash.c
 #, fuzzy, c-format
 #| msgid "error closing files list file for package `%.250s'"
-msgid "cannot close '%s' control file for package '%s'"
+msgid "cannot close control file '%s' for package '%s'"
 msgstr "error al zarrar el ficheru de llista de ficheros del paquete `%.250s'"
 
 #: src/help.c
@@ -3408,6 +3494,7 @@ msgid ""
 "  --print-foreign-architectures    Print allowed foreign architectures.\n"
 "  --assert-<feature>               Assert support for the specified "
 "feature.\n"
+"  --validate-<thing> <string>      Validate a <thing>'s <string>.\n"
 "  --compare-versions <a> <op> <b>  Compare version numbers - see below.\n"
 "  --force-help                     Show help on forcing.\n"
 "  -Dh|--debug=help                 Show help on debugging.\n"
@@ -3468,6 +3555,13 @@ msgstr ""
 "Pa usu internu: dpkg --assert-support-predepends | --predep-package |\n"
 "  --assert-working-epoch | --assert-long-filenames | --assert-multi-conrep\n"
 "\n"
+
+#: src/main.c
+#, c-format
+msgid ""
+"Validatable things: pkgname, archname, trigname, version.\n"
+"\n"
+msgstr ""
 
 #: src/main.c
 #, fuzzy, c-format
@@ -3685,6 +3779,10 @@ msgstr ""
 
 #: src/main.c
 msgid "Do not perform safe I/O operations when unpacking"
+msgstr ""
+
+#: src/main.c
+msgid "Do not chroot into maintainer script environment"
 msgstr ""
 
 #: src/main.c
@@ -3920,6 +4018,10 @@ msgstr "eof inesperáu enantes del fin de la llinia %d"
 msgid "need an action option"
 msgstr "necesítase una opción d'aición"
 
+#: src/main.c
+msgid "cannot set primary group ID to root"
+msgstr ""
+
 #: src/main.c src/script.c
 #, fuzzy
 #| msgid "unable to setenv for maintainer script"
@@ -4050,6 +4152,12 @@ msgstr " depende de "
 msgid "; however:\n"
 msgstr "; por embargu:\n"
 
+#: src/querycmd.c src/select.c
+#, fuzzy, c-format
+#| msgid "No packages found matching %s.\n"
+msgid "no packages found matching %s"
+msgstr "Nun s'alcontró dengún paquete que correspuenda con %s.\n"
+
 #. TRANSLATORS: This is the header that appears on 'dpkg-query -l'. The
 #. * string should remain under 80 characters. The uppercase letters in
 #. * the state values denote the abbreviated letter that will appear on
@@ -4087,12 +4195,6 @@ msgstr "nome paquete"
 #: src/querycmd.c
 msgid "Description"
 msgstr "Descripción"
-
-#: src/querycmd.c src/select.c
-#, fuzzy, c-format
-#| msgid "No packages found matching %s.\n"
-msgid "no packages found matching %s"
-msgstr "Nun s'alcontró dengún paquete que correspuenda con %s.\n"
 
 #: src/querycmd.c
 #, c-format
@@ -4526,7 +4628,7 @@ msgstr "nome de paquete illegal na llinia %d: %.250s"
 #: src/select.c
 #, fuzzy, c-format
 #| msgid "illegal package name at line %d: %.250s"
-msgid "package not in database at line %d: %.250s"
+msgid "package not in status nor available database at line %d: %.250s"
 msgstr "nome de paquete illegal na llinia %d: %.250s"
 
 #: src/select.c
@@ -4541,7 +4643,8 @@ msgstr "fallu de llectura na entrada estándar"
 #: src/select.c
 msgid ""
 "found unknown packages; this might mean the available database\n"
-"is outdated, and needs to be updated through a frontend method"
+"is outdated, and needs to be updated through a frontend method;\n"
+"please see the FAQ <https://wiki.debian.org/Teams/Dpkg/FAQ>"
 msgstr ""
 
 #: src/selinux.c
@@ -4947,6 +5050,39 @@ msgstr "correuto\n"
 msgid "unable to create temporary directory"
 msgstr "falló al criar nome de direutoriu temporal"
 
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid ""
+#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
+#| "%s"
+msgid ""
+"regarding %s containing %s, pre-dependency problem:\n"
+"%s"
+msgstr ""
+"dpkg: tocante a %s que contién %s, problema de predependencia:\n"
+"%s"
+
+#: src/unpack.c
+#, c-format
+msgid "pre-dependency problem - not installing %.250s"
+msgstr "problema de predependencia - nun s'instala %.250s"
+
+#: src/unpack.c
+msgid "ignoring pre-dependency problem!"
+msgstr "descartando problema de predependencia!"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s, to allow removal of %s ...\n"
+msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
+msgstr "Desconfigurando %s, pa poder desaniciar %s ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "De-configuring %s ...\n"
+msgid "De-configuring %s (%s) ...\n"
+msgstr "Desconfigurando %s ...\n"
+
 #: src/unpack.c dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "conffile name '%.50s...' is too long, or missing final newline"
@@ -5017,100 +5153,6 @@ msgstr ""
 
 #: src/unpack.c
 #, c-format
-msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
-msgstr "(Note la desaparición de %s, que trocóse ensembre.)\n"
-
-#: src/unpack.c
-msgid "cannot access archive"
-msgstr "nun se puede acceder al ficheru"
-
-#: src/unpack.c
-#, fuzzy
-#| msgid "control information length"
-msgid "package control information extraction"
-msgstr "llonxitú de la información de control"
-
-#: src/unpack.c
-#, c-format
-msgid "Recorded info about %s from %s.\n"
-msgstr "Rexistrada la información sobro %s a partir de %s.\n"
-
-#: src/unpack.c
-#, c-format
-msgid "package architecture (%s) does not match system (%s)"
-msgstr "l'arquitectura del paquete (%s) nun correspuende cola del sistema (%s)"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid ""
-#| "dpkg: regarding %s containing %s, pre-dependency problem:\n"
-#| "%s"
-msgid ""
-"regarding %s containing %s, pre-dependency problem:\n"
-"%s"
-msgstr ""
-"dpkg: tocante a %s que contién %s, problema de predependencia:\n"
-"%s"
-
-#: src/unpack.c
-#, c-format
-msgid "pre-dependency problem - not installing %.250s"
-msgstr "problema de predependencia - nun s'instala %.250s"
-
-#: src/unpack.c
-msgid "ignoring pre-dependency problem!"
-msgstr "descartando problema de predependencia!"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Preparing to replace %s %s (using %s) ...\n"
-msgid "Preparing to unpack %s ...\n"
-msgstr "Tresnando pa trocar %s %s (usando %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s, to allow removal of %s ...\n"
-msgid "De-configuring %s (%s), to allow removal of %s (%s) ...\n"
-msgstr "Desconfigurando %s, pa poder desaniciar %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "De-configuring %s ...\n"
-msgid "De-configuring %s (%s) ...\n"
-msgstr "Desconfigurando %s ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) ...\n"
-msgstr "Desempaquetando %s (de %s) ...\n"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "Unpacking %s (from %s) ...\n"
-msgid "Unpacking %s (%s) over (%s) ...\n"
-msgstr "Desempaquetando %s (de %s) ...\n"
-
-#: src/unpack.c
-msgid "package filesystem archive extraction"
-msgstr ""
-
-#: src/unpack.c
-msgid "error reading dpkg-deb tar output"
-msgstr "fallu al lleer la salida de tar de dpkg-deb"
-
-#: src/unpack.c
-msgid "corrupted filesystem tarfile - corrupted package archive"
-msgstr "sistema de ficheros del archivu-tar dañado - archivu de paquete frañáu"
-
-#: src/unpack.c
-#, fuzzy, c-format
-#| msgid "dpkg-deb: zap possible trailing zeros"
-msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
-msgstr "dpkg-deb: zapea dables ceros finales"
-
-#: src/unpack.c
-#, c-format
 msgid "could not stat old file '%.250s' so not deleting it: %s"
 msgstr ""
 "nun pudo efeutuase stat al fichero antiguu '%.250s' polo que nun se "
@@ -5144,6 +5186,63 @@ msgstr ""
 #, fuzzy, c-format
 msgid "unable to securely remove old file '%.250s': %s"
 msgstr "nun se puede %s el ficheru antiguu '%.250s': %s"
+
+#: src/unpack.c
+#, c-format
+msgid "(Noting disappearance of %s, which has been completely replaced.)\n"
+msgstr "(Note la desaparición de %s, que trocóse ensembre.)\n"
+
+#: src/unpack.c
+#, fuzzy
+#| msgid "control information length"
+msgid "package control information extraction"
+msgstr "llonxitú de la información de control"
+
+#: src/unpack.c
+#, c-format
+msgid "Recorded info about %s from %s.\n"
+msgstr "Rexistrada la información sobro %s a partir de %s.\n"
+
+#: src/unpack.c
+#, c-format
+msgid "package architecture (%s) does not match system (%s)"
+msgstr "l'arquitectura del paquete (%s) nun correspuende cola del sistema (%s)"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Preparing to replace %s %s (using %s) ...\n"
+msgid "Preparing to unpack %s ...\n"
+msgstr "Tresnando pa trocar %s %s (usando %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) ...\n"
+msgstr "Desempaquetando %s (de %s) ...\n"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "Unpacking %s (from %s) ...\n"
+msgid "Unpacking %s (%s) over (%s) ...\n"
+msgstr "Desempaquetando %s (de %s) ...\n"
+
+#: src/unpack.c
+msgid "package filesystem archive extraction"
+msgstr ""
+
+#: src/unpack.c
+msgid "error reading dpkg-deb tar output"
+msgstr "fallu al lleer la salida de tar de dpkg-deb"
+
+#: src/unpack.c
+msgid "corrupted filesystem tarfile - corrupted package archive"
+msgstr "sistema de ficheros del archivu-tar dañado - archivu de paquete frañáu"
+
+#: src/unpack.c
+#, fuzzy, c-format
+#| msgid "dpkg-deb: zap possible trailing zeros"
+msgid "cannot zap possible trailing zeros from dpkg-deb: %s"
+msgstr "dpkg-deb: zapea dables ceros finales"
 
 #: src/update.c
 #, fuzzy, c-format
@@ -5189,20 +5288,21 @@ msgstr ""
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
-msgid "unable to stat file name '%.250s'"
-msgstr "nun se puede abrir el ficheru fonte `%.250s'"
+#| msgid "failed to write filename to tar pipe (data)"
+msgid "failed to write filename to tar pipe (%s)"
+msgstr "falló al escribir el nome del ficheru na tubería de tar (data)"
+
+#: dpkg-deb/build.c
+#, fuzzy
+#| msgid "control area"
+msgid "control member"
+msgstr "estaya de control"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "newline in field name '%.*s'"
 msgid "newline not allowed in pathname '%s'"
 msgstr "nueva llinia dientro del nome del campu `%.*s'"
-
-#: dpkg-deb/build.c
-#, fuzzy, c-format
-#| msgid "failed to write filename to tar pipe (data)"
-msgid "failed to write filename to tar pipe (%s)"
-msgstr "falló al escribir el nome del ficheru na tubería de tar (data)"
 
 #: dpkg-deb/build.c
 #, fuzzy
@@ -5288,6 +5388,12 @@ msgstr ""
 "o `-+.'"
 
 #: dpkg-deb/build.c
+#, fuzzy
+#| msgid "package name"
+msgid "package architecture is missing or empty"
+msgstr "nome paquete"
+
+#: dpkg-deb/build.c
 #, c-format
 msgid "'%s' contains user-defined Priority value '%s'"
 msgstr "'%s' contién un valor Priority '%s' definíu pol usuariu"
@@ -5314,6 +5420,12 @@ msgstr "ente númberos"
 msgid "<compress> from tar -cf"
 msgstr "<compress> dende tar -cf"
 
+#: dpkg-deb/build.c dpkg-split/split.c
+#, fuzzy, c-format
+#| msgid "unable to create '%.255s'"
+msgid "unable to parse timestamp '%.255s'"
+msgstr "nun puede crease '%.255s'"
+
 #: dpkg-deb/build.c utils/update-alternatives.c
 #, c-format
 msgid "--%s needs a <directory> argument"
@@ -5332,13 +5444,15 @@ msgid "not checking contents of control area"
 msgstr "non testiando conteníos d'área de control"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building an unknown package in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building an unknown package in '%s'.\n"
+msgid "building an unknown package in '%s'."
 msgstr "construyendo paquete desconocíu en '%s'.\n"
 
 #: dpkg-deb/build.c
-#, c-format
-msgid "dpkg-deb: building package '%s' in '%s'.\n"
+#, fuzzy, c-format
+#| msgid "dpkg-deb: building package '%s' in '%s'.\n"
+msgid "building package '%s' in '%s'."
 msgstr "dpkg-deb: construyendo'l paquete `%s' en `%s'.\n"
 
 #: dpkg-deb/build.c
@@ -5348,22 +5462,10 @@ msgid "failed to make temporary file (%s)"
 msgstr "falló al criar el ficheru temporal (data)"
 
 #: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "control member"
-msgstr "estaya de control"
-
-#: dpkg-deb/build.c
 #, fuzzy, c-format
 #| msgid "failed to unlink tmpfile (data), %s"
 msgid "failed to unlink temporary file (%s), %s"
 msgstr "falló al desaniciar el ficheru temporal (data), %s"
-
-#: dpkg-deb/build.c
-#, fuzzy
-#| msgid "control area"
-msgid "compressing control member"
-msgstr "estaya de control"
 
 #: dpkg-deb/build.c
 #, fuzzy, c-format
@@ -5392,24 +5494,15 @@ msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
 msgid "shell command to move files"
 msgstr ""
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "unexpected end of file in %s in %.255s"
 msgstr "fin de ficheru inesperáu en %s en %.255s"
 
-#: dpkg-deb/extract.c
+#: dpkg-deb/extract.c dpkg-split/main.c
 #, c-format
 msgid "error reading %s from file %.255s"
 msgstr "fallu al lleer %s del ficheru %.255s"
-
-#: dpkg-deb/extract.c
-#, c-format
-msgid "failed to read archive '%.255s'"
-msgstr "falló al lleer el ficheru `%.255s'"
-
-#: dpkg-deb/extract.c
-msgid "failed to fstat archive"
-msgstr "falló al efeutuar `fstat' sobro'l ficheru"
 
 #: dpkg-deb/extract.c
 #, fuzzy
@@ -5500,8 +5593,8 @@ msgstr ""
 
 #: dpkg-deb/extract.c
 #, fuzzy, c-format
-#| msgid "archive has malformatted control length `%s'"
-msgid "archive has malformatted control member size '%s'"
+#| msgid "archive has malformed control length `%s'"
+msgid "archive has malformed control member size '%s'"
 msgstr "el ficheru tien una llonxitú de control mal formada `%s'"
 
 #: dpkg-deb/extract.c
@@ -5668,7 +5761,9 @@ msgid "     not a plain file          %.255s\n"
 msgstr "     nun ye un ficheru planu   %.255s\n"
 
 #: dpkg-deb/info.c
-msgid "(no 'control' file in control archive!)\n"
+#, fuzzy
+#| msgid "(no 'control' file in control archive!)\n"
+msgid "no 'control' file in control archive!"
 msgstr "(¡nun hai dengún ficheru `control' nel ficheru de control!)\n"
 
 #: dpkg-deb/main.c
@@ -5744,9 +5839,6 @@ msgid ""
 "      --deb-format=<format>        Select archive format.\n"
 "                                     Allowed values: 0.939000, 2.0 "
 "(default).\n"
-"      --old                        Legacy alias for '--deb-"
-"format=0.939000'.\n"
-"      --new                        Legacy alias for '--deb-format=2.0'.\n"
 "      --nocheck                    Suppress control file check (build bad\n"
 "                                     packages).\n"
 "      --uniform-compression        Use the compression params on all "
@@ -5754,7 +5846,7 @@ msgid ""
 "  -z#                              Set the compression level when building.\n"
 "  -Z<type>                         Set the compression type used when "
 "building.\n"
-"                                     Allowed types: gzip, xz, bzip2, none.\n"
+"                                     Allowed types: gzip, xz, none.\n"
 "  -S<strategy>                     Set the compression strategy when "
 "building.\n"
 "                                     Allowed values: none; extreme (xz);\n"
@@ -5829,14 +5921,15 @@ msgid "unknown compression type '%s'!"
 msgstr "¡triba de compresión «%s» desconocía!"
 
 #: dpkg-deb/main.c
-#, c-format
-msgid "deprecated compression type '%s'; use xz instead"
-msgstr ""
+#, fuzzy, c-format
+#| msgid "unknown compression type `%s'!"
+msgid "obsolete compression type '%s'; use xz instead"
+msgstr "¡triba de compresión «%s» desconocía!"
 
 #: dpkg-deb/main.c
 #, fuzzy, c-format
 #| msgid "unknown compression type `%s'!"
-msgid "deprecated compression type '%s'; use xz or gzip instead"
+msgid "obsolete compression type '%s'; use xz or gzip instead"
 msgstr "¡triba de compresión «%s» desconocía!"
 
 #: dpkg-deb/main.c
@@ -5872,7 +5965,7 @@ msgid "file '%.250s' is corrupt - missing newline after %.250s"
 msgstr ""
 "el ficheru `%.250s' ta frañáu - falta una nueva llinia dempués de %.250s"
 
-#: dpkg-split/info.c dpkg-split/main.c
+#: dpkg-split/info.c
 #, c-format
 msgid "error reading %.250s"
 msgstr "fallu al lleer %.250s"
@@ -6011,11 +6104,6 @@ msgid "file '%.250s' is corrupt - size is wrong for quoted part number"
 msgstr ""
 "el ficheru `%.250s' ta frañáu - el tamañu ta enquivocáu pol\n"
 "númberu de parte conseñáu"
-
-#: dpkg-split/info.c
-#, c-format
-msgid "unable to fstat part file '%.250s'"
-msgstr "nun puede efeutuase `stat' sobro'l ficheru parte `%.250s'"
 
 #: dpkg-split/info.c
 #, c-format
@@ -6214,11 +6302,6 @@ msgstr ""
 #: dpkg-split/main.c
 msgid "Type dpkg-split --help for help."
 msgstr "Escriba dpkg-split --help pa tener aida."
-
-#: dpkg-split/main.c
-#, c-format
-msgid "unexpected end of file in %.250s"
-msgstr "fin de ficheru inesperáu en %.250s"
 
 #: dpkg-split/main.c
 msgid "part size is far too large or is not positive"
@@ -6529,19 +6612,9 @@ msgstr ""
 "  --version amuesa la versión.\n"
 
 #: utils/update-alternatives.c
-#, fuzzy
-#| msgid "parse error"
-msgid "error"
-msgstr "parse error"
-
-#: utils/update-alternatives.c
 #, c-format
 msgid "Use '%s --help' for program usage information."
 msgstr ""
-
-#: utils/update-alternatives.c
-msgid "warning"
-msgstr "avisu"
 
 #: utils/update-alternatives.c
 #, fuzzy, c-format
@@ -7059,6 +7132,68 @@ msgstr ""
 "pa volver a facer anovamientos automáticos usa `update-alternatives --auto "
 "%s'."
 
+#, fuzzy
+#~| msgid "obsolete option '--%s', please use '--%s' instead."
+#~ msgid "obsolete option '--%s'; please use '--%s' instead"
+#~ msgstr "opción obsoleta '--%s', por favor, usa nel so llugar '--%s'"
+
+#, fuzzy
+#~| msgid "cannot stat old name `%s': %s"
+#~ msgid "control file '%s' missing value"
+#~ msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
+
+#, fuzzy
+#~| msgid "cannot stat old name `%s': %s"
+#~ msgid "control file '%s' missing value separator"
+#~ msgstr "nun se puede facer `stat' sobre'l nome antiguu `%s': %s"
+
+#~ msgid "unable to fstat part file '%.250s'"
+#~ msgstr "nun puede efeutuase `stat' sobro'l ficheru parte `%.250s'"
+
+#~ msgid "unexpected end of file in %.250s"
+#~ msgstr "fin de ficheru inesperáu en %.250s"
+
+#, fuzzy
+#~| msgid "%s: warning: %s\n"
+#~ msgid "%s: error: %s\n"
+#~ msgstr "%s: fallu al reorganizar: %s\n"
+
+#, fuzzy
+#~| msgid "%s:%s:%d: internal error: %s\n"
+#~ msgid "%s:%s:%d:%s: internal error: %s\n"
+#~ msgstr "%s:%s:%d: fallu internu: %s\n"
+
+#~ msgid "%s: warning: %s\n"
+#~ msgstr "%s: fallu al reorganizar: %s\n"
+
+#~ msgid "truncated triggers deferred file '%.250s'"
+#~ msgstr "ficheru d'activadores dereferenciaos truncáu `%.250s'"
+
+#, fuzzy
+#~ msgid "find for dpkg --recursive"
+#~ msgstr "falló la execución de find pa --recursive"
+
+#~ msgid "failed to fdopen find's pipe"
+#~ msgstr "falló facer fdopen nel tubu de find"
+
+#~ msgid "error reading find's pipe"
+#~ msgstr "error al lleer el tubu de find"
+
+#~ msgid "error closing find's pipe"
+#~ msgstr "error al zarrar el tubu de find"
+
+#~ msgid "find for --recursive returned unhandled error %i"
+#~ msgstr "find pa --recursive devolvió l'error nun remanao %i"
+
+#, fuzzy
+#~ msgid "unable to stat file name '%.250s'"
+#~ msgstr "nun se puede abrir el ficheru fonte `%.250s'"
+
+#, fuzzy
+#~| msgid "control area"
+#~ msgid "compressing control member"
+#~ msgstr "estaya de control"
+
 #~ msgid "Call %s."
 #~ msgstr "Llamada %s."
 
@@ -7099,11 +7234,6 @@ msgstr ""
 
 #~ msgid "'%s' contains user-defined field '%s'"
 #~ msgstr "'%s' contién un campu '%s' definíu pol usuariu"
-
-#, fuzzy
-#~| msgid "--%s takes no arguments"
-#~ msgid "--%s takes one argument"
-#~ msgstr "--%s nun toma dengún argumentu"
 
 #~ msgid "could not open the `control' component"
 #~ msgstr "nun puede abrise'l componente `control'"
@@ -7150,10 +7280,6 @@ msgstr ""
 
 #~ msgid "Unpacking replacement %.250s ...\n"
 #~ msgstr "Desempaquetando'l troquéu de %.250s ...\n"
-
-#, fuzzy
-#~ msgid "invalid integer for -%c: '%.250s'"
-#~ msgstr "enteru inválidu pa --%s: `%.250s'"
 
 #, fuzzy
 #~| msgid "--add needs four arguments"

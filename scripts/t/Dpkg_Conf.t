@@ -17,13 +17,13 @@ use strict;
 use warnings;
 
 use Test::More tests => 9;
+use Test::Dpkg qw(:paths);
 
 BEGIN {
     use_ok('Dpkg::Conf');
 }
 
-my $srcdir = $ENV{srcdir} // '.';
-my $datadir = $srcdir . '/t/Dpkg_Conf';
+my $datadir = test_get_data_path('t/Dpkg_Conf');
 
 my ($conf, $count, @opts);
 
@@ -32,12 +32,15 @@ my @expected_long_opts = (
 '--option-single-quotes=value single quotes',
 '--option-space=value words space',
 qw(
+--option-dupe=value1
 --option-name=value-name
 --option-indent=value-indent
 --option-equal=value-equal=subvalue-equal
 --option-noequal=value-noequal
+--option-dupe=value2
 --option-simple
 --option-dash=value-dash
+--option-dupe=value3
 --l=v
 ));
 my @expected_short_opts = qw(
@@ -49,14 +52,14 @@ $conf = Dpkg::Conf->new();
 local $SIG{__WARN__} = sub { };
 $count = $conf->load("$datadir/config-mixed");
 delete $SIG{__WARN__};
-is($count, 10, 'Load a config file, only long options');
+is($count, 13, 'Load a config file, only long options');
 
 @opts = $conf->get_options();
 is_deeply(\@opts, \@expected_long_opts, 'Parse long options');
 
 $conf = Dpkg::Conf->new(allow_short => 1);
 $count = $conf->load("$datadir/config-mixed");
-is($count, 12, 'Load a config file, mixed options');
+is($count, 15, 'Load a config file, mixed options');
 
 @opts = $conf->get_options();
 my @expected_mixed_opts = ( @expected_long_opts, @expected_short_opts );
@@ -66,12 +69,15 @@ my $expected_mixed_output = <<'MIXED';
 option-double-quotes = "value double quotes"
 option-single-quotes = "value single quotes"
 option-space = "value words space"
+option-dupe = "value1"
 option-name = "value-name"
 option-indent = "value-indent"
 option-equal = "value-equal=subvalue-equal"
 option-noequal = "value-noequal"
+option-dupe = "value2"
 option-simple
 option-dash = "value-dash"
+option-dupe = "value3"
 l = "v"
 -o = "vd"
 -s

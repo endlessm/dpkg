@@ -34,7 +34,7 @@ use Exporter qw(import);
 use Dpkg ();
 use Dpkg::ErrorHandling;
 use Dpkg::Gettext;
-use Dpkg::BuildEnv;
+use Dpkg::Build::Env;
 use Dpkg::Control::HashCore;
 
 my $origins = "$Dpkg::CONFDIR/origins";
@@ -61,7 +61,10 @@ the relationship by listing the base distribution in the Parent field:
 
   Parent: Debian
 
-The file should be named according to the vendor name.
+The file should be named according to the vendor name. The usual convention
+is to name the vendor file using the vendor name in all lowercase, but some
+variation is permitted. Namely, spaces are mapped to dashes ('-'), and the
+file can have the same casing as the Vendor field, or it can be capitalized.
 
 =head1 FUNCTIONS
 
@@ -131,8 +134,8 @@ If that file doesn't exist, it returns undef.
 
 sub get_current_vendor() {
     my $f;
-    if (Dpkg::BuildEnv::has('DEB_VENDOR')) {
-        $f = get_vendor_info(Dpkg::BuildEnv::get('DEB_VENDOR'));
+    if (Dpkg::Build::Env::has('DEB_VENDOR')) {
+        $f = get_vendor_info(Dpkg::Build::Env::get('DEB_VENDOR'));
         return $f->{'Vendor'} if defined $f;
     }
     $f = get_vendor_info();
@@ -159,6 +162,7 @@ sub get_vendor_object {
 
     foreach my $name (@names) {
         eval qq{
+            pop \@INC if \$INC[-1] eq '.';
             require Dpkg::Vendor::$name;
             \$obj = Dpkg::Vendor::$name->new();
         };
@@ -198,6 +202,10 @@ New function: get_vendor_dir().
 =head2 Version 1.00 (dpkg 1.16.1)
 
 Mark the module as public.
+
+=head1 SEE ALSO
+
+deb-origin(5).
 
 =cut
 

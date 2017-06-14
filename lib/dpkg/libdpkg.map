@@ -19,6 +19,11 @@ global:
 	dpkg_program_done;
 
 	# Ar support
+	dpkg_ar_fdopen;
+	dpkg_ar_create;
+	dpkg_ar_open;
+	dpkg_ar_set_mtime;
+	dpkg_ar_close;
 	dpkg_ar_normalize_name;
 	dpkg_ar_member_is_illegal;
 
@@ -27,6 +32,11 @@ local:
 };
 
 LIBDPKG_PRIVATE {
+	# Color handling
+	color_set_mode;
+	color_get;
+	color_reset;
+
 	# Error handling
 	push_error_context_jump;
 	push_error_context_func;
@@ -48,6 +58,7 @@ LIBDPKG_PRIVATE {
 	warningv;
 	warning;
 	notice;
+	info;
 
 	debug_set_output;
 	debug_set_mask;
@@ -95,10 +106,13 @@ LIBDPKG_PRIVATE {
 	varbuf_dup_char;
 	varbuf_map_char;
 	varbuf_add_buf;
+	varbuf_get_str;
 	varbuf_end_str;
 	varbuf_printf;
 	varbuf_vprintf;
 	varbuf_detach;
+	varbuf_snapshot;
+	varbuf_rollback;
 	varbuf_destroy;
 
 	# Path, directory and file functions
@@ -115,6 +129,14 @@ LIBDPKG_PRIVATE {
 	dir_sync_path;
 	dir_sync_path_parent;
 	dir_sync_contents;
+
+	treenode_get_mode;
+	treenode_get_virtname;
+	treenode_get_pathname;
+	treewalk_open;
+	treewalk_node;
+	treewalk_next;
+	treewalk_close;
 
 	file_copy_perms;
 	file_show;
@@ -204,6 +226,8 @@ LIBDPKG_PRIVATE {
 	progress_done;
 
 	# Tar support
+	tar_atoul;
+	tar_atosl;
 	tar_extractor;
 	tar_entry_update_from_system;
 
@@ -251,8 +275,10 @@ LIBDPKG_PRIVATE {
 	pkg_sorter_by_nonambig_name_arch;
 	varbuf_add_pkgbin_name;
 	varbuf_add_archqual;
+	varbuf_add_source_version;
 	pkgbin_name;
 	pkg_name;
+	pkg_source_version;
 	pkgbin_summary;
 	pkg_abbrev_want;
 	pkg_abbrev_status;

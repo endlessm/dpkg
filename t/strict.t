@@ -17,24 +17,18 @@ use strict;
 use warnings;
 
 use Test::More;
-use Test::Dpkg;
+use Test::Dpkg qw(:needs);
 
-eval q{
-    use Test::Strict;
-    $Test::Strict::TEST_WARNINGS = 1;
-};
-plan skip_all => 'Test::Strict required for testing syntax' if $@;
+test_needs_module('Test::Strict');
+test_needs_srcdir_switch();
 
-if (defined $ENV{srcdir}) {
-    chdir $ENV{srcdir} or die "cannot chdir to source directory: $!";
-}
+eval '$Test::Strict::TEST_WARNINGS = 1';
 
 my @files = Test::Dpkg::all_perl_files();
 
-plan tests => scalar @files * 3;
+plan tests => scalar @files * 2;
 
 for my $file (@files) {
-    syntax_ok($file);
     strict_ok($file);
     warnings_ok($file);
 }

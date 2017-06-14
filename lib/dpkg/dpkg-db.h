@@ -310,8 +310,10 @@ enum parsedbflags {
   pdb_ignoreolder		= DPKG_BIT(5),
   /** Perform laxer version parsing. */
   pdb_lax_version_parser	= DPKG_BIT(6),
+  /** Perform laxer control stanza parsing. */
+  pdb_lax_stanza_parser		= DPKG_BIT(9),
   /** Perform laxer parsing, used to transition to stricter parsing. */
-  pdb_lax_parser		= pdb_lax_version_parser,
+  pdb_lax_parser		= pdb_lax_stanza_parser | pdb_lax_version_parser,
   /** Close file descriptor on context destruction. */
   pdb_close_fd			= DPKG_BIT(7),
   /** Interpret filename ‘-’ as stdin. */
@@ -378,6 +380,14 @@ void varbuf_add_pkgbin_name(struct varbuf *vb, const struct pkginfo *pkg,
 const char *pkgbin_name(struct pkginfo *pkg, struct pkgbin *pkgbin,
                         enum pkg_name_arch_when pnaw);
 const char *pkg_name(struct pkginfo *pkg, enum pkg_name_arch_when pnaw);
+
+void
+pkg_source_version(struct dpkg_version *version,
+                   const struct pkginfo *pkg, const struct pkgbin *pkgbin);
+
+void
+varbuf_add_source_version(struct varbuf *vb,
+                          const struct pkginfo *pkg, const struct pkgbin *pkgbin);
 
 const char *pkg_want_name(const struct pkginfo *pkg);
 const char *pkg_status_name(const struct pkginfo *pkg);

@@ -38,6 +38,7 @@
 #include <dirent.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -116,7 +117,7 @@ show_prompt(const char *cfgfile, const char *realold, const char *realnew,
 		        _("     Version in package is the same as at last installation.\n"));
 	}
 
-	/* No --force-confdef but a forcible situtation. */
+	/* No --force-confdef but a forcible situation. */
 	/* TODO: check if this condition can not be simplified to
 	 *       just !fc_conff_def */
 	if (!(fc_conff_def && (what & (CFOF_INSTALL | CFOF_KEEP)))) {
@@ -264,7 +265,7 @@ spawn_shell(const char *confold, const char *confnew)
  * @param distedited A flag to indicate whether the file has been updated
  *        between package versions. Set to nonzero to indicate that the file
  *        has been updated.
- * @param what Hints on what action should be taken by defualt.
+ * @param what Hints on what action should be taken by default.
  *
  * @return The action which should be taken based on user input and/or the
  *         default actions as configured by cmdline/configuration options.
@@ -323,7 +324,7 @@ promptconfaction(struct pkginfo *pkg, const char *cfgfile,
  *
  * When the first instance of a package set is configured, the *.dpkg-new
  * files gets installed into their destination, which makes configuration of
- * conffiles from subsequent package instances be skept along with updates
+ * conffiles from subsequent package instances be skipped along with updates
  * to the Conffiles field hash.
  *
  * In case the conffile has already been processed, sync the hash from an
@@ -759,8 +760,11 @@ conffderef(struct pkginfo *pkg, struct varbuf *result, const char *in)
 			} else if (r != stab.st_size) {
 				warning(_("symbolic link '%.250s' size has "
 				          "changed from %jd to %zd"),
-				        result->buf, stab.st_size, r);
-				return -1;
+				        result->buf, (intmax_t)stab.st_size, r);
+				/* If the returned size is smaller, let's
+				 * proceed, otherwise error out. */
+				if (r > stab.st_size)
+					return -1;
 			}
 			varbuf_trunc(&target, r);
 			varbuf_end_str(&target);

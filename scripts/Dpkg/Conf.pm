@@ -18,7 +18,9 @@ package Dpkg::Conf;
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.03';
+
+use Carp;
 
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
@@ -38,7 +40,7 @@ Dpkg::Conf - parse dpkg configuration files
 =head1 DESCRIPTION
 
 The Dpkg::Conf object can be used to read options from a configuration
-file. It can exports an array that can then be parsed exactly like @ARGV.
+file. It can export an array that can then be parsed exactly like @ARGV.
 
 =head1 METHODS
 
@@ -79,16 +81,91 @@ Returns the list of options that can be parsed like @ARGV.
 
 sub get_options {
     my $self = shift;
+
     return @{$self->{options}};
+}
+
+=item get()
+
+=item set()
+
+Obsolete functions, use get_options() instead. They will croak.
+
+=cut
+
+sub get {
+    croak 'obsolete function, use get_options instead';
+}
+
+sub set {
+    croak 'obsolete function, use get_options instead';
 }
 
 =item $conf->load($file)
 
 Read options from a file. Return the number of options parsed.
 
+=item $conf->load_system_config($file)
+
+Read options from a system configuration file.
+
+Return the number of options parsed.
+
+=cut
+
+sub load_system_config {
+    my ($self, $file) = @_;
+
+    return 0 unless -e "$Dpkg::CONFDIR/$file";
+    return $self->load("$Dpkg::CONFDIR/$file");
+}
+
+=item $conf->load_user_config($file)
+
+Read options from a user configuration file. It will try to use the XDG
+directory, either $XDG_CONFIG_HOME/dpkg/ or $HOME/.config/dpkg/.
+
+Return the number of options parsed.
+
+=cut
+
+sub load_user_config {
+    my ($self, $file) = @_;
+
+    my $confdir = $ENV{XDG_CONFIG_HOME};
+    $confdir ||= $ENV{HOME} . '/.config' if length $ENV{HOME};
+
+    return 0 unless length $confdir;
+    return 0 unless -e "$confdir/dpkg/$file";
+    return $self->load("$confdir/dpkg/$file") if length $confdir;
+    return 0;
+}
+
+=item $conf->load_config($file)
+
+Read options from system and user configuration files.
+
+Return the number of options parsed.
+
+=cut
+
+sub load_config {
+    my ($self, $file) = @_;
+
+    my $nopts = 0;
+
+    $nopts += $self->load_system_config($file);
+    $nopts += $self->load_user_config($file);
+
+    return $nopts;
+}
+
 =item $conf->parse($fh)
 
-Parse options from a file handle. Return the number of options parsed.
+Parse options from a file handle. When called multiple times, the parsed
+options are accumulated.
+
+Return the number of options parsed.
 
 =cut
 
@@ -126,12 +203,10 @@ sub parse {
     return $count;
 }
 
-=item $conf->filter(remove => $rmfunc)
-
-=item $conf->filter(keep => $keepfunc)
+=item $conf->filter(%opts)
 
 Filter the list of options, either removing or keeping all those that
-return true when &$rmfunc($option) or &keepfunc($option) is called.
+return true when $opts{remove}->($option) or $opts{keep}->($option) is called.
 
 =cut
 
@@ -140,7 +215,9 @@ sub filter {
     my $remove = $opts{remove} // sub { 0 };
     my $keep = $opts{keep} // sub { 1 };
 
-    @{$self->{options}} = grep { not &$remove($_) and &$keep($_) }
+    croak 'obsolete option format_argv' if exists $opts{format_argv};
+
+    @{$self->{options}} = grep { not $remove->($_) and $keep->($_) }
                                @{$self->{options}};
 }
 
@@ -164,9 +241,7 @@ sub output {
     my $ret = '';
     foreach my $opt ($self->get_options()) {
 	$opt =~ s/^--//;
-	if ($opt =~ s/^([^=]+)=/$1 = "/) {
-	    $opt .= '"';
-	}
+	$opt =~ s/^([^=]+)=(.*)$/$1 = "$2"/;
 	$opt .= "\n";
 	print { $fh } $opt if defined $fh;
 	$ret .= $opt;
@@ -178,6 +253,21 @@ sub output {
 
 =head1 CHANGES
 
+=head2 Version 1.03 (dpkg 1.18.8)
+
+Obsolete option: 'format_argv' in $conf->filter().
+
+Obsolete methods: $conf->get(), $conf->set().
+
+New methods: $conf->load_system_config(), $conf->load_system_user(),
+$conf->load_config().
+
+=head2 Version 1.02 (dpkg 1.18.5)
+
+New option: Accept new option 'format_argv' in $conf->filter().
+
+New methods: $conf->get(), $conf->set().
+
 =head2 Version 1.01 (dpkg 1.15.8)
 
 New method: $conf->filter()
@@ -185,10 +275,6 @@ New method: $conf->filter()
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

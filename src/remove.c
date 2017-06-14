@@ -171,9 +171,14 @@ void deferred_remove(struct pkginfo *pkg) {
 
   pkg_conffiles_mark_old(pkg);
 
-  printf(_("Removing %s (%s) ...\n"), pkg_name(pkg, pnaw_nonambig),
-         versiondescribe(&pkg->installed.version, vdew_nonambig));
-  log_action("remove", pkg, &pkg->installed);
+  /* Only print and log removal action once. This avoids duplication when
+   * using --remove and --purge in sequence. */
+  if (pkg->status > PKG_STAT_CONFIGFILES) {
+    printf(_("Removing %s (%s) ...\n"), pkg_name(pkg, pnaw_nonambig),
+           versiondescribe(&pkg->installed.version, vdew_nonambig));
+    log_action("remove", pkg, &pkg->installed);
+  }
+
   trig_activate_packageprocessing(pkg);
   if (pkg->status >= PKG_STAT_HALFCONFIGURED) {
     static enum pkgstatus oldpkgstatus;
@@ -247,7 +252,7 @@ removal_bulk_file_is_shared(struct pkginfo *pkg, struct filenamenode *namenode)
 static void
 removal_bulk_remove_files(struct pkginfo *pkg)
 {
-  struct reversefilelistiter rlistit;
+  struct reversefilelistiter rev_iter;
   struct fileinlist *leftover;
   struct filenamenode *namenode;
   static struct varbuf fnvb;
@@ -258,9 +263,9 @@ removal_bulk_remove_files(struct pkginfo *pkg)
     modstatdb_note(pkg);
     push_checkpoint(~ehflag_bombout, ehflag_normaltidy);
 
-    reversefilelist_init(&rlistit,pkg->clientdata->files);
+    reversefilelist_init(&rev_iter, pkg->clientdata->files);
     leftover = NULL;
-    while ((namenode= reversefilelist_next(&rlistit))) {
+    while ((namenode = reversefilelist_next(&rev_iter))) {
       struct filenamenode *usenode;
       bool is_dir;
 
@@ -369,7 +374,7 @@ removal_bulk_remove_files(struct pkginfo *pkg)
 }
 
 static void removal_bulk_remove_leftover_dirs(struct pkginfo *pkg) {
-  struct reversefilelistiter rlistit;
+  struct reversefilelistiter rev_iter;
   struct fileinlist *leftover;
   struct filenamenode *namenode;
   static struct varbuf fnvb;
@@ -381,9 +386,9 @@ static void removal_bulk_remove_leftover_dirs(struct pkginfo *pkg) {
   modstatdb_note(pkg);
   push_checkpoint(~ehflag_bombout, ehflag_normaltidy);
 
-  reversefilelist_init(&rlistit,pkg->clientdata->files);
+  reversefilelist_init(&rev_iter, pkg->clientdata->files);
   leftover = NULL;
-  while ((namenode= reversefilelist_next(&rlistit))) {
+  while ((namenode = reversefilelist_next(&rev_iter))) {
     struct filenamenode *usenode;
 
     debug(dbg_eachfile, "removal_bulk '%s' flags=%o",
@@ -514,6 +519,7 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
     modstatdb_note(pkg);
 
     for (conff= pkg->installed.conffiles; conff; conff= conff->next) {
+      struct filenamenode *namenode, *usenode;
     static struct varbuf fnvb, removevb;
       struct varbuf_state removevb_state;
 
@@ -527,6 +533,12 @@ static void removal_bulk_remove_configfiles(struct pkginfo *pkg) {
             conff->name, rc == -1 ? "<rc == -1>" : fnvb.buf);
       if (rc == -1)
         continue;
+
+      namenode = findnamenode(conff->name, 0);
+      usenode = namenodetouse(namenode, pkg, &pkg->installed);
+
+      trig_path_activate(usenode, pkg);
+
       conffnameused = fnvb.used;
       if (unlink(fnvb.buf) && errno != ENOENT && errno != ENOTDIR)
         ohshite(_("cannot remove old config file '%.250s' (= '%.250s')"),

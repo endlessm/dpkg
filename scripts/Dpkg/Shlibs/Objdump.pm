@@ -83,40 +83,150 @@ sub has_object {
     return exists $self->{objects}{$objid};
 }
 
+use constant {
+    ELF_BITS_NONE           => 0,
+    ELF_BITS_32             => 1,
+    ELF_BITS_64             => 2,
+
+    ELF_ORDER_NONE          => 0,
+    ELF_ORDER_2LSB          => 1,
+    ELF_ORDER_2MSB          => 2,
+
+    ELF_MACH_SPARC          => 2,
+    ELF_MACH_MIPS           => 8,
+    ELF_MACH_SPARC64_OLD    => 11,
+    ELF_MACH_SPARC32PLUS    => 18,
+    ELF_MACH_PPC64          => 21,
+    ELF_MACH_S390           => 22,
+    ELF_MACH_ARM            => 40,
+    ELF_MACH_ALPHA_OLD      => 41,
+    ELF_MACH_SH             => 42,
+    ELF_MACH_SPARC64        => 43,
+    ELF_MACH_IA64           => 50,
+    ELF_MACH_AVR            => 83,
+    ELF_MACH_M32R           => 88,
+    ELF_MACH_MN10300        => 89,
+    ELF_MACH_MN10200        => 90,
+    ELF_MACH_OR1K           => 92,
+    ELF_MACH_XTENSA         => 94,
+    ELF_MACH_MICROBLAZE     => 189,
+    ELF_MACH_AVR_OLD        => 0x1057,
+    ELF_MACH_OR1K_OLD       => 0x8472,
+    ELF_MACH_ALPHA          => 0x9026,
+    ELF_MACH_M32R_CYGNUS    => 0x9041,
+    ELF_MACH_S390_OLD       => 0xa390,
+    ELF_MACH_XTENSA_OLD     => 0xabc7,
+    ELF_MACH_MICROBLAZE_OLD => 0xbaab,
+    ELF_MACH_MN10300_CYGNUS => 0xbeef,
+    ELF_MACH_MN10200_CYGNUS => 0xdead,
+
+    ELF_VERSION_NONE        => 0,
+    ELF_VERSION_CURRENT     => 1,
+
+    # List of processor flags that might influence the ABI.
+
+    ELF_FLAG_ARM_ALIGN8     => 0x00000040,
+    ELF_FLAG_ARM_NEW_ABI    => 0x00000080,
+    ELF_FLAG_ARM_OLD_ABI    => 0x00000100,
+    ELF_FLAG_ARM_SOFT_FLOAT => 0x00000200,
+    ELF_FLAG_ARM_HARD_FLOAT => 0x00000400,
+    ELF_FLAG_ARM_EABI_MASK  => 0xff000000,
+
+    ELF_FLAG_IA64_ABI64     => 0x00000010,
+
+    ELF_FLAG_MIPS_ABI2      => 0x00000020,
+    ELF_FLAG_MIPS_32BIT     => 0x00000100,
+    ELF_FLAG_MIPS_FP64      => 0x00000200,
+    ELF_FLAG_MIPS_NAN2008   => 0x00000400,
+    ELF_FLAG_MIPS_ABI_MASK  => 0x0000f000,
+    ELF_FLAG_MIPS_ARCH_MASK => 0xf0000000,
+
+    ELF_FLAG_PPC64_ABI64    => 0x00000003,
+
+    ELF_FLAG_SH_MACH_MASK   => 0x0000001f,
+};
+
+# These map alternative or old machine IDs to their canonical form.
+my %elf_mach_map = (
+    ELF_MACH_ALPHA_OLD()        => ELF_MACH_ALPHA,
+    ELF_MACH_AVR_OLD()          => ELF_MACH_AVR,
+    ELF_MACH_M32R_CYGNUS()      => ELF_MACH_M32R,
+    ELF_MACH_MICROBLAZE_OLD()   => ELF_MACH_MICROBLAZE,
+    ELF_MACH_MN10200_CYGNUS()   => ELF_MACH_MN10200,
+    ELF_MACH_MN10300_CYGNUS()   => ELF_MACH_MN10300,
+    ELF_MACH_OR1K_OLD()         => ELF_MACH_OR1K,
+    ELF_MACH_S390_OLD()         => ELF_MACH_S390,
+    ELF_MACH_SPARC32PLUS()      => ELF_MACH_SPARC,
+    ELF_MACH_SPARC64_OLD()      => ELF_MACH_SPARC64,
+    ELF_MACH_XTENSA_OLD()       => ELF_MACH_XTENSA,
+);
+
+# These masks will try to expose processor flags that are ABI incompatible,
+# and as such are part of defining the architecture ABI. If uncertain it is
+# always better to not mask a flag, because that preserves the historical
+# behavior, and we do not drop dependencies.
+my %elf_flags_mask = (
+    ELF_MACH_IA64()     => ELF_FLAG_IA64_ABI64,
+    ELF_MACH_MIPS()     => ELF_FLAG_MIPS_ABI_MASK | ELF_FLAG_MIPS_ABI2,
+    ELF_MACH_PPC64()    => ELF_FLAG_PPC64_ABI64,
+);
+
 sub get_format {
-    my ($file, $objdump) = @_;
+    my ($file) = @_;
     state %format;
 
-    $objdump //= $OBJDUMP;
+    return $format{$file} if exists $format{$file};
 
-    if (exists $format{$file}) {
-        return $format{$file};
-    } else {
-        my ($output, %opts, $pid, $res);
-        local $_;
+    my $header;
 
-        if ($objdump ne 'objdump') {
-            $opts{error_to_file} = '/dev/null';
-        }
-        $pid = spawn(exec => [ $objdump, '-a', '--', $file ],
-                     env => { LC_ALL => 'C' },
-                     to_pipe => \$output, %opts);
-        while (<$output>) {
-            chomp;
-            if (/^\s*\S+:\s*file\s+format\s+(\S+)\s*$/) {
-                $format{$file} = $1;
-                $res = $format{$file};
-                last;
-            }
-        }
-        close($output);
-        wait_child($pid, nocheck => 1);
-        if ($?) {
-            subprocerr('objdump') if $objdump eq 'objdump';
-            $res = get_format($file, 'objdump');
-        }
-        return $res;
+    open my $fh, '<', $file or syserr(g_('cannot read %s'), $file);
+    my $rc = read $fh, $header, 64;
+    if (not defined $rc) {
+        syserr(g_('cannot read %s'), $file);
+    } elsif ($rc != 64) {
+        return;
     }
+    close $fh;
+
+    my %elf;
+
+    # Unpack the identifier field.
+    @elf{qw(magic bits endian vertype osabi verabi)} = unpack 'a4C5', $header;
+
+    return unless $elf{magic} eq "\x7fELF";
+    return unless $elf{vertype} == ELF_VERSION_CURRENT;
+
+    my ($elf_word, $elf_endian);
+    if ($elf{bits} == ELF_BITS_32) {
+        $elf_word = 'L';
+    } elsif ($elf{bits} == ELF_BITS_64) {
+        $elf_word = 'Q';
+    } else {
+        return;
+    }
+    if ($elf{endian} == ELF_ORDER_2LSB) {
+        $elf_endian = '<';
+    } elsif ($elf{endian} == ELF_ORDER_2MSB) {
+        $elf_endian = '>';
+    } else {
+        return;
+    }
+
+    # Unpack the endianness and size dependent fields.
+    my $tmpl = "x16(S2Lx[${elf_word}3]L)${elf_endian}";
+    @elf{qw(type mach version flags)} = unpack $tmpl, $header;
+
+    # Canonicalize the machine ID.
+    $elf{mach} = $elf_mach_map{$elf{mach}} // $elf{mach};
+
+    # Mask any processor flags that might not change the architecture ABI.
+    $elf{flags} &= $elf_flags_mask{$elf{mach}} // 0;
+
+    # Repack for easy comparison, as a big-endian byte stream, so that
+    # unpacking for output gives meaningful results.
+    $format{$file} = pack 'C2(SL)>', @elf{qw(bits endian mach flags)};
+
+    return $format{$file};
 }
 
 sub is_elf {
@@ -180,6 +290,13 @@ sub analyze {
 
     $self->reset;
     $self->{file} = $file;
+
+    $self->{exec_abi} = Dpkg::Shlibs::Objdump::get_format($file);
+
+    if (not defined $self->{exec_abi}) {
+        warning(g_("unknown executable format in file '%s'"), $file);
+        return;
+    }
 
     local $ENV{LC_ALL} = 'C';
     open(my $objdump, '-|', $OBJDUMP, '-w', '-f', '-p', '-T', '-R', $file)

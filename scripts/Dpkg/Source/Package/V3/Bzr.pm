@@ -52,7 +52,7 @@ sub import {
              'bzr is not in the PATH'));
 }
 
-sub sanity_check {
+sub _sanity_check {
     my $srcdir = shift;
 
     if (! -d "$srcdir/.bzr") {
@@ -106,7 +106,7 @@ sub do_build {
     my $basedirname = $basename;
     $basedirname =~ s/_/-/;
 
-    sanity_check($dir);
+    _sanity_check($dir);
 
     my $old_cwd = getcwd();
     chdir $dir or syserr(g_("unable to chdir to '%s'"), $dir);
@@ -188,14 +188,18 @@ sub do_extract {
               "$basenamerev.bzr.tar.$comp_ext_regex", $tarfile);
     }
 
-    erasedir($newdirectory);
+    if ($self->{options}{no_overwrite_dir} and -e $newdirectory) {
+        error(g_('unpack target exists: %s'), $newdirectory);
+    } else {
+        erasedir($newdirectory);
+    }
 
     # Extract main tarball
     info(g_('unpacking %s'), $tarfile);
     my $tar = Dpkg::Source::Archive->new(filename => "$dscdir$tarfile");
     $tar->extract($newdirectory);
 
-    sanity_check($newdirectory);
+    _sanity_check($newdirectory);
 
     my $old_cwd = getcwd();
     chdir($newdirectory)

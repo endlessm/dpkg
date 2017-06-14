@@ -30,7 +30,7 @@ use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::Util qw(:list);
 use Dpkg::File;
-use Dpkg::Arch qw(get_host_arch debarch_eq debarch_is);
+use Dpkg::Arch qw(get_host_arch debarch_eq debarch_is debarch_list_parse);
 use Dpkg::Package;
 use Dpkg::BuildProfiles qw(get_build_profiles);
 use Dpkg::Deps;
@@ -200,6 +200,7 @@ foreach (keys %{$src_fields}) {
         field_transfer_single($src_fields, $fields);
     }
 }
+$substvars->set_field_substvars($src_fields, 'S');
 
 # Scan binary package
 foreach (keys %{$pkg}) {
@@ -212,13 +213,8 @@ foreach (keys %{$pkg}) {
 	if (debarch_eq('all', $v)) {
 	    $fields->{$_} = $v;
 	} else {
-	    my @archlist = split(/\s+/, $v);
-	    my @invalid_archs = grep { m/[^\w-]/ } @archlist;
-	    warning(P_("'%s' is not a legal architecture string.",
-	               "'%s' are not legal architecture strings.",
-	               scalar(@invalid_archs)),
-	            join("' '", @invalid_archs))
-		if @invalid_archs >= 1;
+	    my @archlist = debarch_list_parse($v);
+
 	    if (none { debarch_is($host_arch, $_) } @archlist) {
 		error(g_("current host architecture '%s' does not " .
 			 "appear in package's architecture list (%s)"),
@@ -303,13 +299,11 @@ foreach my $field (field_list_pkg_dep()) {
     }
 }
 
-$fields->{'Built-For-Profiles'} = join ' ', get_build_profiles();
-
-for my $f (qw(Package Version)) {
+for my $f (qw(Package Version Architecture)) {
     error(g_('missing information for output field %s'), $f)
         unless defined $fields->{$f};
 }
-for my $f (qw(Maintainer Description Architecture)) {
+for my $f (qw(Maintainer Description)) {
     warning(g_('missing information for output field %s'), $f)
         unless defined $fields->{$f};
 }
@@ -371,63 +365,56 @@ for my $f (keys %remove) {
     delete $fields->{$f};
 }
 
-my $sversion = $fields->{'Version'};
-$sversion =~ s/^\d+://;
-$forcefilename //= sprintf('%s_%s_%s.%s', $fields->{'Package'}, $sversion,
-                           $fields->{'Architecture'} || '', $pkg_type);
-$forcefilename = $substvars->substvars($forcefilename);
-my $section = $substvars->substvars($fields->{'Section'} || '-');
-my $priority = $substvars->substvars($fields->{'Priority'} || '-');
-
-# Obtain a lock on debian/control to avoid simultaneous updates
-# of debian/files when parallel building is in use
-my $lockfh;
-my $lockfile = 'debian/control';
-$lockfile = $controlfile if not -e $lockfile;
-
-sysopen($lockfh, $lockfile, O_WRONLY)
-    or syserr(g_('cannot write %s'), $lockfile);
-file_lock($lockfh, $lockfile);
-
-my $dist = Dpkg::Dist::Files->new();
-$dist->load($fileslistfile) if -e $fileslistfile;
-
-foreach my $file ($dist->get_files()) {
-    if (defined $file->{package} &&
-        ($file->{package} eq $fields->{'Package'}) &&
-        ($file->{package_type} eq $pkg_type) &&
-        (debarch_eq($file->{arch}, $fields->{'Architecture'} || '') ||
-         debarch_eq($file->{arch}, 'all'))) {
-        $dist->del_file($file->{filename});
-    }
-}
-
-$dist->add_file($forcefilename, $section, $priority);
-$dist->save("$fileslistfile.new");
-
-rename("$fileslistfile.new", $fileslistfile)
-    or syserr(g_('install new files list file'));
-
-# Release the lock
-close($lockfh) or syserr(g_('cannot close %s'), $lockfile);
-
-my $cf;
-my $fh_output;
-if (!$stdout) {
-    $cf = $outputfile // "$packagebuilddir/DEBIAN/control";
-    open($fh_output, '>', "$cf.new")
-        or syserr(g_("cannot open new output control file '%s'"), "$cf.new");
-} else {
-    $fh_output = \*STDOUT;
-}
-
 $fields->apply_substvars($substvars);
-$fields->output($fh_output);
 
-if (!$stdout) {
-    close($fh_output) or syserr(g_('cannot close %s'), "$cf.new");
-    rename("$cf.new", "$cf")
-        or syserr(g_("cannot install output control file '%s'"), $cf);
+if ($stdout) {
+    $fields->output(\*STDOUT);
+} else {
+    $outputfile //= "$packagebuilddir/DEBIAN/control";
+
+    my $sversion = $fields->{'Version'};
+    $sversion =~ s/^\d+://;
+    $forcefilename //= sprintf('%s_%s_%s.%s', $fields->{'Package'}, $sversion,
+                               $fields->{'Architecture'}, $pkg_type);
+    my $section = $fields->{'Section'} || '-';
+    my $priority = $fields->{'Priority'} || '-';
+
+    # Obtain a lock on debian/control to avoid simultaneous updates
+    # of debian/files when parallel building is in use
+    my $lockfh;
+    my $lockfile = 'debian/control';
+    $lockfile = $controlfile if not -e $lockfile;
+
+    sysopen $lockfh, $lockfile, O_WRONLY
+        or syserr(g_('cannot write %s'), $lockfile);
+    file_lock($lockfh, $lockfile);
+
+    my $dist = Dpkg::Dist::Files->new();
+    $dist->load($fileslistfile) if -e $fileslistfile;
+
+    foreach my $file ($dist->get_files()) {
+        if (defined $file->{package} &&
+            ($file->{package} eq $fields->{'Package'}) &&
+            ($file->{package_type} eq $pkg_type) &&
+            (debarch_eq($file->{arch}, $fields->{'Architecture'}) ||
+             debarch_eq($file->{arch}, 'all'))) {
+            $dist->del_file($file->{filename});
+        }
+    }
+
+    $dist->add_file($forcefilename, $section, $priority);
+    $dist->save("$fileslistfile.new");
+
+    rename "$fileslistfile.new", $fileslistfile
+        or syserr(g_('install new files list file'));
+
+    # Release the lock
+    close $lockfh or syserr(g_('cannot close %s'), $lockfile);
+
+    $fields->save("$outputfile.new");
+
+    rename "$outputfile.new", $outputfile
+        or syserr(g_("cannot install output control file '%s'"), $outputfile);
 }
 
 $substvars->warn_about_unused();

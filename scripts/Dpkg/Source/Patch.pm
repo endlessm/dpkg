@@ -30,6 +30,7 @@ use File::Compare;
 use Fcntl ':mode';
 use Time::HiRes qw(stat);
 
+use Dpkg;
 use Dpkg::Gettext;
 use Dpkg::ErrorHandling;
 use Dpkg::IPC;
@@ -491,8 +492,15 @@ sub analyze {
 	}
 
 	if ($filepatched{$fn}) {
-	    warning(g_("diff '%s' patches file %s twice"), $diff, $fn)
-		if $opts{verbose};
+            $filepatched{$fn}++;
+
+            if ($opts{fatal_dupes}) {
+                error(g_("diff '%s' patches files multiple times; split the " .
+                         'diff in multiple files or merge the hunks into a ' .
+                         'single one'), $diff);
+            } elsif ($opts{verbose} and $filepatched{$fn} == 2) {
+                warning(g_("diff '%s' patches file %s more than once"), $diff, $fn)
+            }
 	} else {
 	    $filepatched{$fn} = 1;
 	    push @patchorder, $fn;
@@ -575,7 +583,7 @@ sub apply {
     $self->ensure_open('r');
     my ($stdout, $stderr) = ('', '');
     spawn(
-	exec => [ 'patch', @{$opts{options}} ],
+	exec => [ $Dpkg::PROGPATCH, @{$opts{options}} ],
 	chdir => $destdir,
 	env => { LC_ALL => 'C', LANG => 'C', PATCH_GET => '0' },
 	delete_env => [ 'POSIXLY_CORRECT' ], # ensure expected patch behaviour
@@ -588,7 +596,7 @@ sub apply {
     if ($?) {
 	print { *STDOUT } $stdout;
 	print { *STDERR } $stderr;
-	subprocerr('LC_ALL=C patch ' . join(' ', @{$opts{options}}) .
+	subprocerr("LC_ALL=C $Dpkg::PROGPATCH " . join(' ', @{$opts{options}}) .
 	           ' < ' . $self->get_filename());
     }
     $self->close();
@@ -625,7 +633,7 @@ sub check_apply {
     # Apply the patch
     $self->ensure_open('r');
     my $patch_pid = spawn(
-	exec => [ 'patch', @{$opts{options}} ],
+	exec => [ $Dpkg::PROGPATCH, @{$opts{options}} ],
 	chdir => $destdir,
 	env => { LC_ALL => 'C', LANG => 'C', PATCH_GET => '0' },
 	delete_env => [ 'POSIXLY_CORRECT' ], # ensure expected patch behaviour
@@ -635,7 +643,7 @@ sub check_apply {
     );
     wait_child($patch_pid, nocheck => 1);
     my $exit = WEXITSTATUS($?);
-    subprocerr('patch --dry-run') unless WIFEXITED($?);
+    subprocerr("$Dpkg::PROGPATCH --dry-run") unless WIFEXITED($?);
     $self->close();
     return ($exit == 0);
 }

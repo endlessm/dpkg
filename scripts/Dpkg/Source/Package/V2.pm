@@ -63,6 +63,58 @@ sub init_options {
     $self->{options}{ignore_bad_version} //= 0;
 }
 
+my @module_cmdline = (
+    {
+        name => '--include-removal',
+        help => N_('include removed files in the patch'),
+        when => 'build',
+    }, {
+        name => '--include-timestamp',
+        help => N_('include timestamp in the patch'),
+        when => 'build',
+    }, {
+        name => '--include-binaries',
+        help => N_('include binary files in the tarball'),
+        when => 'build',
+    }, {
+        name => '--no-preparation',
+        help => N_('do not prepare build tree by applying patches'),
+        when => 'build',
+    }, {
+        name => '--no-unapply-patches',
+        help => N_('do not unapply patches if previously applied'),
+        when => 'build',
+    }, {
+        name => '--unapply-patches',
+        help => N_('unapply patches if previously applied (default)'),
+        when => 'build',
+    }, {
+        name => '--create-empty-orig',
+        help => N_('create an empty original tarball if missing'),
+        when => 'build',
+    }, {
+        name => '--abort-on-upstream-changes',
+        help => N_('abort if generated diff has upstream files changes'),
+        when => 'build',
+    }, {
+        name => '--auto-commit',
+        help => N_('record generated patches, instead of aborting'),
+        when => 'build',
+    }, {
+        name => '--skip-debianization',
+        help => N_('do not extract debian tarball into upstream sources'),
+        when => 'extract',
+    }, {
+        name => '--skip-patches',
+        help => N_('do not apply patches at the end of the extraction'),
+        when => 'extract',
+    }
+);
+
+sub describe_cmdline_options {
+    return @module_cmdline;
+}
+
 sub parse_cmdline_option {
     my ($self, $opt) = @_;
     if ($opt eq '--include-removal') {
@@ -156,7 +208,11 @@ sub do_extract {
             if $addonfile{$name} ne substr $addonsign{$name}, 0, -4;
     }
 
-    erasedir($newdirectory);
+    if ($self->{options}{no_overwrite_dir} and -e $newdirectory) {
+        error(g_('unpack target exists: %s'), $newdirectory);
+    } else {
+        erasedir($newdirectory);
+    }
 
     # Extract main tarball
     info(g_('unpacking %s'), $tarfile);
@@ -203,7 +259,7 @@ sub get_autopatch_name {
     return 'zz_debian-diff-auto';
 }
 
-sub get_patches {
+sub _get_patches {
     my ($self, $dir, %opts) = @_;
     $opts{skip_auto} //= 0;
     my @patches;
@@ -225,14 +281,14 @@ sub get_patches {
 sub apply_patches {
     my ($self, $dir, %opts) = @_;
     $opts{skip_auto} //= 0;
-    my @patches = $self->get_patches($dir, %opts);
+    my @patches = $self->_get_patches($dir, %opts);
     return unless scalar(@patches);
     my $applied = File::Spec->catfile($dir, 'debian', 'patches', '.dpkg-source-applied');
     open(my $applied_fh, '>', $applied)
         or syserr(g_('cannot write %s'), $applied);
     print { $applied_fh } "# During $opts{usage}\n";
     my $timestamp = fs_time($applied);
-    foreach my $patch ($self->get_patches($dir, %opts)) {
+    foreach my $patch ($self->_get_patches($dir, %opts)) {
         my $path = File::Spec->catfile($dir, 'debian', 'patches', $patch);
         info(g_('applying %s'), $patch) unless $opts{skip_auto};
         my $patch_obj = Dpkg::Source::Patch->new(filename => $path);
@@ -246,7 +302,7 @@ sub apply_patches {
 
 sub unapply_patches {
     my ($self, $dir, %opts) = @_;
-    my @patches = reverse($self->get_patches($dir, %opts));
+    my @patches = reverse($self->_get_patches($dir, %opts));
     return unless scalar(@patches);
     my $applied = File::Spec->catfile($dir, 'debian', 'patches', '.dpkg-source-applied');
     my $timestamp = fs_time($applied);
@@ -261,7 +317,7 @@ sub unapply_patches {
     unlink($applied);
 }
 
-sub upstream_tarball_template {
+sub _upstream_tarball_template {
     my $self = shift;
     my $ext = '{' . join(',',
         sort map {
@@ -276,7 +332,7 @@ sub can_build {
     return 1 if $self->{options}{create_empty_orig} and
                 $self->find_original_tarballs(include_main => 0);
     return (0, sprintf(g_('no upstream tarball found at %s'),
-                       $self->upstream_tarball_template()));
+                       $self->_upstream_tarball_template()));
 }
 
 sub before_build {
@@ -334,7 +390,7 @@ sub check_patches_applied {
     }
 }
 
-sub generate_patch {
+sub _generate_patch {
     my ($self, $dir, %opts) = @_;
     my ($dirname, $updir) = fileparse($dir);
     my $basedirname = $self->get_basename();
@@ -353,15 +409,17 @@ sub generate_patch {
             $tarfile = $file;
             push @origtarballs, $file;
             $self->add_file($file);
+            $self->add_file("$file.asc") if -e "$file.asc";
         } elsif ($file =~ /\.orig-([[:alnum:]-]+)\.tar\.$comp_ext_regex$/) {
             $addonfile{$1} = $file;
             push @origtarballs, $file;
             $self->add_file($file);
+            $self->add_file("$file.asc") if -e "$file.asc";
         }
     }
 
     error(g_('no upstream tarball found at %s'),
-          $self->upstream_tarball_template()) unless $tarfile;
+          $self->_upstream_tarball_template()) unless $tarfile;
 
     if ($opts{usage} eq 'build') {
         info(g_('building %s using existing %s'),
@@ -405,7 +463,7 @@ sub generate_patch {
         my $analysis = $header_from->analyze($dir, verbose => 0);
         $diff->set_header($analysis->{patchheader});
     } else {
-        $diff->set_header($self->get_patch_header($dir));
+        $diff->set_header($self->_get_patch_header($dir));
     }
     $diff->add_diff_directory($tmp, $dir, basedirname => $basedirname,
             %{$self->{diff_options}},
@@ -509,7 +567,7 @@ sub do_build {
     # Create a patch
     my $autopatch = File::Spec->catfile($dir, 'debian', 'patches',
                                         $self->get_autopatch_name());
-    my $tmpdiff = $self->generate_patch($dir, order_from => $autopatch,
+    my $tmpdiff = $self->_generate_patch($dir, order_from => $autopatch,
                                         header_from => $autopatch,
                                         handle_binary => $handle_binary,
                                         skip_auto => $self->{options}{auto_commit},
@@ -550,7 +608,7 @@ sub do_build {
     $self->add_file($debianfile);
 }
 
-sub get_patch_header {
+sub _get_patch_header {
     my ($self, $dir) = @_;
     my $ph = File::Spec->catfile($dir, 'debian', 'source', 'local-patch-header');
     unless (-f $ph) {
@@ -576,6 +634,8 @@ information below has been extracted from the changelog. Adjust it or drop
 it.\n";
     $header->{'Description'} .= $ch_info->{'Changes'} . "\n";
     $header->{'Author'} = $ch_info->{'Maintainer'};
+    my $yyyy_mm_dd = POSIX::strftime('%Y-%m-%d', gmtime);
+
     $text = "$header";
     run_vendor_hook('extend-patch-header', \$text, $ch_info);
     $text .= "\n---
@@ -589,7 +649,7 @@ Bug-Debian: https://bugs.debian.org/<bugnumber>
 Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
 Forwarded: <no|not-needed|url proving that it has been forwarded>
 Reviewed-By: <name and email of someone who approved the patch>
-Last-Update: <YYYY-MM-DD>\n\n";
+Last-Update: $yyyy_mm_dd\n\n";
     return $text;
 }
 
@@ -648,7 +708,7 @@ sub do_commit {
     };
 
     unless ($tmpdiff) {
-        $tmpdiff = $self->generate_patch($dir, handle_binary => $handle_binary,
+        $tmpdiff = $self->_generate_patch($dir, handle_binary => $handle_binary,
                                          usage => 'commit');
         $binaryfiles->update_debian_source_include_binaries();
     }
@@ -662,7 +722,9 @@ sub do_commit {
         # Ask the patch name interactively
         print g_('Enter the desired patch name: ');
         $patch_name = <STDIN>;
-        next unless defined $patch_name;
+        if (not defined $patch_name) {
+            error(g_('no patch name given; cannot proceed'));
+        }
         chomp $patch_name;
         $patch_name =~ s/\s+/-/g;
         $patch_name =~ s/\///g;

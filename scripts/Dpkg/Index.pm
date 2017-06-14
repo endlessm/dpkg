@@ -74,11 +74,12 @@ sub new {
 The "type" option is checked first to define default values for other
 options. Here are the relevant options: "get_key_func" is a function
 returning a key for the item passed in parameters. The index can only
-contain one item with a given key. The function used depend on the
+contain one item with a given key. The function used depends on the
 type: for CTRL_INFO_PKG, CTRL_INDEX_SRC, CTRL_INDEX_PKG and CTRL_PKG_DEB
 it's simply the Package field; for CTRL_PKG_SRC and CTRL_INFO_SRC, it's
 the Source field; for CTRL_CHANGELOG it's the Source and the Version
-fields (concatenated with an intermediary "_"); for CTRL_FILE_CHANGES it's
+fields (concatenated with an intermediary "_"); for CTRL_TESTS is either
+the Tests or Test-Command fields; for CTRL_FILE_CHANGES it's
 the Source, Version and Architecture fields (concatenated with "_");
 for CTRL_FILE_VENDOR it's the Vendor field; for CTRL_FILE_STATUS it's the
 Package and Architecture fields (concatenated with "_"). Otherwise it's
@@ -101,6 +102,18 @@ sub set_options {
 	    $self->{get_key_func} = sub {
 		return $_[0]->{Source} . '_' . $_[0]->{Version};
 	    };
+        } elsif ($t == CTRL_COPYRIGHT_HEADER) {
+            # This is a bit pointless, because the value will almost always
+            # be the same, but guarantees that we use a known field.
+            $self->{get_key_func} = sub { return $_[0]->{Format}; };
+        } elsif ($t == CTRL_COPYRIGHT_FILES) {
+            $self->{get_key_func} = sub { return $_[0]->{Files}; };
+        } elsif ($t == CTRL_COPYRIGHT_LICENSE) {
+            $self->{get_key_func} = sub { return $_[0]->{License}; };
+        } elsif ($t == CTRL_TESTS) {
+            $self->{get_key_func} = sub {
+                return $_[0]->{Tests} || $_[0]->{'Test-Command'};
+            };
         } elsif ($t == CTRL_FILE_CHANGES) {
 	    $self->{get_key_func} = sub {
 		return $_[0]->{Source} . '_' . $_[0]->{Version} . '_' .
@@ -156,8 +169,10 @@ parsed. Handles compressed files transparently based on their extensions.
 
 =item $index->parse($fh, $desc)
 
-Reads the filehandle and creates all items parsed. Returns the number of
-items parsed.
+Reads the filehandle and creates all items parsed. When called multiple
+times, the parsed stanzas are accumulated.
+
+Returns the number of items parsed.
 
 =cut
 
@@ -219,7 +234,8 @@ sub get_keys {
     foreach my $s_crit (keys %crit) { # search criteria
 	if (ref($crit{$s_crit}) eq 'Regexp') {
 	    @selected = grep {
-		$self->{items}{$_}{$s_crit} =~ $crit{$s_crit}
+		exists $self->{items}{$_}{$s_crit} and
+		       $self->{items}{$_}{$s_crit} =~ $crit{$s_crit}
 	    } @selected;
 	} elsif (ref($crit{$s_crit}) eq 'CODE') {
 	    @selected = grep {
@@ -227,7 +243,8 @@ sub get_keys {
 	    } @selected;
 	} else {
 	    @selected = grep {
-		$self->{items}{$_}{$s_crit} eq $crit{$s_crit}
+		exists $self->{items}{$_}{$s_crit} and
+		       $self->{items}{$_}{$s_crit} eq $crit{$s_crit}
 	    } @selected;
 	}
     }
@@ -318,7 +335,7 @@ sub sort {
 
 Get a string representation of the index. The Dpkg::Control objects are
 output in the order which they have been read or added except if the order
-hae been changed with sort().
+have been changed with sort().
 
 =item $index->output($fh)
 
@@ -347,10 +364,6 @@ sub output {
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

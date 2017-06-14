@@ -50,6 +50,7 @@ use constant {
     ALL_PKG => CTRL_INFO_PKG | CTRL_INDEX_PKG | CTRL_PKG_DEB | CTRL_FILE_STATUS,
     ALL_SRC => CTRL_INFO_SRC | CTRL_INDEX_SRC | CTRL_PKG_SRC,
     ALL_CHANGES => CTRL_FILE_CHANGES | CTRL_CHANGELOG,
+    ALL_COPYRIGHT => CTRL_COPYRIGHT_HEADER | CTRL_COPYRIGHT_FILES | CTRL_COPYRIGHT_LICENSE,
 };
 
 use constant {
@@ -65,17 +66,28 @@ use constant {
 # Deprecated fields of dpkg's status file are also not listed
 our %FIELDS = (
     'Architecture' => {
-        allowed => (ALL_PKG | ALL_SRC | CTRL_FILE_CHANGES) & (~CTRL_INFO_SRC),
+        allowed => (ALL_PKG | ALL_SRC | CTRL_FILE_BUILDINFO | CTRL_FILE_CHANGES) & (~CTRL_INFO_SRC),
+        separator => FIELD_SEP_SPACE,
+    },
+    'Architectures' => {
+        allowed => CTRL_REPO_RELEASE,
+        separator => FIELD_SEP_SPACE,
+    },
+    'Auto-Built-Package' => {
+        allowed => ALL_PKG & ~CTRL_INFO_PKG,
         separator => FIELD_SEP_SPACE,
     },
     'Binary' => {
-        allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES,
+        allowed => CTRL_PKG_SRC | CTRL_FILE_BUILDINFO | CTRL_FILE_CHANGES,
         # XXX: This field values are separated either by space or comma
         # depending on the context.
         separator => FIELD_SEP_SPACE | FIELD_SEP_COMMA,
     },
     'Binary-Only' => {
         allowed => ALL_CHANGES,
+    },
+    'Binary-Only-Changes' => {
+        allowed => CTRL_FILE_BUILDINFO,
     },
     'Breaks' => {
         allowed => ALL_PKG,
@@ -85,6 +97,9 @@ our %FIELDS = (
     },
     'Bugs' => {
         allowed => (ALL_PKG | CTRL_INFO_SRC | CTRL_FILE_VENDOR) & (~CTRL_INFO_PKG),
+    },
+    'Build-Architecture' => {
+        allowed => CTRL_FILE_BUILDINFO,
     },
     'Build-Conflicts' => {
         allowed => ALL_SRC,
@@ -103,6 +118,9 @@ our %FIELDS = (
         separator => FIELD_SEP_COMMA,
         dependency => 'union',
         dep_order => 6,
+    },
+    'Build-Date' => {
+        allowed => CTRL_FILE_BUILDINFO,
     },
     'Build-Depends' => {
         allowed => ALL_SRC,
@@ -125,6 +143,12 @@ our %FIELDS = (
     'Build-Essential' => {
         allowed => ALL_PKG,
     },
+    'Build-Origin' => {
+        allowed => CTRL_FILE_BUILDINFO,
+    },
+    'Build-Path' => {
+        allowed => CTRL_FILE_BUILDINFO,
+    },
     'Build-Profiles' => {
         allowed => CTRL_INFO_PKG,
         separator => FIELD_SEP_SPACE,
@@ -142,11 +166,28 @@ our %FIELDS = (
     'Changed-By' => {
         allowed => CTRL_FILE_CHANGES,
     },
+    'Changelogs' => {
+        allowed => CTRL_REPO_RELEASE,
+    },
     'Changes' => {
         allowed => ALL_CHANGES,
     },
+    'Classes' => {
+        allowed => CTRL_TESTS,
+        separator => FIELD_SEP_COMMA,
+    },
     'Closes' => {
         allowed => ALL_CHANGES,
+        separator => FIELD_SEP_SPACE,
+    },
+    'Codename' => {
+        allowed => CTRL_REPO_RELEASE,
+    },
+    'Comment' => {
+        allowed => ALL_COPYRIGHT,
+    },
+    'Components' => {
+        allowed => CTRL_REPO_RELEASE,
         separator => FIELD_SEP_SPACE,
     },
     'Conffiles' => {
@@ -162,17 +203,23 @@ our %FIELDS = (
         dependency => 'union',
         dep_order => 6,
     },
+    'Copyright' => {
+        allowed => CTRL_COPYRIGHT_HEADER | CTRL_COPYRIGHT_FILES,
+    },
     'Date' => {
-        allowed => ALL_CHANGES,
+        allowed => ALL_CHANGES | CTRL_REPO_RELEASE,
     },
     'Depends' => {
-        allowed => ALL_PKG,
+        allowed => ALL_PKG | CTRL_TESTS,
         separator => FIELD_SEP_COMMA,
         dependency => 'normal',
         dep_order => 2,
     },
     'Description' => {
-        allowed => ALL_PKG | CTRL_FILE_CHANGES,
+        allowed => ALL_PKG | CTRL_FILE_CHANGES | CTRL_REPO_RELEASE,
+    },
+    'Disclaimer' => {
+        allowed => CTRL_COPYRIGHT_HEADER,
     },
     'Directory' => {
         allowed => CTRL_INDEX_SRC,
@@ -186,22 +233,36 @@ our %FIELDS = (
         dependency => 'union',
         dep_order => 5,
     },
+    'Environment' => {
+        allowed => CTRL_FILE_BUILDINFO,
+        separator => FIELD_SEP_LINE,
+    },
     'Essential' => {
         allowed => ALL_PKG,
+    },
+    'Features' => {
+        allowed => CTRL_TESTS,
+        separator => FIELD_SEP_SPACE,
     },
     'Filename' => {
         allowed => CTRL_INDEX_PKG,
         separator => FIELD_SEP_LINE | FIELD_SEP_SPACE,
     },
     'Files' => {
-        allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES,
+        allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES | CTRL_COPYRIGHT_FILES,
         separator => FIELD_SEP_LINE | FIELD_SEP_SPACE,
     },
     'Format' => {
-        allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES,
+        allowed => CTRL_PKG_SRC | CTRL_FILE_CHANGES | CTRL_COPYRIGHT_HEADER | CTRL_FILE_BUILDINFO,
     },
     'Homepage' => {
         allowed => ALL_SRC | ALL_PKG,
+    },
+    'Installed-Build-Depends' => {
+        allowed => CTRL_FILE_BUILDINFO,
+        separator => FIELD_SEP_COMMA,
+        dependency => 'union',
+        dep_order => 11,
     },
     'Installed-Size' => {
         allowed => ALL_PKG & ~CTRL_INFO_PKG,
@@ -212,8 +273,14 @@ our %FIELDS = (
     'Kernel-Version' => {
         allowed => ALL_PKG,
     },
+    'Label' => {
+        allowed => CTRL_REPO_RELEASE,
+    },
+    'License' => {
+        allowed => ALL_COPYRIGHT,
+    },
     'Origin' => {
-        allowed => (ALL_PKG | ALL_SRC) & (~CTRL_INFO_PKG),
+        allowed => (ALL_PKG | ALL_SRC | CTRL_REPO_RELEASE) & (~CTRL_INFO_PKG),
     },
     'Maintainer' => {
         allowed => CTRL_PKG_DEB| CTRL_FILE_STATUS | ALL_SRC  | ALL_CHANGES,
@@ -261,6 +328,10 @@ our %FIELDS = (
         dependency => 'union',
         dep_order => 8,
     },
+    'Restrictions' => {
+        allowed => CTRL_TESTS,
+        separator => FIELD_SEP_SPACE,
+    },
     'Section' => {
         allowed => CTRL_INFO_SRC | CTRL_INDEX_SRC | ALL_PKG,
     },
@@ -269,7 +340,7 @@ our %FIELDS = (
         separator => FIELD_SEP_LINE | FIELD_SEP_SPACE,
     },
     'Source' => {
-        allowed => (ALL_PKG | ALL_SRC | ALL_CHANGES) &
+        allowed => (ALL_PKG | ALL_SRC | ALL_CHANGES | CTRL_COPYRIGHT_HEADER | CTRL_FILE_BUILDINFO) &
                    (~(CTRL_INDEX_SRC | CTRL_INFO_PKG)),
     },
     'Standards-Version' => {
@@ -281,6 +352,9 @@ our %FIELDS = (
     },
     'Subarchitecture' => {
         allowed => ALL_PKG,
+    },
+    'Suite' => {
+        allowed => CTRL_REPO_RELEASE,
     },
     'Suggests' => {
         allowed => ALL_PKG,
@@ -295,9 +369,26 @@ our %FIELDS = (
     'Task' => {
         allowed => ALL_PKG,
     },
+    'Test-Command' => {
+        allowed => CTRL_TESTS,
+    },
+    'Tests' => {
+        allowed => CTRL_TESTS,
+        separator => FIELD_SEP_SPACE,
+    },
+    'Tests-Directory' => {
+        allowed => CTRL_TESTS,
+    },
     'Testsuite' => {
         allowed => ALL_SRC,
         separator => FIELD_SEP_COMMA,
+    },
+    'Testsuite-Triggers' => {
+        allowed => ALL_SRC,
+        separator => FIELD_SEP_COMMA,
+    },
+    'Timestamp' => {
+        allowed => CTRL_CHANGELOG,
     },
     'Triggers-Awaited' => {
         allowed => CTRL_FILE_STATUS,
@@ -311,8 +402,17 @@ our %FIELDS = (
         allowed => ALL_SRC,
         separator => FIELD_SEP_COMMA,
     },
+    'Upstream-Name' => {
+        allowed => CTRL_COPYRIGHT_HEADER,
+    },
+    'Upstream-Contact' => {
+        allowed => CTRL_COPYRIGHT_HEADER,
+    },
     'Urgency' => {
         allowed => ALL_CHANGES,
+    },
+    'Valid-Until' => {
+        allowed => CTRL_REPO_RELEASE,
     },
     'Vcs-Browser' => {
         allowed => ALL_SRC,
@@ -348,7 +448,7 @@ our %FIELDS = (
         allowed => CTRL_FILE_VENDOR,
     },
     'Version' => {
-        allowed => (ALL_PKG | ALL_SRC | ALL_CHANGES) &
+        allowed => (ALL_PKG | ALL_SRC | CTRL_FILE_BUILDINFO | ALL_CHANGES) &
                     (~(CTRL_INFO_SRC | CTRL_INFO_PKG)),
     },
 );
@@ -356,14 +456,14 @@ our %FIELDS = (
 my @checksum_fields = map { &field_capitalize("Checksums-$_") } checksums_get_list();
 my @sum_fields = map { $_ eq 'md5' ? 'MD5sum' : &field_capitalize($_) }
                  checksums_get_list();
-&field_register($_, CTRL_PKG_SRC | CTRL_FILE_CHANGES) foreach @checksum_fields;
-&field_register($_, CTRL_INDEX_PKG,
+&field_register($_, CTRL_PKG_SRC | CTRL_FILE_CHANGES | CTRL_FILE_BUILDINFO) foreach @checksum_fields;
+&field_register($_, CTRL_INDEX_PKG | CTRL_REPO_RELEASE,
                 separator => FIELD_SEP_LINE | FIELD_SEP_SPACE) foreach @sum_fields;
 
 our %FIELD_ORDER = (
     CTRL_PKG_DEB() => [
         qw(Package Package-Type Source Version Built-Using Kernel-Version
-        Built-For-Profiles Architecture Subarchitecture
+        Built-For-Profiles Auto-Built-Package Architecture Subarchitecture
         Installer-Menu-Item Essential Origin Bugs
         Maintainer Installed-Size), &field_list_pkg_dep(),
         qw(Section Priority Multi-Arch Homepage Description Tag Task)
@@ -372,8 +472,15 @@ our %FIELD_ORDER = (
         qw(Format Source Binary Architecture Version Origin Maintainer
         Uploaders Homepage Standards-Version Vcs-Browser
         Vcs-Arch Vcs-Bzr Vcs-Cvs Vcs-Darcs Vcs-Git Vcs-Hg Vcs-Mtn
-        Vcs-Svn Testsuite), &field_list_src_dep(), qw(Package-List),
-        @checksum_fields, qw(Files)
+        Vcs-Svn Testsuite Testsuite-Triggers), &field_list_src_dep(),
+        qw(Package-List), @checksum_fields, qw(Files)
+    ],
+    CTRL_FILE_BUILDINFO() => [
+        qw(Format Source Binary Architecture Version
+        Binary-Only-Changes),
+        @checksum_fields,
+        qw(Build-Origin Build-Architecture Build-Date Build-Path
+           Installed-Build-Depends Environment),
     ],
     CTRL_FILE_CHANGES() => [
         qw(Format Date Source Binary Binary-Only Built-For-Profiles Architecture
@@ -383,7 +490,7 @@ our %FIELD_ORDER = (
     ],
     CTRL_CHANGELOG() => [
         qw(Source Binary-Only Version Distribution Urgency Maintainer
-        Date Closes Changes)
+        Timestamp Date Closes Changes)
     ],
     CTRL_FILE_STATUS() => [ # Same as fieldinfos in lib/dpkg/parse.c
         qw(Package Essential Status Priority Section Installed-Size Origin
@@ -391,6 +498,20 @@ our %FIELD_ORDER = (
         Replaces Provides Depends Pre-Depends Recommends Suggests Breaks
         Conflicts Enhances Conffiles Description Triggers-Pending
         Triggers-Awaited)
+    ],
+    CTRL_REPO_RELEASE() => [
+        qw(Origin Label Suite Codename Changelogs Date Valid-Until
+        Architectures Components Description), @sum_fields
+    ],
+    CTRL_COPYRIGHT_HEADER() => [
+        qw(Format Upstream-Name Upstream-Contact Source Disclaimer Comment
+        License Copyright)
+    ],
+    CTRL_COPYRIGHT_FILES() => [
+        qw(Files Copyright License Comment)
+    ],
+    CTRL_COPYRIGHT_LICENSE() => [
+        qw(License Comment)
     ],
 );
 # Order for CTRL_INDEX_PKG is derived from CTRL_PKG_DEB
@@ -481,7 +602,7 @@ $from Dpkg::Control object to the $to Dpkg::Control object.
 Official fields are copied only if the field is allowed in both types of
 objects. Custom fields are treated in a specific manner. When the target
 is not among CTRL_PKG_SRC, CTRL_PKG_DEB or CTRL_FILE_CHANGES, then they
-are alway copied as is (the X- prefix is kept). Otherwise they are not
+are always copied as is (the X- prefix is kept). Otherwise they are not
 copied except if the target object matches the target destination encoded
 in the field name. The initial X denoting custom fields can be followed by
 one or more letters among "S" (Source: corresponds to CTRL_PKG_SRC), "B"
@@ -681,10 +802,6 @@ sub field_insert_before($$@) {
 =head2 Version 1.00 (dpkg 1.17.0)
 
 Mark the module as public.
-
-=head1 AUTHOR
-
-Raphaël Hertzog <hertzog@debian.org>.
 
 =cut
 

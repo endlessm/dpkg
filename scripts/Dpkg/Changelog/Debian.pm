@@ -24,9 +24,8 @@ Dpkg::Changelog::Debian - parse Debian changelogs
 
 =head1 DESCRIPTION
 
-Dpkg::Changelog::Debian parses Debian changelogs as described in the Debian
-policy (version 3.6.2.1 at the time of this writing). See section
-L<"SEE ALSO"> for locations where to find this definition.
+Dpkg::Changelog::Debian parses Debian changelogs as described in
+deb-changelog(5).
 
 The parser tries to ignore most cruft like # or /* */ style comments,
 CVS comments, vim variables, emacs local variables and stuff from
@@ -121,8 +120,10 @@ my $ancient_delimiter_re = qr{
 
 =item $c->parse($fh, $description)
 
-Read the filehandle and parse a Debian changelog in it. Returns the number
-of changelog entries that have been parsed with success.
+Read the filehandle and parse a Debian changelog in it. The data in the
+object is reset before parsing new data.
+
+Returns the number of changelog entries that have been parsed with success.
 
 =cut
 
@@ -155,7 +156,7 @@ sub parse {
 		last if $self->abort_early();
 	    }
 	    $entry->set_part('header', $_);
-	    foreach my $error ($entry->check_header()) {
+	    foreach my $error ($entry->parse_header()) {
 		$self->parse_error($file, $., $error, $_);
 	    }
 	    $expect= START_CHANGES;
@@ -185,7 +186,7 @@ sub parse {
 	    $entry->set_part('trailer', $_);
 	    $entry->extend_part('blank_after_changes', [ @blanklines ]);
 	    @blanklines = ();
-	    foreach my $error ($entry->check_trailer()) {
+	    foreach my $error ($entry->parse_trailer()) {
 		$self->parse_error($file, $., $error, $_);
 	    }
 	    $expect = NEXT_OR_EOF;
@@ -246,22 +247,14 @@ __END__
 
 =back
 
-=head1 SEE ALSO
-
-Dpkg::Changelog
-
-Description of the Debian changelog format in the Debian policy:
-L<https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog>.
-
 =head1 CHANGES
 
 =head2 Version 1.00 (dpkg 1.15.6)
 
 Mark the module as public.
 
-=head1 AUTHORS
+=head1 SEE ALSO
 
-Frank Lichtenheld, E<lt>frank@lichtenheld.deE<gt>
-Raphaël Hertzog, E<lt>hertzog@debian.orgE<gt>
+Dpkg::Changelog
 
 =cut
