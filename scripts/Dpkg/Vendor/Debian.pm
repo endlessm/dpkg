@@ -31,6 +31,7 @@ use Dpkg::ErrorHandling;
 use Dpkg::Control::Types;
 use Dpkg::BuildOptions;
 use Dpkg::Arch qw(get_host_arch debarch_to_debtuple);
+use Dpkg::BuildProfiles qw(get_build_profiles);
 
 use parent qw(Dpkg::Vendor::Default);
 
@@ -84,6 +85,42 @@ sub run_hook {
 	$self->_add_reproducible_flags(@params);
 	$self->_add_sanitize_flags(@params);
 	$self->_add_hardening_flags(@params);
+
+	# Set flags for non-/usr prefix
+	my $flags = shift @params;
+	my @build_profiles = get_build_profiles();
+	if (grep {/^(xdg-app|eos-app)$/} @build_profiles) {
+	    my $prefix;
+
+	    if (grep {/^xdg-app$/} @build_profiles) {
+		# Xdg-App always uses /app prefix
+		$prefix = '/app';
+	    } elsif (grep {/^eos-app$/} @build_profiles) {
+		# Endless bundles have per-app /endless/$app prefix
+                require Dpkg::Control::Info;
+		my $control = Dpkg::Control::Info->new();
+		my $mainpackage = $control->get_pkg_by_idx(1);
+		my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
+		$prefix = "/endless/$app_id";
+	    }
+
+	    # Header search path
+	    my $includepath = "$prefix/include";
+	    $flags->append('CPPFLAGS', "-I$includepath");
+	    $flags->append('CFLAGS', "-I$includepath");
+	    $flags->append('CXXFLAGS', "-I$includepath");
+
+	    # Library search and run path
+	    my $libpath = "$prefix/lib";
+	    if ($ENV{DEB_HOST_MULTIARCH}) {
+		my $archlibpath = "$libpath/" . $ENV{DEB_HOST_MULTIARCH};
+		$flags->append('LDFLAGS', "-L$archlibpath");
+		$flags->append('LDFLAGS', "-Wl,-rpath,$archlibpath");
+	    }
+	    $flags->append('LDFLAGS', "-L$libpath");
+	    $flags->append('LDFLAGS', "-Wl,-rpath,$libpath");
+	}
+
     } elsif ($hook eq 'builtin-system-build-paths') {
         return qw(/build/);
     } else {
