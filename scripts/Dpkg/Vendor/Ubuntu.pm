@@ -30,7 +30,6 @@ use Dpkg::Path qw(find_command);
 use Dpkg::Control::Types;
 use Dpkg::BuildOptions;
 use Dpkg::Arch qw(debarch_eq get_host_arch);
-use Dpkg::BuildProfiles qw(get_build_profiles);
 
 use parent qw(Dpkg::Vendor::Debian);
 
@@ -116,41 +115,6 @@ sub run_hook {
 
 	# Run the Debian hook to add hardening flags
 	$self->SUPER::run_hook($hook, $flags);
-
-	# Set flags for non-/usr prefix
-	my @build_profiles = get_build_profiles();
-	if (grep {/^(xdg-app|eos-app)$/} @build_profiles) {
-	    my $prefix;
-
-	    if (grep {/^xdg-app$/} @build_profiles) {
-		# Xdg-App always uses /app prefix
-		$prefix = '/app';
-	    } elsif (grep {/^eos-app$/} @build_profiles) {
-		# Endless bundles have per-app /endless/$app prefix
-                require Dpkg::Control::Info;
-		my $control = Dpkg::Control::Info->new();
-		my $mainpackage = $control->get_pkg_by_idx(1);
-		my $app_id = $mainpackage->{'Xcbs-Eos-Appid'} || $mainpackage->{'Package'};
-		$prefix = "/endless/$app_id";
-	    }
-
-	    # Header search path
-	    my $includepath = "$prefix/include";
-	    $flags->append('CPPFLAGS', "-I$includepath");
-	    $flags->append('CFLAGS', "-I$includepath");
-	    $flags->append('CXXFLAGS', "-I$includepath");
-
-	    # Library search and run path
-	    my $libpath = "$prefix/lib";
-	    if ($ENV{DEB_HOST_MULTIARCH}) {
-		my $archlibpath = "$libpath/" . $ENV{DEB_HOST_MULTIARCH};
-		$flags->append('LDFLAGS', "-L$archlibpath");
-		$flags->append('LDFLAGS', "-Wl,-rpath,$archlibpath");
-	    }
-	    $flags->append('LDFLAGS', "-L$libpath");
-	    $flags->append('LDFLAGS', "-Wl,-rpath,$libpath");
-	}
-
     } else {
         return $self->SUPER::run_hook($hook, @params);
     }
